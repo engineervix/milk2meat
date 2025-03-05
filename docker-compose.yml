@@ -1,0 +1,15 @@
+services:
+  db:
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: milk2meat
+      POSTGRES_PASSWORD: milk2meat
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:

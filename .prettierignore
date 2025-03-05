@@ -1,0 +1,26 @@
+# Ignore CHANGELOG
+CHANGELOG.md
+
+# Ignore all HTML/MJML files:
+*.html
+*.mjml
+# **/**/*.html
+# **/**/*.mjml
+
+# Ignore images
+**/assets/img/**/*.*
+
+# Ignore favicon webmanifest
+**/assets/ico/**/*.*
+
+# Ignore things in the vendors folder
+**/vendors/**/*.*
+
+# ignore lottiefiles
+**/img/lottiefiles/*.json
+
+# Ignore static assets build folder
+**/static/**/*.*
+
+# Ignore collectstatic folder
+**/staticfiles/**/*.*

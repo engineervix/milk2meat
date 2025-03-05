@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extrameta %}
+    <meta name="description" content="A tool to help one get into The Word of God">
+    <meta name="author" content="Victor Miti">
+    <meta property="og:title" content="{{ page.title }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="A tool to help one get into The Word of God">
+    <meta property="og:site_name" content="Milk to Meat">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    <meta property="og:image" content="https://picsum.photos/480/270" />
+    <meta property="og:locale" content="en_ZM" />
+    <meta property="og:locale:alternate" content="en_ZA" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:locale:alternate" content="en_US" />
+{% endblock extrameta %}
+
+{% block promo_block %}
+    <div>
+        <h1>Welcome to Milk to Meat Homepage</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    </div>
+{% endblock promo_block %}
+{% block content %}
+    <main>
+        <div>
+            <p>Let's get to work ⚒️</p>
+        </div>
+    </main>
+{% endblock content %}

@@ -1,0 +1,81 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+      - id: check-ast
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: ^.+\.min\.(js|css)$
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.7
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.35.2
+    hooks:
+      - id: djlint-django
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.29.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        stages: [pre-commit]
+        exclude: >
+          (?x)^(
+              (.*)/static|
+              (.*)/vendors|
+              ^.+\.html$|
+              ^.+\.mjml$|
+              package-lock.json|
+              (.*)/img/lottiefiles|
+              ^.+\.min\.(js|css)$
+          )$
+        additional_dependencies:
+          - prettier@3.3.3
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v16.9.0
+    hooks:
+      - id: stylelint
+        additional_dependencies:
+          - "postcss-scss"
+          - "stylelint@16.7.0"
+          - "stylelint-config-standard-scss@13.1.0"
+        exclude: >
+          (?x)^(
+              (.*)/static|
+              (.*)/vendors|
+              ^.+\.min\.(css)$
+          )$
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.21.0" # replace with latest tag on GitHub
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "5.1"] # Replace with Django version
+  - repo: https://github.com/python-poetry/poetry
+    rev: "1.8.5" # add version here
+    hooks:
+      - id: poetry-check
