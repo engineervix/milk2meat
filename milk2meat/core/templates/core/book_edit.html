@@ -66,17 +66,55 @@
 {% endblock promo_block %}
 
 {% block extra_css %}
-    {# Using local EasyMDE CSS #}
+    {# Editor styles will be included by webpack #}
     <style>
+        /* Override EasyMDE styles for better integration with DaisyUI */
+        .editor-toolbar {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            border-bottom: none;
+            opacity: 1;
+        }
+
+        .CodeMirror {
+            border-top: none;
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
         .CodeMirror, .CodeMirror-scroll {
             min-height: 150px;
         }
+
+        /* Dark mode compatibility */
+        [data-theme="night"] .editor-toolbar {
+            background-color: hsl(var(--b3));
+            border-color: hsl(var(--b3));
+        }
+
+        [data-theme="night"] .editor-toolbar button {
+            color: hsl(var(--bc));
+        }
+
+        [data-theme="night"] .editor-toolbar button:hover,
+        [data-theme="night"] .editor-toolbar button.active {
+            background: hsl(var(--b2));
+        }
+
+        [data-theme="night"] .CodeMirror {
+            background-color: hsl(var(--b2));
+            color: hsl(var(--bc));
+            border-color: hsl(var(--b3));
+        }
+
+        /* Timeline editor styles */
         .timeline-editor .timeline-event {
             margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 0.5rem;
             background-color: rgba(var(--b2, 212 212 212) / 0.2);
         }
+
         .timeline-editor .timeline-event-actions {
             display: flex;
             justify-content: flex-end;
