@@ -17,7 +17,7 @@
     <meta property="og:locale:alternate" content="en_US" />
 {% endblock extrameta %}
 {% block promo_block %}
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+    <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white dark:from-primary-800 dark:to-primary-900">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">Welcome to Milk to Meat</h1>
             <p class="mt-6 text-xl max-w-3xl mx-auto">
@@ -26,12 +26,12 @@
             <div class="mt-8 flex justify-center">
                 {% if user.is_authenticated %}
                     <a href="{% url 'dashboard' %}"
-                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-50">
+                       class="btn-primary">
                         Go to Dashboard
                     </a>
                 {% else %}
                     <a href="{% url 'auth:login' %}"
-                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-50">
+                       class="btn-primary">
                         Sign In
                     </a>
                 {% endif %}

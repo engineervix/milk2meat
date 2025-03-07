@@ -34,6 +34,7 @@
     "@babel/core": "^7.24.9",
     "@babel/eslint-parser": "^7.24.8",
     "@babel/preset-env": "^7.25.4",
+    "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.19",
     "babel-loader": "^9.2.1",

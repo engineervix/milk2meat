@@ -10,46 +10,43 @@
 {% block content %}
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">Sign in to Milk2Meat</h2>
-            <p class="mt-2 text-center text-sm text-gray-600">Your personal Bible study companion</p>
+            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-light-900 dark:text-light-100">Sign in to Milk2Meat</h2>
+            <p class="mt-2 text-center text-sm text-light-600 dark:text-light-400">Your personal Bible study companion</p>
         </div>
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form class="space-y-6" method="post" action="{% url 'auth:login' %}">
                 {% csrf_token %}
                 <div>
-                    <label for="{{ form.username.id_for_label }}"
-                           class="block text-sm font-medium leading-6">Email address</label>
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Email address</label>
                     <div class="mt-2">
-                        {{ form.username|add_class:"block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" }}
+                        {{ form.username|add_class:"form-input" }}
                     </div>
-                    {% if form.username.errors %}<p class="mt-2 text-sm text-red-600">{{ form.username.errors|join:", " }}</p>{% endif %}
+                    {% if form.username.errors %}<p class="form-error">{{ form.username.errors|join:", " }}</p>{% endif %}
                 </div>
                 <div>
                     <div class="flex items-center justify-between">
-                        <label for="{{ form.password.id_for_label }}"
-                               class="block text-sm font-medium leading-6">Password</label>
+                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
                     </div>
                     <div class="mt-2">
-                        {{ form.password|add_class:"block w-full rounded-md border-0 py-1.5 px-3 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" }}
+                        {{ form.password|add_class:"form-input" }}
                     </div>
-                    {% if form.password.errors %}<p class="mt-2 text-sm text-red-600">{{ form.password.errors|join:", " }}</p>{% endif %}
+                    {% if form.password.errors %}<p class="form-error">{{ form.password.errors|join:", " }}</p>{% endif %}
                 </div>
                 {% if turnstile_enabled %}
                     <div class="mt-4">
                         <div class="cf-turnstile"
-                             data-sitekey="{{ turnstile_site_key }}"
-                             data-theme="light"></div>
+                            data-sitekey="{{ turnstile_site_key }}"
+                            data-theme="light"></div>
                         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
                                 async
                                 defer></script>
                     </div>
                 {% endif %}
                 {% if form.non_field_errors %}
-                    <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100">{{ form.non_field_errors|join:", " }}</div>
+                    <div class="alert-danger">{{ form.non_field_errors|join:", " }}</div>
                 {% endif %}
                 <div>
-                    <button type="submit"
-                            class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <button type="submit" class="btn-primary w-full">
                         Sign in
                     </button>
                 </div>
