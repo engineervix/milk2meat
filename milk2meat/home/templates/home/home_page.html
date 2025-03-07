@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 {% block extrameta %}
-    <meta name="description" content="A tool to help one get into The Word of God">
+    <meta name="description"
+          content="A tool to help one get into The Word of God">
     <meta name="author" content="Victor Miti">
     <meta property="og:title" content="{{ page.title }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="A tool to help one get into The Word of God">
+    <meta property="og:description"
+          content="A tool to help one get into The Word of God">
     <meta property="og:site_name" content="Milk to Meat">
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
     <meta property="og:image" content="https://picsum.photos/480/270" />
@@ -14,17 +16,57 @@
     <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:locale:alternate" content="en_US" />
 {% endblock extrameta %}
-
 {% block promo_block %}
-    <div>
-        <h1>Welcome to Milk to Meat Homepage</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">Welcome to Milk to Meat</h1>
+            <p class="mt-6 text-xl max-w-3xl mx-auto">
+                Your personal Bible study companion to help transition from the basics to deeper understanding.
+            </p>
+            <div class="mt-8 flex justify-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}"
+                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-50">
+                        Go to Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'auth:login' %}"
+                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-gray-50">
+                        Sign In
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endblock promo_block %}
 {% block content %}
-    <main>
-        <div>
-            <p>Let's get to work ⚒️</p>
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">From milk to solid food</h2>
+            <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">
+                "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil."
+                <span class="block mt-2 italic">— Hebrews 5:13-14</span>
+            </p>
+            <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900">Study the Word</h3>
+                        <p class="mt-2 text-sm text-gray-500">Explore the Bible book by book, chapter by chapter.</p>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900">Take Notes</h3>
+                        <p class="mt-2 text-sm text-gray-500">Capture your insights and reflections as you study.</p>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900">Grow Deeper</h3>
+                        <p class="mt-2 text-sm text-gray-500">Track your spiritual growth and understanding over time.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 {% endblock content %}

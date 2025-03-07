@@ -67,22 +67,7 @@
     </head>
     {# djlint:on #}
     <body class="flex flex-col min-h-screen {% block body_class %}{% endblock body_class %}">
-        {% if messages %}
-            <div>
-                {% for message in messages %}
-                    <div>
-                        <div>
-                            {# Alert #}
-                            <div role="alert"
-                                 class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                                <span>{{ message }}</span>
-                                <button type="button" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        {% include "components/messages.html" %}
         <header class="{% block header_class %}{% endblock header_class %}">
             {% block promo_block %}
             {% endblock promo_block %}

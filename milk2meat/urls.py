@@ -19,15 +19,17 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-from milk2meat.home.views import HomeView
+from milk2meat.home.views import DashboardView, HomeView
 
 admin_name = "Milk2Meat Admin"
 admin.site.site_header = admin_name
 admin.site.site_title = admin_name
 
 urlpatterns = [
-    path(settings.ADMIN_URL, admin.site.urls),
     path("", HomeView.as_view(), name="home"),
+    path(settings.ADMIN_URL, admin.site.urls),
+    path("auth/", include("milk2meat.auth.urls", namespace="auth")),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
 ]
 
 if settings.DEBUG:

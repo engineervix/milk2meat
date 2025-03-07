@@ -46,6 +46,7 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 # APPS
 # ------------------------------------------------------------------------------
 LOCAL_APPS = [
+    "milk2meat.auth",
     "milk2meat.core",
     "milk2meat.home",
     "milk2meat.users",
@@ -76,6 +77,15 @@ INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + THIRD_PARTY_APPS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
+
+# https://docs.djangoproject.com/en/5.1/ref/settings/#login-url
+LOGIN_URL = "/auth/login/"
+
+# https://docs.djangoproject.com/en/5.1/ref/settings/#login-redirect-url
+LOGIN_REDIRECT_URL = "/dashboard/"
+
+# https://docs.djangoproject.com/en/5.1/ref/settings/#logout-redirect-url
+LOGOUT_REDIRECT_URL = "/auth/login/"
 
 # MIDDLEWARE
 # https://docs.djangoproject.com/en/5.1/topics/http/middleware/
@@ -251,6 +261,17 @@ MANAGERS = ADMINS
 # ------------------------------------------------------------------------------
 # https://github.com/jazzband/django-taggit
 TAGGIT_CASE_INSENSITIVE = True
+
+# Cloudflare Turnstile
+# ------------------------------------------------------------------------------
+# https://developers.cloudflare.com/turnstile/
+TURNSTILE_SITE_KEY = env("TURNSTILE_SITE_KEY", default=None)
+TURNSTILE_SECRET_KEY = env("TURNSTILE_SECRET_KEY", default=None)
+TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+# Skip Turnstile validation in development
+# We'll check both DEBUG and explicitly look for an env var to allow testing in prod-like environments
+TURNSTILE_SKIP_VALIDATION = DEBUG or env.bool("TURNSTILE_SKIP_VALIDATION", default=False)
 
 # ------------------------------------------------------------------------------
 # CUSTOM SETTINGS
