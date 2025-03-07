@@ -7,6 +7,25 @@
 {# djlint:off H030,H031 #}
 <html lang="en" class="h-full">
     <head>
+        <!-- Prevent theme flicker by setting theme immediately -->
+        <script>
+            (function() {
+                // Get the saved theme from localStorage
+                var savedTheme = localStorage.getItem('milk2meat-theme');
+
+                // If there's a saved theme, apply it immediately
+                if (savedTheme) {
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                } else {
+                    // Check for system preference if no saved theme
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.setAttribute('data-theme', 'emerald');
+                    }
+                }
+            })();
+        </script>
         {# You can add your analytics here #}
         <title>
             {% block title %}
@@ -67,8 +86,8 @@
     </head>
     {# djlint:on #}
     <body class="{% block body_class %}{% endblock body_class %}">
-        {# Theme toggle button #}
-        <div class="theme-toggle">
+        {# Theme toggle button - will be positioned conditionally based on page #}
+        <div class="theme-toggle {% block theme_toggle_class %}{% endblock theme_toggle_class %}">
           <button id="theme-toggle-btn" aria-label="Toggle theme">
             <svg
               class="sun-icon"
