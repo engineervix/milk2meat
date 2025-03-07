@@ -1,6 +1,7 @@
 // Import EasyMDE and its styles
 import EasyMDE from "easymde";
 import "easymde/dist/easymde.min.css";
+import "../css/editor.css";
 
 // Initialize EasyMDE when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {

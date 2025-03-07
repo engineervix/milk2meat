@@ -13,3 +13,14 @@
 [data-theme="night"] .timeline-editor .timeline-event {
   background-color: hsl(var(--b2) / 50%);
 }
+
+/* stylelint-disable selector-class-pattern */
+
+[data-theme="night"] .CodeMirror,
+.cm-s-easymde,
+.CodeMirror-wrap {
+  background-color: oklch(var(--b1));
+  color: oklch(var(--bc));
+}
+
+/* stylelint-enable selector-class-pattern */

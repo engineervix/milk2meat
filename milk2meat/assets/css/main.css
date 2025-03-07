@@ -2,25 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  /* Add smooth transitions when changing themes */
-  html {
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
-  }
-
-  * {
-    transition:
-      background-color 0.3s ease,
-      border-color 0.3s ease,
-      color 0.3s ease,
-      fill 0.3s ease,
-      stroke 0.3s ease,
-      box-shadow 0.3s ease;
-  }
-}
-
 @layer components {
   /* Scripture blocks (for Bible verses) */
   .scripture-block {
