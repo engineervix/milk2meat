@@ -129,62 +129,62 @@
 
                 {# Introduction sections #}
                 <div class="space-y-8">
-                    {% if book.title_and_author %}
+                    {% if title_and_author_html %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body">
                             <h2 class="card-title text-xl">Title and Author</h2>
-                            <div class="prose">
-                                {{ book.title_and_author|linebreaks }}
+                            <div class="prose max-w-none">
+                                {{ title_and_author_html }}
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if book.date_and_occasion %}
+                    {% if date_and_occasion_html %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body">
                             <h2 class="card-title text-xl">Date and Occasion</h2>
-                            <div class="prose">
-                                {{ book.date_and_occasion|linebreaks }}
+                            <div class="prose max-w-none">
+                                {{ date_and_occasion_html }}
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if book.characteristics_and_themes %}
+                    {% if characteristics_and_themes_html %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body">
                             <h2 class="card-title text-xl">Characteristics and Themes</h2>
-                            <div class="prose">
-                                {{ book.characteristics_and_themes|linebreaks }}
+                            <div class="prose max-w-none">
+                                {{ characteristics_and_themes_html }}
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if book.christ_in_book %}
+                    {% if christ_in_book_html %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body">
                             <h2 class="card-title text-xl">Christ in {{ book.title }}</h2>
-                            <div class="prose">
-                                {{ book.christ_in_book|linebreaks }}
+                            <div class="prose max-w-none">
+                                {{ christ_in_book_html }}
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if book.outline %}
+                    {% if outline_html %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body">
                             <h2 class="card-title text-xl">Outline</h2>
-                            <div class="prose">
-                                {{ book.outline|linebreaks }}
+                            <div class="prose max-w-none">
+                                {{ outline_html }}
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
-                    {% if not book.title_and_author and not book.date_and_occasion and not book.characteristics_and_themes and not book.christ_in_book and not book.outline and not timeline_data %}
+                    {% if not title_and_author_html and not date_and_occasion_html and not characteristics_and_themes_html and not christ_in_book_html and not outline_html and not timeline_data %}
                     <div class="card bg-base-100 shadow-xl">
                         <div class="card-body text-center">
                             <h2 class="card-title text-xl mb-4 justify-center">No Introduction Content Yet</h2>

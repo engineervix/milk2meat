@@ -3,10 +3,12 @@ import json
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, UpdateView
 
 from .forms import BookEditForm
 from .models import Book, Testament
+from .utils.markdown import parse_markdown
 
 
 class BookListView(LoginRequiredMixin, ListView):
@@ -29,9 +31,24 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Parse and render markdown fields
+        book = self.object
+        if book.title_and_author:
+            context["title_and_author_html"] = mark_safe(parse_markdown(book.title_and_author))
+        if book.date_and_occasion:
+            context["date_and_occasion_html"] = mark_safe(parse_markdown(book.date_and_occasion))
+        if book.characteristics_and_themes:
+            context["characteristics_and_themes_html"] = mark_safe(parse_markdown(book.characteristics_and_themes))
+        if book.christ_in_book:
+            context["christ_in_book_html"] = mark_safe(parse_markdown(book.christ_in_book))
+        if book.outline:
+            context["outline_html"] = mark_safe(parse_markdown(book.outline))
+
         # Add timeline data if it exists
         if self.object.timeline:
             context["timeline_data"] = self.object.timeline.get("events", [])
+
         return context
 
 
