@@ -98,7 +98,7 @@
                         <label for="{{ form.title_and_author.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Title and Author</span>
                         </label>
-                        {{ form.title_and_author|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"title_and_author" }}
+                        {{ form.title_and_author|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=title_and_author" }}
                         {% if form.title_and_author.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.title_and_author.errors|join:", " }}</span>
@@ -111,7 +111,7 @@
                         <label for="{{ form.date_and_occasion.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Date and Occasion</span>
                         </label>
-                        {{ form.date_and_occasion|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"date_and_occasion" }}
+                        {{ form.date_and_occasion|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=date_and_occasion" }}
                         {% if form.date_and_occasion.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.date_and_occasion.errors|join:", " }}</span>
@@ -124,7 +124,7 @@
                         <label for="{{ form.characteristics_and_themes.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Characteristics and Themes</span>
                         </label>
-                        {{ form.characteristics_and_themes|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"characteristics_and_themes" }}
+                        {{ form.characteristics_and_themes|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=characteristics_and_themes" }}
                         {% if form.characteristics_and_themes.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.characteristics_and_themes.errors|join:", " }}</span>
@@ -137,7 +137,7 @@
                         <label for="{{ form.christ_in_book.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Christ in {{ book.title }}</span>
                         </label>
-                        {{ form.christ_in_book|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"christ_in_book" }}
+                        {{ form.christ_in_book|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=christ_in_book" }}
                         {% if form.christ_in_book.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.christ_in_book.errors|join:", " }}</span>
@@ -150,7 +150,7 @@
                         <label for="{{ form.outline.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Outline</span>
                         </label>
-                        {{ form.outline|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"outline" }}
+                        {{ form.outline|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=outline" }}
                         {% if form.outline.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.outline.errors|join:", " }}</span>
