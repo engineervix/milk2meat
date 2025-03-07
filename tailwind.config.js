@@ -39,5 +39,5 @@ module.exports = {
     prefix: "",
   },
   safelist: [{ pattern: /alert-+/ }],
-  darkMode: "class", // Enable dark mode with class strategy
+  darkMode: ["selector", '[data-theme="dark"]'],
 };

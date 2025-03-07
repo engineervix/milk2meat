@@ -17,59 +17,103 @@
     <meta property="og:locale:alternate" content="en_US" />
 {% endblock extrameta %}
 {% block promo_block %}
-    <div class="hero bg-primary text-primary-content">
-        <div class="hero-content text-center py-12">
-            <div class="max-w-md">
-                <h1 class="text-5xl font-bold">Welcome to Milk to Meat</h1>
-                <p class="py-6">
-                    Your personal Bible study companion to help transition from the basics to deeper understanding.
-                </p>
-                <div class="mt-4">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-                            Go to Dashboard
-                        </a>
-                    {% else %}
-                        <a href="{% url 'auth:login' %}" class="btn btn-secondary">
-                            Sign In
-                        </a>
-                    {% endif %}
-                </div>
+    <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center relative">
+            <!-- Top navigation bar with theme toggle and logout (if authenticated) -->
+            <div class="absolute top-4 right-4 flex items-center space-x-2">
+                <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle bg-base-200 bg-opacity-20">
+                    <svg
+                      class="sun-icon w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg
+                      class="moon-icon w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'auth:logout' %}" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm bg-base-200 bg-opacity-20">
+                            Logout
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">Welcome to Milk to Meat</h1>
+            <p class="mt-6 text-xl max-w-3xl mx-auto">
+                Your personal Bible study companion to help transition from the basics to deeper understanding.
+            </p>
+            <div class="mt-8 flex justify-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}"
+                       class="btn btn-primary">
+                        Go to Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'auth:login' %}"
+                       class="btn btn-primary">
+                        Sign In
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
 {% endblock promo_block %}
 {% block content %}
-    <div class="container mx-auto py-12 px-4">
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-            <h2 class="text-3xl font-bold mb-6">From milk to solid food</h2>
-            <p class="max-w-3xl mx-auto text-lg">
+            <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl text-gray-900 dark:text-gray-100">From milk to solid food</h2>
+            <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-500 dark:text-gray-300">
                 "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil."
                 <span class="block mt-2 italic">— Hebrews 5:13-14</span>
             </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h3 class="card-title">Study the Word</h3>
-                        <p>Explore the Bible book by book, chapter by chapter.</p>
+            <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium">Study the Word</h3>
+                        <p class="mt-2 text-sm opacity-75">Explore the Bible book by book, chapter by chapter.</p>
                     </div>
                 </div>
-
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h3 class="card-title">Take Notes</h3>
-                        <p>Capture your insights and reflections as you study.</p>
+                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium">Take Notes</h3>
+                        <p class="mt-2 text-sm opacity-75">Capture your insights and reflections as you study.</p>
                     </div>
                 </div>
-
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h3 class="card-title">Grow Deeper</h3>
-                        <p>Track your spiritual growth and understanding over time.</p>
+                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium">Grow Deeper</h3>
+                        <p class="mt-2 text-sm opacity-75">Track your spiritual growth and understanding over time.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 {% endblock content %}

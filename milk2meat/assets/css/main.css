@@ -36,33 +36,14 @@
     @apply mb-4 shadow-lg;
   }
 
-  /* Theme toggle */
-  .theme-toggle {
-    @apply fixed top-4 right-4 z-50 shadow-md rounded-full bg-base-200;
-  }
-
-  /* Specifically for dashboard page */
-  .dashboard-theme-toggle {
-    @apply right-20; /* This will override only the right property from theme-toggle */
-  }
-
-  .theme-toggle button {
-    @apply p-2 rounded-full hover:bg-base-300 transition-colors duration-200;
-  }
-
-  .theme-toggle .sun-icon,
-  .theme-toggle .moon-icon {
-    @apply w-5 h-5 stroke-current;
-  }
-
-  /* Show/hide icons based on theme */
-  [data-theme="emerald"] .theme-toggle .moon-icon,
-  [data-theme="dark"] .theme-toggle .sun-icon {
+  /* Theme toggle icon visibility based on current theme */
+  [data-theme="emerald"] .moon-icon,
+  [data-theme="dark"] .sun-icon {
     @apply block;
   }
 
-  [data-theme="emerald"] .theme-toggle .sun-icon,
-  [data-theme="dark"] .theme-toggle .moon-icon {
+  [data-theme="emerald"] .sun-icon,
+  [data-theme="dark"] .moon-icon {
     @apply hidden;
   }
 }
