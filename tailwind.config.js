@@ -30,12 +30,6 @@ module.exports = {
   ],
   daisyui: {
     themes: ["winter", "night"],
-    base: true,
-    styled: true,
-    utils: true,
-    logs: true,
-    rtl: false,
-    prefix: "",
   },
   safelist: [{ pattern: /alert-+/ }],
   darkMode: ["selector", '[data-theme="night"]'],
