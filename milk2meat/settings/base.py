@@ -46,6 +46,7 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 # APPS
 # ------------------------------------------------------------------------------
 LOCAL_APPS = [
+    "milk2meat.core",
     "milk2meat.home",
     "milk2meat.users",
 ]
@@ -64,8 +65,9 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "django_extensions",  # https://github.com/django-extensions/django-extensions
+    "taggit",  # https://github.com/jazzband/django-taggit
     # "django_rq",  # https://github.com/rq/django-rq
-    # "widget_tweaks",  # https://github.com/jazzband/django-widget-tweaks
+    "widget_tweaks",  # https://github.com/jazzband/django-widget-tweaks
 ]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#installed-apps
 INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + THIRD_PARTY_APPS
@@ -244,6 +246,11 @@ MANAGERS = ADMINS
 # RQ_QUEUES = {
 #     "default": {"URL": env("RQ_QUEUE", default="redis://redis:6379/0")},
 # }
+
+# django-taggit
+# ------------------------------------------------------------------------------
+# https://github.com/jazzband/django-taggit
+TAGGIT_CASE_INSENSITIVE = True
 
 # ------------------------------------------------------------------------------
 # CUSTOM SETTINGS
