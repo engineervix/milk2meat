@@ -1,10 +1,10 @@
 {% if messages %}
     <div class="container mx-auto px-4 pt-4">
         {% for message in messages %}
-            <div class="{% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'info' %}alert-info{% else %}alert bg-light-100 text-light-800 dark:bg-dark-700 dark:text-light-200{% endif %} flex justify-between items-center">
+            <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'info' %}alert-info{% else %}alert-neutral{% endif %} flex justify-between items-center">
                 <span>{{ message }}</span>
                 <button type="button"
-                        class="text-light-500 hover:text-light-700 dark:text-light-400 dark:hover:text-light-300"
+                        class="btn btn-ghost btn-sm btn-circle"
                         onclick="this.parentElement.style.display='none'"
                         aria-label="Close">
                     <svg class="w-4 h-4"

@@ -14,7 +14,7 @@ class TurnstileLoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add custom attributes to form fields for better styling
+        # Add DaisyUI-compatible attributes to form fields for better styling
         self.fields["username"].widget.attrs.update(
             {"class": "input input-bordered w-full", "placeholder": "email@example.com", "autocomplete": "email"}
         )

@@ -8,49 +8,62 @@
     <meta name="description" content="Login to Milk2Meat - A Bible Study Tool">
 {% endblock extrameta %}
 {% block content %}
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-light-900 dark:text-light-100">Sign in to Milk2Meat</h2>
-            <p class="mt-2 text-center text-sm text-light-600 dark:text-light-400">Your personal Bible study companion</p>
-        </div>
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form class="space-y-6" method="post" action="{% url 'auth:login' %}">
-                {% csrf_token %}
-                <div>
-                    <label for="{{ form.username.id_for_label }}" class="form-label">Email address</label>
-                    <div class="mt-2">
-                        {{ form.username|add_class:"form-input" }}
-                    </div>
-                    {% if form.username.errors %}<p class="form-error">{{ form.username.errors|join:", " }}</p>{% endif %}
+    <div class="hero min-h-screen bg-base-200">
+        <div class="hero-content flex-col">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold">Sign in to Milk2Meat</h2>
+                <p class="py-2">Your personal Bible study companion</p>
+            </div>
+            <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <div class="card-body">
+                    <form method="post" action="{% url 'auth:login' %}">
+                        {% csrf_token %}
+                        <div class="form-control">
+                            <label for="{{ form.username.id_for_label }}" class="label">
+                                <span class="label-text">Email address</span>
+                            </label>
+                            {{ form.username|add_class:"input input-bordered" }}
+                            {% if form.username.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.username.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-control">
+                            <label for="{{ form.password.id_for_label }}" class="label">
+                                <span class="label-text">Password</span>
+                            </label>
+                            {{ form.password|add_class:"input input-bordered" }}
+                            {% if form.password.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.password.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if turnstile_enabled %}
+                            <div class="mt-4">
+                                <div class="cf-turnstile"
+                                    data-sitekey="{{ turnstile_site_key }}"
+                                    data-theme="auto"></div>
+                                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                                        async
+                                        defer></script>
+                            </div>
+                        {% endif %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-error mt-4">
+                                {{ form.non_field_errors|join:", " }}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Sign in</button>
+                        </div>
+                    </form>
                 </div>
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                    </div>
-                    <div class="mt-2">
-                        {{ form.password|add_class:"form-input" }}
-                    </div>
-                    {% if form.password.errors %}<p class="form-error">{{ form.password.errors|join:", " }}</p>{% endif %}
-                </div>
-                {% if turnstile_enabled %}
-                    <div class="mt-4">
-                        <div class="cf-turnstile"
-                            data-sitekey="{{ turnstile_site_key }}"
-                            data-theme="light"></div>
-                        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                                async
-                                defer></script>
-                    </div>
-                {% endif %}
-                {% if form.non_field_errors %}
-                    <div class="alert-danger">{{ form.non_field_errors|join:", " }}</div>
-                {% endif %}
-                <div>
-                    <button type="submit" class="btn-primary w-full">
-                        Sign in
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 {% endblock content %}

@@ -1,49 +1,53 @@
 import "../css/main.css";
 import "@phosphor-icons/web/regular";
 
-// Dark mode functionality
+// Theme management
 document.addEventListener("DOMContentLoaded", () => {
-  const darkModeToggle = document.getElementById("dark-mode-toggle");
-  const htmlElement = document.documentElement;
+  // Theme toggle functionality
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
 
-  // Check for saved theme preference or use system preference
-  const savedTheme =
-    localStorage.getItem("theme") ||
-    (window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light");
+  // Function to set theme and update localStorage
+  const setTheme = (theme) => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("milk2meat-theme", theme);
+  };
 
-  // Apply saved theme on page load
-  if (savedTheme === "dark") {
-    htmlElement.classList.add("dark");
-    if (darkModeToggle) darkModeToggle.checked = true;
+  // Initialize theme from localStorage or system preference
+  const initializeTheme = () => {
+    const savedTheme = localStorage.getItem("milk2meat-theme");
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      // Check for system preference
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      setTheme(prefersDark ? "dark" : "emerald");
+    }
+  };
+
+  // Toggle between themes
+  const toggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "emerald" ? "dark" : "emerald";
+    setTheme(newTheme);
+  };
+
+  // Initialize theme on page load
+  initializeTheme();
+
+  // Add event listener to theme toggle button
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", toggleTheme);
   }
 
-  // Toggle event
-  if (darkModeToggle) {
-    darkModeToggle.addEventListener("change", () => {
-      if (darkModeToggle.checked) {
-        htmlElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      } else {
-        htmlElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      }
-    });
-  }
-
-  // Handle system preference changes
+  // Listen for system theme changes
   window
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", (e) => {
-      if (!localStorage.getItem("theme")) {
-        if (e.matches) {
-          htmlElement.classList.add("dark");
-          if (darkModeToggle) darkModeToggle.checked = true;
-        } else {
-          htmlElement.classList.remove("dark");
-          if (darkModeToggle) darkModeToggle.checked = false;
-        }
+      if (!localStorage.getItem("milk2meat-theme")) {
+        setTheme(e.matches ? "dark" : "emerald");
       }
     });
 });
