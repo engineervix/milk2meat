@@ -37,13 +37,13 @@
   }
 
   /* Theme toggle icon visibility based on current theme */
-  [data-theme="emerald"] .moon-icon,
-  [data-theme="dark"] .sun-icon {
+  [data-theme="winter"] .moon-icon,
+  [data-theme="night"] .sun-icon {
     @apply block;
   }
 
-  [data-theme="emerald"] .sun-icon,
-  [data-theme="dark"] .moon-icon {
+  [data-theme="winter"] .sun-icon,
+  [data-theme="night"] .moon-icon {
     @apply hidden;
   }
 }

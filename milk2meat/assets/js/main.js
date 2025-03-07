@@ -23,14 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
-      setTheme(prefersDark ? "dark" : "emerald");
+      setTheme(prefersDark ? "night" : "winter");
     }
   };
 
   // Toggle between themes
   const toggleTheme = () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "emerald" ? "dark" : "emerald";
+    const newTheme = currentTheme === "winter" ? "night" : "winter";
     setTheme(newTheme);
   };
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", (e) => {
       if (!localStorage.getItem("milk2meat-theme")) {
-        setTheme(e.matches ? "dark" : "emerald");
+        setTheme(e.matches ? "night" : "winter");
       }
     });
 });

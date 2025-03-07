@@ -29,8 +29,7 @@ module.exports = {
     require("@tailwindcss/typography"),
   ],
   daisyui: {
-    themes: ["emerald", "dark"],
-    darkTheme: "dark",
+    themes: ["winter", "night"],
     base: true,
     styled: true,
     utils: true,
@@ -39,5 +38,5 @@ module.exports = {
     prefix: "",
   },
   safelist: [{ pattern: /alert-+/ }],
-  darkMode: ["selector", '[data-theme="dark"]'],
+  darkMode: ["selector", '[data-theme="night"]'],
 };
