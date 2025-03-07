@@ -1,6 +1,5 @@
 // Import EasyMDE and its styles
 import EasyMDE from "easymde";
-import "../css/editor.css";
 import "easymde/dist/easymde.min.css";
 
 // Initialize EasyMDE when DOM is loaded
@@ -10,34 +9,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Create an editor instance for each element
   editorElements.forEach(function (element) {
-    new EasyMDE({
+    const editor = new EasyMDE({
       element: element,
       spellChecker: false,
-      autofocus: false,
-      status: ["lines", "words"],
-      toolbar: [
-        "bold",
-        "italic",
-        "heading",
-        "|",
-        "quote",
-        "unordered-list",
-        "ordered-list",
-        "|",
-        "link",
-        "image",
-        "|",
-        "preview",
-        "side-by-side",
-        "fullscreen",
-        "|",
-        "guide",
-      ],
-      placeholder: "Type markdown content here...",
-      // Set initial value from the textarea content
-      initialValue: element.value,
-      // Make sure the editor is properly visible
-      minHeight: "150px",
     });
   });
 
