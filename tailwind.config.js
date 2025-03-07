@@ -38,5 +38,6 @@ module.exports = {
     rtl: false,
     prefix: "",
   },
+  safelist: [{ pattern: /alert-+/ }],
   darkMode: "class", // Enable dark mode with class strategy
 };
