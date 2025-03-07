@@ -8,18 +8,78 @@ document.addEventListener("DOMContentLoaded", function () {
   // Find all elements that should be converted to EasyMDE editors
   const editorElements = document.querySelectorAll("[data-editor]");
 
+  // Track whether form has unsaved changes
+  let formChanged = false;
+
+  // Array to store editor instances
+  const editors = [];
+
   // Create an editor instance for each element
   editorElements.forEach(function (element) {
     const editor = new EasyMDE({
       element: element,
       spellChecker: false,
     });
+
+    // Add change event listener to track unsaved changes
+    editor.codemirror.on("change", function () {
+      formChanged = true;
+    });
+
+    editors.push(editor);
   });
 
   // Timeline editor functionality
   const timelineEditor = document.getElementById("timeline-editor");
   if (timelineEditor) {
     initializeTimelineEditor();
+  }
+
+  // Set up beforeunload event to catch page navigation with unsaved changes
+  if (document.querySelector("form")) {
+    // Make formChanged accessible to other functions
+    window.formChanged = formChanged;
+
+    // Also track form input changes for non-editor fields
+    document.querySelector("form").addEventListener("input", function (e) {
+      if (!e.target.matches("[data-editor]")) {
+        // Avoid double-tracking editor changes
+        window.formChanged = true;
+      }
+    });
+
+    // Add event listener for beforeunload to warn about unsaved changes
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event
+    window.addEventListener("beforeunload", function (e) {
+      if (window.formChanged) {
+        e.preventDefault();
+      }
+      return undefined;
+    });
+
+    // Listen for form submission to prevent the warning when form is properly submitted
+    document.querySelector("form").addEventListener("submit", function () {
+      window.formChanged = false;
+    });
+
+    // Handle cancel button click
+    const cancelButton = document.getElementById("cancel-edit-btn");
+    if (cancelButton) {
+      cancelButton.addEventListener("click", function (e) {
+        // If there are unsaved changes, ask for confirmation before navigating away
+        if (window.formChanged) {
+          if (
+            !confirm(
+              "You have unsaved changes. Are you sure you want to leave this page?",
+            )
+          ) {
+            e.preventDefault();
+          } else {
+            window.formChanged = false; // Don't show the beforeunload dialog if user confirmed
+          }
+        }
+      });
+    }
   }
 });
 
@@ -127,6 +187,3 @@ function initializeTimelineEditor() {
     });
   }
 }
-
-// Export functions for reuse
-export { initializeTimelineEditor };
