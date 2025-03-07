@@ -120,7 +120,7 @@ class Note(BaseModel):
 
     class Meta:
         ordering = ["-updated_at", "-created_at"]
-        unique_together = ["slug", "owner"]
+        constraints = [models.UniqueConstraint(fields=["slug", "owner"], name="unique_owner_slug")]
 
     def __str__(self):
         return self.title
