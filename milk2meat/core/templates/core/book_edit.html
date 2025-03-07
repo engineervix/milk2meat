@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {{ block.super }} Edit {{ book.title }}
+{% endblock title %}
+
+{% block extrameta %}
+    <meta name="description" content="Edit {{ book.title }} - Milk2Meat Bible Study">
+{% endblock extrameta %}
+
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold">Edit {{ book.title }}</h1>
+                    <p class="text-sm opacity-80">{{ book.get_testament_display }} • {{ book.chapters }} chapters</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Theme toggle button #}
+                    <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle btn-ghost">
+                        <svg
+                          class="sun-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="5"></circle>
+                          <line x1="12" y1="1" x2="12" y2="3"></line>
+                          <line x1="12" y1="21" x2="12" y2="23"></line>
+                          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                          <line x1="1" y1="12" x2="3" y2="12"></line>
+                          <line x1="21" y1="12" x2="23" y2="12"></line>
+                          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg
+                          class="moon-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    {# Cancel button #}
+                    <a href="{% url 'core:book_detail' book.id %}" class="btn btn-sm btn-ghost">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+
+{% block extra_css %}
+    {# Using local EasyMDE CSS #}
+    <style>
+        .CodeMirror, .CodeMirror-scroll {
+            min-height: 150px;
+        }
+        .timeline-editor .timeline-event {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: rgba(var(--b2, 212 212 212) / 0.2);
+        }
+        .timeline-editor .timeline-event-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {# Title and Author #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.title_and_author.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Title and Author</span>
+                        </label>
+                        {{ form.title_and_author|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"title_and_author" }}
+                        {% if form.title_and_author.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.title_and_author.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Date and Occasion #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.date_and_occasion.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Date and Occasion</span>
+                        </label>
+                        {{ form.date_and_occasion|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"date_and_occasion" }}
+                        {% if form.date_and_occasion.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.date_and_occasion.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Characteristics and Themes #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.characteristics_and_themes.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Characteristics and Themes</span>
+                        </label>
+                        {{ form.characteristics_and_themes|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"characteristics_and_themes" }}
+                        {% if form.characteristics_and_themes.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.characteristics_and_themes.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Christ in Book #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.christ_in_book.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Christ in {{ book.title }}</span>
+                        </label>
+                        {{ form.christ_in_book|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"christ_in_book" }}
+                        {% if form.christ_in_book.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.christ_in_book.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Outline #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.outline.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Outline</span>
+                        </label>
+                        {{ form.outline|add_class:"textarea textarea-bordered h-40"|attr:"data-editor":"outline" }}
+                        {% if form.outline.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.outline.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Timeline (This will be enhanced with JavaScript later) #}
+                    <div class="form-control mb-6">
+                        <label class="label">
+                            <span class="label-text text-lg font-medium">Timeline</span>
+                        </label>
+
+                        <div class="timeline-editor" id="timeline-editor">
+                            <input type="hidden" name="timeline" id="timeline-data" value="{{ timeline_json }}">
+
+                            <div class="timeline-events" id="timeline-events">
+                                {# Timeline events will be added dynamically here #}
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="button" id="add-timeline-event" class="btn btn-outline btn-sm">
+                                    Add Event
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Form buttons #}
+                    <div class="form-control mt-8">
+                        <div class="flex justify-end space-x-2">
+                            <a href="{% url 'core:book_detail' book.id %}" class="btn btn-ghost">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    {# Include the bundled editor.js file #}
+    <script src="{% static 'js/editor.min.js' %}"></script>
+{% endblock extra_js %}

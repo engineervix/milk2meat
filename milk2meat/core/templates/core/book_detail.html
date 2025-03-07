@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ block.super }} {{ book.title }}
+{% endblock title %}
+
+{% block extrameta %}
+    <meta name="description" content="{{ book.title }} - Milk2Meat Bible Study">
+{% endblock extrameta %}
+
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold">{{ book.title }}</h1>
+                    <p class="text-sm opacity-80">{{ book.get_testament_display }} • {{ book.chapters }} chapters</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Theme toggle button #}
+                    <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle btn-ghost">
+                        <svg
+                          class="sun-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="5"></circle>
+                          <line x1="12" y1="1" x2="12" y2="3"></line>
+                          <line x1="12" y1="21" x2="12" y2="23"></line>
+                          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                          <line x1="1" y1="12" x2="3" y2="12"></line>
+                          <line x1="21" y1="12" x2="23" y2="12"></line>
+                          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg
+                          class="moon-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    {# Back button #}
+                    <a href="{% url 'core:book_list' %}" class="btn btn-sm btn-ghost">
+                        Back to Books
+                    </a>
+
+                    {# Edit button #}
+                    <a href="{% url 'core:book_edit' book.id %}" class="btn btn-sm btn-secondary">
+                        Edit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {# Left sidebar with actions #}
+            <div class="lg:col-span-1">
+                <div class="sticky top-4">
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ book.title }}</h2>
+                            <p>{{ book.abbreviation }} • {{ book.chapters }} chapters</p>
+
+                            <div class="divider"></div>
+
+                            <div class="card-actions">
+                                <a href="https://esv.org/{{ book.title }}+1/" class="btn btn-primary btn-block" target="_blank" rel="noopener">
+                                    Read on ESV.org
+                                </a>
+                                <a href="{% url 'core:book_edit' book.id %}" class="btn btn-outline btn-block">
+                                    Edit Introduction
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Main content area #}
+            <div class="lg:col-span-2">
+                {# Timeline section (if available) #}
+                {% if timeline_data %}
+                <div class="card bg-base-100 shadow-xl mb-8">
+                    <div class="card-body">
+                        <h2 class="card-title text-xl mb-4">Timeline</h2>
+
+                        <ul class="timeline timeline-vertical">
+                            {% for event in timeline_data %}
+                            <li>
+                                {% if not forloop.last %}
+                                <div class="timeline-start timeline-box">{{ event.date }}</div>
+                                <div class="timeline-middle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-5a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <div class="timeline-end timeline-box">{{ event.description }}</div>
+                                <hr/>
+                                {% else %}
+                                <div class="timeline-start timeline-box">{{ event.date }}</div>
+                                <div class="timeline-middle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-5a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <div class="timeline-end timeline-box">{{ event.description }}</div>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Introduction sections #}
+                <div class="space-y-8">
+                    {% if book.title_and_author %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title text-xl">Title and Author</h2>
+                            <div class="prose">
+                                {{ book.title_and_author|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if book.date_and_occasion %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title text-xl">Date and Occasion</h2>
+                            <div class="prose">
+                                {{ book.date_and_occasion|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if book.characteristics_and_themes %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title text-xl">Characteristics and Themes</h2>
+                            <div class="prose">
+                                {{ book.characteristics_and_themes|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if book.christ_in_book %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title text-xl">Christ in {{ book.title }}</h2>
+                            <div class="prose">
+                                {{ book.christ_in_book|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if book.outline %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title text-xl">Outline</h2>
+                            <div class="prose">
+                                {{ book.outline|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if not book.title_and_author and not book.date_and_occasion and not book.characteristics_and_themes and not book.christ_in_book and not book.outline and not timeline_data %}
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body text-center">
+                            <h2 class="card-title text-xl mb-4 justify-center">No Introduction Content Yet</h2>
+                            <p class="mb-4">The introduction for {{ book.title }} has not been added yet.</p>
+                            <a href="{% url 'core:book_edit' book.id %}" class="btn btn-primary">
+                                Add Introduction
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -11,6 +11,7 @@ const options = {
   entry: {
     // multiple entries can be added here
     main: `./${projectRoot}/assets/js/main.js`,
+    editor: `./${projectRoot}/assets/js/editor.js`,
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),

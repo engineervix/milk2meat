@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ block.super }} Bible Books
+{% endblock title %}
+
+{% block extrameta %}
+    <meta name="description" content="Bible Books - Milk2Meat">
+{% endblock extrameta %}
+
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <p class="font-medium">
+                        <span>Bible Books</span>
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Theme toggle button #}
+                    <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle btn-ghost">
+                        <svg
+                          class="sun-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="5"></circle>
+                          <line x1="12" y1="1" x2="12" y2="3"></line>
+                          <line x1="12" y1="21" x2="12" y2="23"></line>
+                          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                          <line x1="1" y1="12" x2="3" y2="12"></line>
+                          <line x1="21" y1="12" x2="23" y2="12"></line>
+                          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg
+                          class="moon-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    <form method="post" action="{% url 'auth:logout' %}" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {# Old Testament Books #}
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Old Testament</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for book in old_testament %}
+                        <a href="{% url 'core:book_detail' book.id %}" class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
+                            <div class="card-body p-4">
+                                <h3 class="card-title text-lg">{{ book.title }}</h3>
+                                <p class="text-sm opacity-70">{{ book.chapters }} chapters</p>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="col-span-full">
+                            <p>No Old Testament books found.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# New Testament Books #}
+            <div>
+                <h2 class="text-2xl font-bold mb-4">New Testament</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for book in new_testament %}
+                        <a href="{% url 'core:book_detail' book.id %}" class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
+                            <div class="card-body p-4">
+                                <h3 class="card-title text-lg">{{ book.title }}</h3>
+                                <p class="text-sm opacity-70">{{ book.chapters }} chapters</p>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="col-span-full">
+                            <p>No New Testament books found.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

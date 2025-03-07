@@ -30,6 +30,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("auth/", include("milk2meat.auth.urls", namespace="auth")),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    path("", include("milk2meat.core.urls", namespace="core")),
 ]
 
 if settings.DEBUG:
