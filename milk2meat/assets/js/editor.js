@@ -1,15 +1,20 @@
+// Import EasyMDE and its styles
 import EasyMDE from "easymde";
+import "../css/editor.css";
 import "easymde/dist/easymde.min.css";
 
-// Initialize EasyMDE on elements with the data-editor attribute
+// Initialize EasyMDE when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
+  // Find all elements that should be converted to EasyMDE editors
   const editorElements = document.querySelectorAll("[data-editor]");
 
+  // Create an editor instance for each element
   editorElements.forEach(function (element) {
     new EasyMDE({
       element: element,
       spellChecker: false,
-      status: false,
+      autofocus: false,
+      status: ["lines", "words"],
       toolbar: [
         "bold",
         "italic",
@@ -25,20 +30,25 @@ document.addEventListener("DOMContentLoaded", function () {
         "preview",
         "side-by-side",
         "fullscreen",
+        "|",
+        "guide",
       ],
+      placeholder: "Type markdown content here...",
+      // Set initial value from the textarea content
+      initialValue: element.value,
+      // Make sure the editor is properly visible
+      minHeight: "150px",
     });
   });
-});
 
-// Timeline editor functionality
-document.addEventListener("DOMContentLoaded", function () {
+  // Timeline editor functionality
   const timelineEditor = document.getElementById("timeline-editor");
-
   if (timelineEditor) {
     initializeTimelineEditor();
   }
 });
 
+// Timeline editor functionality
 function initializeTimelineEditor() {
   const timelineEvents = document.getElementById("timeline-events");
   const timelineData = document.getElementById("timeline-data");
@@ -49,7 +59,8 @@ function initializeTimelineEditor() {
   // Load existing timeline data if available
   if (timelineData.value) {
     try {
-      timelineItems = JSON.parse(timelineData.value).events || [];
+      const parsedData = JSON.parse(timelineData.value);
+      timelineItems = parsedData.events || [];
       renderTimelineEvents();
     } catch (e) {
       console.error("Error parsing timeline data:", e);
@@ -82,30 +93,30 @@ function initializeTimelineEditor() {
 
     timelineItems.forEach((item, index) => {
       const eventElement = document.createElement("div");
-      eventElement.className = "timeline-event";
+      eventElement.className = "timeline-event mb-4 p-4 rounded-lg bg-base-200";
       eventElement.dataset.index = index;
 
       eventElement.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Date</span>
-                        </label>
-                        <input type="text" class="input input-bordered timeline-date"
-                               value="${item.date}" placeholder="e.g., 1010-971 B.C.">
-                    </div>
-                    <div class="form-control md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Description</span>
-                        </label>
-                        <input type="text" class="input input-bordered timeline-description"
-                               value="${item.description}" placeholder="e.g., Reign of David">
-                    </div>
-                </div>
-                <div class="timeline-event-actions">
-                    <button type="button" class="btn btn-sm btn-outline btn-error delete-event">Remove</button>
-                </div>
-            `;
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Date</span>
+            </label>
+            <input type="text" class="input input-bordered timeline-date"
+                   value="${item.date}" placeholder="e.g., 1010-971 B.C.">
+          </div>
+          <div class="form-control md:col-span-2">
+            <label class="label">
+              <span class="label-text">Description</span>
+            </label>
+            <input type="text" class="input input-bordered timeline-description"
+                   value="${item.description}" placeholder="e.g., Reign of David">
+          </div>
+        </div>
+        <div class="timeline-event-actions mt-2 flex justify-end">
+          <button type="button" class="btn btn-sm btn-outline btn-error delete-event">Remove</button>
+        </div>
+      `;
 
       // Add event listeners
       const dateInput = eventElement.querySelector(".timeline-date");

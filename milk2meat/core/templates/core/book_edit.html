@@ -66,62 +66,9 @@
 {% endblock promo_block %}
 
 {% block extra_css %}
-    {# Editor styles will be included by webpack #}
-    <style>
-        /* Override EasyMDE styles for better integration with DaisyUI */
-        .editor-toolbar {
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
-            border-bottom: none;
-            opacity: 1;
-        }
+    {# Include EasyMDE styles - these will be loaded by webpack #}
+    <link rel="stylesheet" href="{% static 'css/editor.min.css' %}">
 
-        .CodeMirror {
-            border-top: none;
-            border-bottom-left-radius: 0.5rem;
-            border-bottom-right-radius: 0.5rem;
-        }
-
-        .CodeMirror, .CodeMirror-scroll {
-            min-height: 150px;
-        }
-
-        /* Dark mode compatibility */
-        [data-theme="night"] .editor-toolbar {
-            background-color: hsl(var(--b3));
-            border-color: hsl(var(--b3));
-        }
-
-        [data-theme="night"] .editor-toolbar button {
-            color: hsl(var(--bc));
-        }
-
-        [data-theme="night"] .editor-toolbar button:hover,
-        [data-theme="night"] .editor-toolbar button.active {
-            background: hsl(var(--b2));
-        }
-
-        [data-theme="night"] .CodeMirror {
-            background-color: hsl(var(--b2));
-            color: hsl(var(--bc));
-            border-color: hsl(var(--b3));
-        }
-
-        /* Timeline editor styles */
-        .timeline-editor .timeline-event {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: rgba(var(--b2, 212 212 212) / 0.2);
-        }
-
-        .timeline-editor .timeline-event-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-    </style>
 {% endblock extra_css %}
 
 {% block content %}
@@ -196,16 +143,17 @@
                         {% endif %}
                     </div>
 
-                    {# Timeline (This will be enhanced with JavaScript later) #}
+                    {# Timeline #}
                     <div class="form-control mb-6">
                         <label class="label">
                             <span class="label-text text-lg font-medium">Timeline</span>
+                            <span class="label-text-alt">Add key events with dates for this book</span>
                         </label>
 
-                        <div class="timeline-editor" id="timeline-editor">
+                        <div class="timeline-editor p-4 bg-base-200 rounded-lg" id="timeline-editor">
                             <input type="hidden" name="timeline" id="timeline-data" value="{{ timeline_json }}">
 
-                            <div class="timeline-events" id="timeline-events">
+                            <div class="timeline-events mb-4" id="timeline-events">
                                 {# Timeline events will be added dynamically here #}
                             </div>
 

@@ -89,6 +89,14 @@ const options = {
           filename: "fonts/[name][ext]",
         },
       },
+      {
+        // Handle images referenced in CSS files (like in EasyMDE)
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: "asset/resource",
+        generator: {
+          filename: "img/[name][ext]",
+        },
+      },
     ],
   },
   // externals are loaded via base.html and not included in the webpack bundle.
