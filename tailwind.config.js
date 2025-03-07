@@ -142,17 +142,18 @@ module.exports = {
       },
     },
   },
-  // safelist: [
-  //   { pattern: /alert-+/ },
-  //   "collapse",
-  //   "collapse-plus",
-  //   "collapse-open",
-  //   "collapse-close",
-  //   "collapse-title",
-  //   "collapse-content",
-  //   { pattern: /hover:text-+/ }, // This will catch hover:text-primary
-  //   { pattern: /gap-+/ }, // This will catch gap-3 and other gap utilities
-  // ],
+  // Enable safelist for dynamic class generation
+  safelist: [
+    { pattern: /alert-/ }, // For alert components
+    { pattern: /btn-/ }, // For button components
+    "dark",
+    "dark:bg-dark-800",
+    "dark:bg-dark-900",
+    "dark:text-light-100",
+    "dark:text-light-200",
+    "dark:border-dark-700",
+    "dark:border-dark-600",
+  ],
   plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
   darkMode: "class", // Enable dark mode with class strategy
 };

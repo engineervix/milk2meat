@@ -4,6 +4,7 @@ import "@phosphor-icons/web/regular";
 // Dark mode functionality
 document.addEventListener("DOMContentLoaded", () => {
   const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const htmlElement = document.documentElement;
 
   // Check for saved theme preference or use system preference
   const savedTheme =
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Apply saved theme on page load
   if (savedTheme === "dark") {
-    document.documentElement.classList.add("dark");
+    htmlElement.classList.add("dark");
     if (darkModeToggle) darkModeToggle.checked = true;
   }
 
@@ -22,12 +23,27 @@ document.addEventListener("DOMContentLoaded", () => {
   if (darkModeToggle) {
     darkModeToggle.addEventListener("change", () => {
       if (darkModeToggle.checked) {
-        document.documentElement.classList.add("dark");
+        htmlElement.classList.add("dark");
         localStorage.setItem("theme", "dark");
       } else {
-        document.documentElement.classList.remove("dark");
+        htmlElement.classList.remove("dark");
         localStorage.setItem("theme", "light");
       }
     });
   }
+
+  // Handle system preference changes
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", (e) => {
+      if (!localStorage.getItem("theme")) {
+        if (e.matches) {
+          htmlElement.classList.add("dark");
+          if (darkModeToggle) darkModeToggle.checked = true;
+        } else {
+          htmlElement.classList.remove("dark");
+          if (darkModeToggle) darkModeToggle.checked = false;
+        }
+      }
+    });
 });
