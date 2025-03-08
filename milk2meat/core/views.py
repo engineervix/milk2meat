@@ -244,8 +244,19 @@ class TagListView(LoginRequiredMixin, ListView):
         from django.db.models import Count
         from taggit.models import Tag
 
-        # Get tags with note counts, ordered by name
-        return Tag.objects.filter(note__owner=self.request.user).annotate(note_count=Count("note")).order_by("name")
+        # Get all note IDs for the current user
+        user_note_ids = Note.objects.get_queryset_for_user(self.request.user).values_list("id", flat=True)
+
+        # Get tags with note counts using UUIDTaggedItem
+        return (
+            Tag.objects.filter(
+                core_uuidtaggeditem_items__content_type__app_label="core",
+                core_uuidtaggeditem_items__content_type__model="note",
+                core_uuidtaggeditem_items__object_id__in=user_note_ids,
+            )
+            .annotate(note_count=Count("core_uuidtaggeditem_items"))
+            .order_by("name")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -3,7 +3,20 @@ import uuid
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
+from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+
+
+class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
+    """
+    Tagged item model for UUID-based models, using the built-in
+    GenericUUIDTaggedItemBase provided by django-taggit.
+    """
+
+    class Meta:
+        verbose_name = _("Tag")
+        verbose_name_plural = _("Tags")
 
 
 class BaseModel(models.Model):
@@ -112,7 +125,7 @@ class Note(BaseModel):
         help_text="You could upload handwritten notes from iPad as PDF or image",
     )
     note_type = models.ForeignKey(NoteType, on_delete=models.PROTECT, related_name="notes")
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(through=UUIDTaggedItem, blank=True)
     referenced_books = models.ManyToManyField(Book, blank=True, related_name="notes")
     owner = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="notes")
 
