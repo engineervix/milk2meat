@@ -23,4 +23,17 @@
   color: oklch(var(--bc));
 }
 
+/* Make cursor visible in dark mode */
+[data-theme="night"] .CodeMirror-cursor {
+  border-left-color: oklch(var(--bc));
+}
+
+/* text selection in dark mode */
+[data-theme="night"]
+  .EasyMDEContainer
+  .CodeMirror-focused
+  .CodeMirror-selected {
+  background: oklch(var(--n));
+}
+
 /* stylelint-enable selector-class-pattern */
