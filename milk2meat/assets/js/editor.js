@@ -1,10 +1,17 @@
-// Import EasyMDE and its styles
 import EasyMDE from "easymde";
+import TurndownService from "turndown";
 import "easymde/dist/easymde.min.css";
 import "../css/editor.css";
 
 // Initialize EasyMDE when DOM is loaded
+
 document.addEventListener("DOMContentLoaded", function () {
+  // Create a Turndown service instance
+  const turndownService = new TurndownService({
+    headingStyle: "atx",
+    codeBlockStyle: "fenced",
+  });
+
   // Find all elements that should be converted to EasyMDE editors
   const editorElements = document.querySelectorAll("[data-editor]");
 
@@ -19,7 +26,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const editor = new EasyMDE({
       element: element,
       spellChecker: false,
-      minHeight: "300px", // Add a reasonable min height for all editors
+      minHeight: "300px",
+      renderingConfig: {
+        codeSyntaxHighlighting: true,
+      },
+    });
+
+    // Handle paste events for rich text
+    editor.codemirror.on("paste", function (cm, e) {
+      // Only process if we have HTML content
+      if (e.clipboardData && e.clipboardData.types.includes("text/html")) {
+        e.preventDefault();
+
+        // Get the HTML content from the clipboard
+        const html = e.clipboardData.getData("text/html");
+
+        // Convert HTML to Markdown using Turndown
+        const markdown = turndownService.turndown(html);
+
+        // Insert the converted Markdown at the cursor position
+        cm.replaceSelection(markdown);
+
+        return true;
+      }
+      return false;
     });
 
     // Add change event listener to track unsaved changes
