@@ -3,12 +3,14 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from taggit.models import Tag
 
 from .forms import BookEditForm, NoteForm, NoteTypeForm
 from .models import Book, Note, NoteType, Testament
@@ -138,10 +140,6 @@ class NoteListView(LoginRequiredMixin, ListView):
             "tag": self.request.GET.get("tag", ""),
             "q": self.request.GET.get("q", ""),
         }
-
-        # Add all tags used by this user's notes for the tags dropdown
-        from django.db.models import Count
-        from taggit.models import Tag
 
         # Get all note IDs for the current user
         user_note_ids = Note.objects.get_queryset_for_user(self.request.user).values_list("id", flat=True)
