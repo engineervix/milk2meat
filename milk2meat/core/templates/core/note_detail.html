@@ -187,34 +187,65 @@
                     </div>
                 </div>
 
-                {# PDF/File Attachment Preview (if present) #}
+                {# File Attachment Preview #}
                 {% if note.upload %}
                     <div class="card bg-base-100 shadow-xl mt-8">
                         <div class="card-body">
                             <h2 class="card-title flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
+                                {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
+                                    <i class="ph ph-file-pdf text-error mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" %}
+                                    <i class="ph ph-image text-primary mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".png" %}
+                                    <i class="ph ph-image text-success mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".gif" %}
+                                    <i class="ph ph-image-square text-secondary mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
+                                    <i class="ph ph-file-svg text-warning mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".doc" or note.upload.name|lower|slice:"-5:" == ".docx" %}
+                                    <i class="ph ph-file-doc text-info mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".xls" or note.upload.name|lower|slice:"-5:" == ".xlsx" %}
+                                    <i class="ph ph-file-xls text-success mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".txt" %}
+                                    <i class="ph ph-file-text text-base-content/70 mr-2 text-xl"></i>
+                                {% else %}
+                                    <i class="ph ph-file text-base-content/70 mr-2 text-xl"></i>
+                                {% endif %}
                                 {{ note.upload.name|split:"/"|last }}
                             </h2>
 
                             {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
                                 {# PDF preview with multi-page support #}
                                 <div id="pdf-viewer" class="w-full h-auto bg-base-100 rounded-lg overflow-hidden p-4" data-pdf-url="{{ note.upload.url }}"></div>
-                            {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" or note.upload.name|lower|slice:"-4:" == ".svg" %}
-                                {# Image preview #}
+                            {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
+                                {# Image preview with GLightbox #}
                                 <div class="flex justify-center">
-                                    {# djlint:off H006 #}
-                                    <img src="{{ note.upload.url }}" alt="Attachment preview" class="max-w-full max-h-96 object-contain rounded-lg border border-base-300" />
-                                    {# djlint:on #}
+                                    <a href="{{ note.upload.url }}" class="glightbox" data-gallery="note-gallery" data-title="{{ note.upload.name|split:'//'|last }}">
+                                        {# djlint:off H006 #}
+                                        <img src="{{ note.upload.url }}" alt="Attachment preview" class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
+                                        {# djlint:on #}
+                                    </a>
+                                </div>
+                                <div class="text-center mt-2 text-sm text-base-content/70">
+                                    <i class="ph ph-arrows-out"></i> Click image to view in fullscreen
+                                </div>
+                            {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
+                                {# SVG preview with GLightbox #}
+                                <div class="flex justify-center">
+                                    <a href="{{ note.upload.url }}" class="glightbox" data-gallery="note-gallery" data-title="{{ note.upload.name|split:'//'|last }}">
+                                        {# djlint:off H006 #}
+                                        <img src="{{ note.upload.url }}" alt="SVG preview" class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
+                                        {# djlint:on #}
+                                    </a>
+                                </div>
+                                <div class="text-center mt-2 text-sm text-base-content/70">
+                                    <i class="ph ph-arrows-out"></i> Click image to view in fullscreen
                                 </div>
                             {% else %}
                                 {# Generic file preview #}
                                 <div class="w-full h-48 bg-base-200 rounded-lg flex items-center justify-center">
                                     <div class="text-center p-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
+                                        <i class="ph ph-file-dashed text-6xl mb-4 text-base-content/50"></i>
                                         <p class="mb-2">This file type cannot be previewed</p>
                                     </div>
                                 </div>
@@ -222,10 +253,9 @@
 
                             <div class="flex justify-center mt-4">
                                 <a href="{{ note.upload.url }}" class="btn btn-primary" download>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Download ({{ note.upload.size|filesizeformat }})
+                                    <i class="ph ph-download mr-1"></i>
+                                    Download
+                                    <span class="text-xs opacity-80 ml-1">({{ note.upload.size|filesizeformat }})</span>
                                 </a>
                             </div>
                         </div>
