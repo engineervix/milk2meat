@@ -1,9 +1,11 @@
+// Create a new file: milk2meat/assets/js/pdf-viewer.js
+
 import * as pdfjsLib from "pdfjs-dist";
 
-// Set the worker source
+// Set the worker source - using the path where webpack will output the worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/static/js/pdf.worker.min.js";
 
-// Export the library for global use
+// Export the library for global use if needed
 window.pdfjsLib = pdfjsLib;
 
 // PDF viewer functionality
@@ -16,61 +18,162 @@ document.addEventListener("DOMContentLoaded", function () {
   const pdfUrl = pdfViewerContainer.dataset.pdfUrl;
   if (!pdfUrl) return;
 
+  // Initialize the PDF viewer UI
+  initPdfViewer(pdfViewerContainer, pdfUrl);
+});
+
+function initPdfViewer(container, pdfUrl) {
   // Show loading message
-  pdfViewerContainer.innerHTML =
+  container.innerHTML =
     '<div class="text-center p-4"><span class="loading loading-spinner loading-md"></span> Loading PDF...</div>';
 
-  // Load the PDF
-  pdfjsLib
-    .getDocument(pdfUrl)
-    .promise.then(function (pdf) {
-      // Remove loading message
-      pdfViewerContainer.innerHTML = "";
+  // State variables for PDF viewing
+  let pdfDoc = null;
+  let pageNum = 1;
+  let pageRendering = false;
+  let pageNumPending = null;
+  let canvas = null;
+  let ctx = null;
 
-      // Get the first page
-      pdf.getPage(1).then(function (page) {
-        // Get container width to calculate proper scaling
-        const containerWidth = pdfViewerContainer.clientWidth;
-        const viewport = page.getViewport({ scale: 1.0 });
+  // Create UI elements
+  function createUI() {
+    // Clear container
+    container.innerHTML = "";
 
-        // Calculate scale to fit width properly
-        const scale = containerWidth / viewport.width;
-        const scaledViewport = page.getViewport({ scale: scale });
+    // Create canvas for rendering
+    canvas = document.createElement("canvas");
+    canvas.className = "mx-auto border border-base-300 rounded";
+    container.appendChild(canvas);
+    ctx = canvas.getContext("2d");
 
-        // Prepare canvas with proper dimensions
-        const canvas = document.createElement("canvas");
-        pdfViewerContainer.appendChild(canvas);
+    // Create controls
+    const controls = document.createElement("div");
+    controls.className = "flex items-center justify-between mt-4";
+    controls.innerHTML = `
+      <div class="flex">
+        <button id="pdf-prev" class="btn btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Previous
+        </button>
+        <button id="pdf-next" class="btn btn-sm">
+          Next
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+      <div class="text-sm">
+        Page <span id="pdf-page-num"></span> of <span id="pdf-page-count"></span>
+      </div>
+    `;
+    container.appendChild(controls);
 
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-        canvas.className = "mx-auto"; // Center the canvas
+    // Add event listeners
+    document.getElementById("pdf-prev").addEventListener("click", onPrevPage);
+    document.getElementById("pdf-next").addEventListener("click", onNextPage);
+  }
 
-        const context = canvas.getContext("2d");
+  // Render a specific page number
+  function renderPage(num) {
+    pageRendering = true;
 
-        // Render PDF page
-        page.render({
-          canvasContext: context,
-          viewport: scaledViewport,
-        });
+    // Using promise to fetch the page
+    pdfDoc.getPage(num).then(function (page) {
+      // Get container width to calculate proper scaling
+      const containerWidth = container.clientWidth - 40; // Account for padding
+      const viewport = page.getViewport({ scale: 1.0 });
 
-        // Add page info
-        const pageInfo = document.createElement("div");
-        pageInfo.className = "text-center text-sm mt-2 opacity-70";
-        pageInfo.textContent = `Page 1 of ${pdf.numPages}`;
-        pdfViewerContainer.appendChild(pageInfo);
+      // Calculate scale to fit width properly
+      const scale = containerWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale: scale });
 
-        // If PDF has multiple pages, add a note
-        if (pdf.numPages > 1) {
-          const multiPageNote = document.createElement("div");
-          multiPageNote.className = "text-center text-sm mt-1 opacity-60";
-          multiPageNote.textContent = "Download the PDF to view all pages";
-          pdfViewerContainer.appendChild(multiPageNote);
+      // Set canvas dimensions
+      canvas.height = scaledViewport.height;
+      canvas.width = scaledViewport.width;
+
+      // Render PDF page
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: scaledViewport,
+      };
+
+      const renderTask = page.render(renderContext);
+
+      // Wait for rendering to finish
+      renderTask.promise.then(function () {
+        pageRendering = false;
+        if (pageNumPending !== null) {
+          // New page rendering is pending
+          renderPage(pageNumPending);
+          pageNumPending = null;
         }
       });
+    });
+
+    // Update page counter
+    document.getElementById("pdf-page-num").textContent = num;
+  }
+
+  // Queue a page rendering if another is in progress
+  function queueRenderPage(num) {
+    if (pageRendering) {
+      pageNumPending = num;
+    } else {
+      renderPage(num);
+    }
+  }
+
+  // Display previous page
+  function onPrevPage() {
+    if (pageNum <= 1) {
+      return;
+    }
+    pageNum--;
+    queueRenderPage(pageNum);
+  }
+
+  // Display next page
+  function onNextPage() {
+    if (pageNum >= pdfDoc.numPages) {
+      return;
+    }
+    pageNum++;
+    queueRenderPage(pageNum);
+  }
+
+  // Handle window resize to adjust PDF scaling
+  function handleResize() {
+    if (pdfDoc && !pageRendering) {
+      // Re-render current page with new scaling when window is resized
+      queueRenderPage(pageNum);
+    }
+  }
+
+  // Load the PDF document
+  pdfjsLib
+    .getDocument(pdfUrl)
+    .promise.then(function (doc) {
+      pdfDoc = doc;
+      createUI();
+
+      document.getElementById("pdf-page-count").textContent = pdfDoc.numPages;
+
+      // Initial page rendering
+      renderPage(pageNum);
+
+      // Add resize handler
+      window.addEventListener("resize", handleResize);
     })
     .catch(function (error) {
       // console.error("Error loading PDF:", error);
-      pdfViewerContainer.innerHTML =
-        '<div class="p-4 text-center"><p class="text-error">Error loading PDF. Please download to view.</p></div>';
+      container.innerHTML = `
+      <div class="p-4 text-center">
+        <p class="text-error mb-2">Error loading PDF</p>
+        <p class="text-sm opacity-70">${error.message}</p>
+        <p class="mt-4">Please try downloading the file instead.</p>
+      </div>
+    `;
     });
-});
+}
