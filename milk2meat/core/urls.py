@@ -14,6 +14,7 @@ urlpatterns = [
     path("notes/create/", views.NoteCreateView.as_view(), name="note_create"),
     path("notes/<uuid:pk>/", views.NoteDetailView.as_view(), name="note_detail"),
     path("notes/<uuid:pk>/edit/", views.NoteUpdateView.as_view(), name="note_edit"),
+    path("notes/<uuid:pk>/delete/", views.note_delete_view, name="note_delete"),
     path("tags/", views.TagListView.as_view(), name="tag_list"),
     path("api/note-types/create/", views.create_note_type_ajax, name="create_note_type_ajax"),
 ]

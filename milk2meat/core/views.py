@@ -1,8 +1,10 @@
 import json
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
@@ -285,3 +287,14 @@ def create_note_type_ajax(request):
     else:
         # Return form errors
         return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+
+@require_POST
+@login_required
+def note_delete_view(request, pk):
+    """View for deleting a note"""
+    note = get_object_or_404(Note, pk=pk, owner=request.user)
+    title = note.title  # Save the title for the success message
+    note.delete()
+    messages.success(request, f"Note '{title}' has been deleted.")
+    return redirect(reverse_lazy("core:note_list"))
