@@ -111,10 +111,10 @@
                                 </div>
                             {% endif %}
 
-                            {# Attachments #}
+                            {# Attachment #}
                             {% if note.upload %}
                                 <div class="mb-4">
-                                    <h3 class="text-sm font-semibold text-base-content/70">Attachments</h3>
+                                    <h3 class="text-sm font-semibold text-base-content/70">Attachment</h3>
                                     <div class="flex flex-col gap-1 mt-1">
                                         <a href="{{ note.upload.url }}" class="flex items-center link link-hover" target="_blank">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,7 +180,7 @@
 
                             {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
                                 {# PDF preview #}
-                                <div id="pdf-viewer" class="w-full h-96 border border-base-300 rounded-lg"></div>
+                                <div id="pdf-viewer" class="w-full h-auto border border-base-300 rounded-lg overflow-hidden p-4" data-pdf-url="{{ note.upload.url }}"></div>
                             {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
                                 {# Image preview #}
                                 <div class="flex justify-center">
@@ -233,58 +233,13 @@
 
 {% block extra_js %}
     {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
-        {# Include PDF.js if the attachment is a PDF #}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-        <script>
-            // PDF.js setup
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-            document.addEventListener('DOMContentLoaded', function() {
-                const url = '{{ note.upload.url }}';
-                const container = document.getElementById('pdf-viewer');
-
-                // Load the PDF
-                pdfjsLib.getDocument(url).promise.then(function(pdf) {
-                    // Get the first page
-                    pdf.getPage(1).then(function(page) {
-                        const viewport = page.getViewport({ scale: 1.5 });
-
-                        // Prepare canvas
-                        const canvas = document.createElement('canvas');
-                        container.appendChild(canvas);
-
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        canvas.className = 'mx-auto border';
-
-                        const context = canvas.getContext('2d');
-
-                        // Render PDF page
-                        page.render({
-                            canvasContext: context,
-                            viewport: viewport
-                        });
-                    });
-                }).catch(function(error) {
-                    console.error('Error loading PDF:', error);
-                    container.innerHTML = '<div class="p-4 text-center"><p>Error loading PDF. Please download to view.</p></div>';
-                });
-            });
-        </script>
+        {# Include the bundled PDF viewer script #}
+        <script src="{% static 'js/pdf-viewer.min.js' %}"></script>
     {% endif %}
 
     <script>
         function confirmDelete() {
             document.getElementById('delete-modal').showModal();
-        }
-
-        // Add a simple filter for file extensions
-        // Note: In Django templates we should use custom template filters,
-        // but for simplicity this is a client-side solution
-        if (!String.prototype.endsWith) {
-            String.prototype.endsWith = function(suffix) {
-                return this.indexOf(suffix, this.length - suffix.length) !== -1;
-            };
         }
     </script>
 {% endblock extra_js %}

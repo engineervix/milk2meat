@@ -12,6 +12,11 @@ const options = {
     // multiple entries can be added here
     main: `./${projectRoot}/assets/js/main.js`,
     editor: `./${projectRoot}/assets/js/editor.js`,
+    "pdf-viewer": `./${projectRoot}/assets/js/pdf-viewer.js`,
+    "pdf.worker": path.resolve(
+      __dirname,
+      "node_modules/pdfjs-dist/build/pdf.worker.mjs",
+    ),
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),

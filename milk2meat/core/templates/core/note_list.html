@@ -162,9 +162,9 @@
             {% for note in notes %}
                 <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-200">
                     <div class="card-body">
-                        <div class="flex justify-between items-start">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                             <h2 class="card-title">{{ note.title }}</h2>
-                            <div class="badge badge-accent">{{ note.note_type.name }}</div>
+                            <div class="badge badge-accent whitespace-nowrap">{{ note.note_type.name }}</div>
                         </div>
                         <p class="text-sm opacity-75 mb-2">Last updated: {{ note.updated_at|date:"M d, Y" }}</p>
                         <p class="line-clamp-3">{{ note.content|striptags|truncatechars:150 }}</p>
