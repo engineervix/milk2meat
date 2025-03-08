@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {{ block.super }} {% if is_create %}New Note{% else %}Edit {{ note.title }}{% endif %}
+{% endblock title %}
+
+{% block extrameta %}
+    <meta name="description" content="{% if is_create %}Create new note{% else %}Edit note{% endif %} - Milk2Meat Bible Study Tool">
+{% endblock extrameta %}
+
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <p class="font-medium">
+                        <span>{% if is_create %}New Note{% else %}Edit Note{% endif %}</span>
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Theme toggle button #}
+                    <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle btn-ghost">
+                        <svg
+                          class="sun-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="5"></circle>
+                          <line x1="12" y1="1" x2="12" y2="3"></line>
+                          <line x1="12" y1="21" x2="12" y2="23"></line>
+                          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                          <line x1="1" y1="12" x2="3" y2="12"></line>
+                          <line x1="21" y1="12" x2="23" y2="12"></line>
+                          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg
+                          class="moon-icon w-5 h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Cancel button -->
+                    <a href="{% if is_create %}{% url 'core:note_list' %}{% else %}{% url 'core:note_detail' note.pk %}{% endif %}" class="btn btn-sm btn-ghost" id="cancel-edit-btn">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+
+{% block extra_css %}
+    {# Include EasyMDE styles #}
+    <link rel="stylesheet" href="{% static 'css/editor.min.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {# Note title #}
+                    <div class="form-control mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Title</span>
+                        </label>
+                        {{ form.title|add_class:"input input-bordered"|attr:"placeholder:Enter note title" }}
+                        {% if form.title.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.title.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Note type and tags #}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label for="{{ form.note_type.id_for_label }}" class="label">
+                                <span class="label-text text-lg font-medium">Note Type</span>
+                            </label>
+                            <div class="input-group">
+                                {{ form.note_type|add_class:"select select-bordered flex-1" }}
+                                <button type="button" class="btn btn-square" onclick="document.getElementById('new-type-modal').showModal()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                            {% if form.note_type.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.note_type.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {# Tags input #}
+                        <div class="form-control">
+                            <label for="tags-input" class="label">
+                                <span class="label-text text-lg font-medium">Tags</span>
+                            </label>
+                            <input type="text" id="tags-input" class="input input-bordered" placeholder="Enter tags (comma separated)">
+                            {{ form.tags_input|attr:"id:hidden-tags-input" }}
+
+                            {# Selected tags display #}
+                            <div id="tags-container" class="flex flex-wrap gap-2 mt-2"></div>
+
+                            {% if form.tags_input.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.tags_input.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Referenced Bible books #}
+                    <div class="form-control mb-4">
+                        <label for="referenced-books" class="label">
+                            <span class="label-text text-lg font-medium">Referenced Bible Books</span>
+                        </label>
+                        <div class="flex flex-col gap-2">
+                            {# Input with autocomplete #}
+                            <div class="relative">
+                                <input type="text" id="referenced-books" class="input input-bordered w-full" placeholder="Type to search Bible books...">
+                                <div id="book-suggestions" class="absolute z-10 w-full mt-1 bg-base-100 border border-base-300 rounded-md shadow-lg max-h-60 overflow-auto hidden">
+                                    <ul class="py-1" id="book-suggestions-list"></ul>
+                                </div>
+                            </div>
+
+                            {# Selected books display #}
+                            <div id="selected-books-container" class="flex flex-wrap gap-2 mt-2"></div>
+
+                            {# Hidden input for selected books JSON #}
+                            {{ form.referenced_books_json|attr:"id:referenced-books-json" }}
+                        </div>
+                    </div>
+
+                    {# Note content (Markdown Editor) #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.content.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Content</span>
+                        </label>
+                        {{ form.content|add_class:"textarea textarea-bordered h-96" }}
+                        {% if form.content.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.content.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# File upload #}
+                    <div class="form-control mb-6">
+                        <label for="file-upload" class="label">
+                            <span class="label-text text-lg font-medium">Attachment</span>
+                        </label>
+                        <div class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center relative">
+                            <div class="flex flex-col items-center justify-center" id="upload-area">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-base-content/50 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                </svg>
+                                <p class="mb-2 text-sm text-base-content/70">
+                                    <span class="font-semibold">Click to upload</span> or drag and drop
+                                </p>
+                                <p class="text-xs text-base-content/50">
+                                    PDF, JPG, PNG (MAX. 10MB)
+                                </p>
+                                {{ form.upload|attr:"class:hidden"|attr:"id:file-upload" }}
+                                <button type="button" class="btn btn-outline btn-sm mt-4" onclick="document.getElementById('file-upload').click()">
+                                    Select File
+                                </button>
+                            </div>
+
+                            <div id="file-preview" class="hidden">
+                                <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <span id="file-name" class="font-medium"></span>
+                                    </div>
+                                    <button type="button" id="remove-file" class="btn btn-sm btn-ghost">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {% if note.upload %}
+                                <div id="existing-file" class="mt-4">
+                                    <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="font-medium">{{ note.upload.name }}</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ note.upload.url }}" class="btn btn-sm btn-outline" target="_blank">View</a>
+                                            <button type="button" id="replace-file" class="btn btn-sm btn-ghost">
+                                                Replace
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Form actions #}
+                    <div class="flex justify-end space-x-2 mt-8">
+                        <a href="{% if is_create %}{% url 'core:note_list' %}{% else %}{% url 'core:note_detail' note.pk %}{% endif %}" class="btn btn-ghost" id="cancel-edit-btn">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Note</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add new type modal -->
+    <dialog id="new-type-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Add New Note Type</h3>
+            <form id="new-type-form" class="mt-4">
+                <div class="form-control mb-4">
+                    <label for="new-type-name" class="label">
+                        <span class="label-text">Type Name</span>
+                    </label>
+                    <input type="text" id="new-type-name" class="input input-bordered" placeholder="e.g., Family Devotion" required>
+                    <div id="new-type-name-error" class="label hidden">
+                        <span class="label-text-alt text-error"></span>
+                    </div>
+                </div>
+                <div class="form-control mb-4">
+                    <label for="new-type-description" class="label">
+                        <span class="label-text">Description (optional)</span>
+                    </label>
+                    <textarea id="new-type-description" class="textarea textarea-bordered" placeholder="Brief description of this note type"></textarea>
+                </div>
+                <div class="modal-action">
+                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('new-type-modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Type</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+{% endblock content %}
+
+{% block extra_js %}
+    {# Include the bundled editor.js file #}
+    <script src="{% static 'js/editor.min.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize EasyMDE for the content field
+            const editor = new EasyMDE({
+                element: document.getElementById('id_content'),
+                spellChecker: false,
+                autofocus: false,
+                placeholder: "Write your note content here using Markdown...",
+                toolbar: [
+                    "bold", "italic", "heading", "|",
+                    "quote", "unordered-list", "ordered-list", "|",
+                    "link", "image", "code", "|",
+                    "preview", "side-by-side", "fullscreen", "|",
+                    "guide"
+                ]
+            });
+
+            // Bible Books Autocomplete
+            setupBibleBooksAutocomplete();
+
+            // Tags Input
+            setupTagsInput();
+
+            // File Upload
+            setupFileUpload();
+
+            // New Note Type Form
+            setupNewNoteTypeForm();
+
+            // Track form changes
+            window.formChanged = false;
+            document.querySelector('form').addEventListener('input', function() {
+                window.formChanged = true;
+            });
+            editor.codemirror.on('change', function() {
+                window.formChanged = true;
+            });
+        });
+
+        function setupBibleBooksAutocomplete() {
+            const booksInput = document.getElementById('referenced-books');
+            const booksList = document.getElementById('book-suggestions-list');
+            const suggestions = document.getElementById('book-suggestions');
+            const selectedContainer = document.getElementById('selected-books-container');
+            const hiddenInput = document.getElementById('referenced-books-json');
+
+            // Bible books data
+            const bibleBooks = [
+                {% for book in bible_books %}
+                    {id: {{ book.id }}, title: "{{ book.title }}"},
+                {% endfor %}
+            ];
+
+            // Initialize selected books from hidden input if exists
+            let selectedBooks = [];
+            if (hiddenInput.value) {
+                try {
+                    selectedBooks = JSON.parse(hiddenInput.value);
+                    renderSelectedBooks();
+                } catch (e) {
+                    console.error("Error parsing books JSON:", e);
+                }
+            }
+
+            // Filter books as user types
+            booksInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                if (value.length < 1) {
+                    suggestions.classList.add('hidden');
+                    return;
+                }
+
+                // Filter books by input value
+                const matches = bibleBooks.filter(book =>
+                    book.title.toLowerCase().includes(value) &&
+                    !selectedBooks.some(selected => selected.id === book.id)
+                );
+
+                // Render matching books
+                booksList.innerHTML = '';
+                if (matches.length > 0) {
+                    matches.forEach(book => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-base-200 cursor-pointer';
+                        li.textContent = book.title;
+                        li.dataset.id = book.id;
+
+                        li.addEventListener('click', function() {
+                            selectedBooks.push({
+                                id: book.id,
+                                title: book.title
+                            });
+                            renderSelectedBooks();
+                            booksInput.value = '';
+                            suggestions.classList.add('hidden');
+                        });
+
+                        booksList.appendChild(li);
+                    });
+                    suggestions.classList.remove('hidden');
+                } else {
+                    suggestions.classList.add('hidden');
+                }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!suggestions.contains(e.target) && e.target !== booksInput) {
+                    suggestions.classList.add('hidden');
+                }
+            });
+
+            // Function to render selected books
+            function renderSelectedBooks() {
+                selectedContainer.innerHTML = '';
+                selectedBooks.forEach((book, index) => {
+                    const badge = document.createElement('div');
+                    badge.className = 'badge badge-lg gap-1';
+                    badge.textContent = book.title;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn-xs btn-ghost rounded-full';
+                    removeBtn.textContent = '✕';
+                    removeBtn.addEventListener('click', function() {
+                        selectedBooks.splice(index, 1);
+                        renderSelectedBooks();
+                    });
+
+                    badge.appendChild(removeBtn);
+                    selectedContainer.appendChild(badge);
+                });
+
+                // Update hidden input
+                hiddenInput.value = JSON.stringify(selectedBooks);
+            }
+        }
+
+        function setupTagsInput() {
+            const tagsInput = document.getElementById('tags-input');
+            const hiddenInput = document.getElementById('hidden-tags-input');
+            const tagsContainer = document.getElementById('tags-container');
+
+            // Initialize tags from hidden input if exists
+            let tags = [];
+            if (hiddenInput.value) {
+                tags = hiddenInput.value.split(',');
+                renderTags();
+            }
+
+            // Add tags when pressing Enter or comma
+            tagsInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+
+            // Also add tags when input loses focus
+            tagsInput.addEventListener('blur', addTag);
+
+            function addTag() {
+                const value = tagsInput.value.trim();
+                if (value && !value.includes(',')) {
+                    if (!tags.includes(value)) {
+                        tags.push(value);
+                        renderTags();
+                    }
+                    tagsInput.value = '';
+                } else if (value && value.includes(',')) {
+                    // Handle multiple tags separated by commas
+                    const newTags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                    newTags.forEach(tag => {
+                        if (!tags.includes(tag)) {
+                            tags.push(tag);
+                        }
+                    });
+                    renderTags();
+                    tagsInput.value = '';
+                }
+            }
+
+            function renderTags() {
+                tagsContainer.innerHTML = '';
+                tags.forEach((tag, index) => {
+                    const badge = document.createElement('div');
+                    badge.className = 'badge badge-lg gap-1';
+                    badge.textContent = tag;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn-xs btn-ghost rounded-full';
+                    removeBtn.textContent = '✕';
+                    removeBtn.addEventListener('click', function() {
+                        tags.splice(index, 1);
+                        renderTags();
+                    });
+
+                    badge.appendChild(removeBtn);
+                    tagsContainer.appendChild(badge);
+                });
+
+                // Update hidden input
+                hiddenInput.value = tags.join(',');
+            }
+        }
+
+        function setupFileUpload() {
+            const fileInput = document.getElementById('file-upload');
+            const uploadArea = document.getElementById('upload-area');
+            const filePreview = document.getElementById('file-preview');
+            const fileName = document.getElementById('file-name');
+            const removeFileBtn = document.getElementById('remove-file');
+            const existingFile = document.getElementById('existing-file');
+            const replaceFileBtn = document.getElementById('replace-file');
+
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    showFilePreview(file);
+                }
+            });
+
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-primary');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                this.classList.remove('border-primary');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary');
+
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    showFilePreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Remove file
+            if (removeFileBtn) {
+                removeFileBtn.addEventListener('click', function() {
+                    fileInput.value = '';
+                    uploadArea.classList.remove('hidden');
+                    filePreview.classList.add('hidden');
+                });
+            }
+
+            // Replace existing file
+            if (replaceFileBtn) {
+                replaceFileBtn.addEventListener('click', function() {
+                    fileInput.click();
+                });
+            }
+
+            function showFilePreview(file) {
+                fileName.textContent = file.name;
+                uploadArea.classList.add('hidden');
+                filePreview.classList.remove('hidden');
+
+                if (existingFile) {
+                    existingFile.classList.add('hidden');
+                }
+            }
+        }
+
+        function setupNewNoteTypeForm() {
+            const form = document.getElementById('new-type-form');
+            const nameInput = document.getElementById('new-type-name');
+            const descInput = document.getElementById('new-type-description');
+            const nameError = document.getElementById('new-type-name-error');
+            const modal = document.getElementById('new-type-modal');
+            const noteTypeSelect = document.getElementById('id_note_type');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Reset error state
+                nameError.classList.add('hidden');
+
+                // Get form data
+                const name = nameInput.value.trim();
+                const description = descInput.value.trim();
+
+                // Create form data for AJAX request
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('description', description);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                // Send AJAX request
+                fetch('{% url "core:create_note_type_ajax" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add new option to select
+                        const option = document.createElement('option');
+                        option.value = data.id;
+                        option.textContent = data.name;
+                        option.selected = true;
+                        noteTypeSelect.appendChild(option);
+
+                        // Close modal and reset form
+                        modal.close();
+                        form.reset();
+                    } else {
+                        // Show error message
+                        if (data.errors && data.errors.name) {
+                            nameError.textContent = data.errors.name[0];
+                            nameError.classList.remove('hidden');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating note type:', error);
+                });
+            });
+        }
+    </script>
+{% endblock extra_js %}
