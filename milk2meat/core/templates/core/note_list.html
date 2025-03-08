@@ -160,8 +160,8 @@
         {# Notes display #}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for note in notes %}
-                <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-200">
-                    <div class="card-body">
+                <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-200 relative group">
+                    <a href="{% url 'core:note_detail' note.pk %}" class="card-body block">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                             <h2 class="card-title">{{ note.title }}</h2>
                             <div class="badge badge-accent whitespace-nowrap">{{ note.note_type.name }}</div>
@@ -173,7 +173,7 @@
                         {% if note.tags.all %}
                             <div class="flex flex-wrap gap-1 mt-3">
                                 {% for tag in note.tags.all %}
-                                    <div class="badge badge-outline">{{ tag.name }}</div>
+                                    <span class="badge badge-outline">{{ tag.name }}</span>
                                 {% endfor %}
                             </div>
                         {% endif %}
@@ -187,12 +187,12 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
+                    </a>
 
-                        {# Action buttons #}
-                        <div class="card-actions justify-end mt-4">
-                            <a href="{% url 'core:note_detail' note.pk %}" class="btn btn-sm btn-primary">View</a>
-                        </div>
-                    </div>
+                    {# Edit button with Phosphor icon, positioned at top right #}
+                    <a href="{% url 'core:note_edit' note.pk %}" class="absolute top-3 right-3 btn btn-circle btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity" title="Edit note">
+                        <i class="ph ph-pencil-simple text-lg"></i>
+                    </a>
                 </div>
             {% empty %}
                 <div class="col-span-full text-center py-12">
