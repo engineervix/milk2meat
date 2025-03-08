@@ -139,6 +139,24 @@ class NoteListView(LoginRequiredMixin, ListView):
             "q": self.request.GET.get("q", ""),
         }
 
+        # Add all tags used by this user's notes for the tags dropdown
+        from django.db.models import Count
+        from taggit.models import Tag
+
+        # Get all note IDs for the current user
+        user_note_ids = Note.objects.get_queryset_for_user(self.request.user).values_list("id", flat=True)
+
+        # Get tags with note counts
+        context["tags"] = (
+            Tag.objects.filter(
+                core_uuidtaggeditem_items__content_type__app_label="core",
+                core_uuidtaggeditem_items__content_type__model="note",
+                core_uuidtaggeditem_items__object_id__in=user_note_ids,
+            )
+            .annotate(count=Count("core_uuidtaggeditem_items"))
+            .order_by("name")
+        )
+
         return context
 
 
