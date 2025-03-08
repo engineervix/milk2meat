@@ -158,12 +158,15 @@
                         <label for="{{ form.content.id_for_label }}" class="label">
                             <span class="label-text text-lg font-medium">Content</span>
                         </label>
-                        {{ form.content|add_class:"textarea textarea-bordered h-96" }}
+                        {{ form.content|add_class:"textarea textarea-bordered h-96"|attr:"data-editor=content" }}
                         {% if form.content.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.content.errors|join:", " }}</span>
                             </div>
                         {% endif %}
+                        <div class="text-xs text-base-content/50 mt-1">
+                            Use Markdown for formatting. You can use **bold**, *italic*, [links](https://example.com), and more.
+                        </div>
                     </div>
 
                     {# File upload #}
@@ -270,21 +273,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize EasyMDE for the content field
-            const editor = new EasyMDE({
-                element: document.getElementById('id_content'),
-                spellChecker: false,
-                autofocus: false,
-                placeholder: "Write your note content here using Markdown...",
-                toolbar: [
-                    "bold", "italic", "heading", "|",
-                    "quote", "unordered-list", "ordered-list", "|",
-                    "link", "image", "code", "|",
-                    "preview", "side-by-side", "fullscreen", "|",
-                    "guide"
-                ]
-            });
-
             // Bible Books Autocomplete
             setupBibleBooksAutocomplete();
 
@@ -296,15 +284,6 @@
 
             // New Note Type Form
             setupNewNoteTypeForm();
-
-            // Track form changes
-            window.formChanged = false;
-            document.querySelector('form').addEventListener('input', function() {
-                window.formChanged = true;
-            });
-            editor.codemirror.on('change', function() {
-                window.formChanged = true;
-            });
         });
 
         function setupBibleBooksAutocomplete() {

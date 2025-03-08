@@ -185,6 +185,10 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """Process the form data and save"""
         try:
+            # Explicitly set the owner before saving
+            form.instance.owner = self.request.user
+
+            # Call the parent class's form_valid which calls form.save()
             response = super().form_valid(form)
             messages.success(self.request, "Note created successfully.")
             return response

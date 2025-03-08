@@ -181,7 +181,7 @@
                             {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
                                 {# PDF preview #}
                                 <div id="pdf-viewer" class="w-full h-96 border border-base-300 rounded-lg"></div>
-                            {% elif note.upload.name|lower|endswith:".jpg" or note.upload.name|lower|endswith:".jpeg" or note.upload.name|lower|endswith:".png" or note.upload.name|lower|endswith:".gif" %}
+                            {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
                                 {# Image preview #}
                                 <div class="flex justify-center">
                                     {# djlint:off H006 #}

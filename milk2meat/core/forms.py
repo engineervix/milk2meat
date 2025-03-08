@@ -216,9 +216,18 @@ class NoteForm(forms.ModelForm):
         """Override save to handle referenced books and tags"""
         note = super().save(commit=False)
 
-        # Set the owner if creating a new note
-        if not note.pk and self.user:
-            note.owner = self.user
+        # Set the owner if creating a new note and owner isn't already set
+        if not note.pk:
+            # First, check if owner is already set by the view
+            # (which might happen through form.instance.owner = user)
+            if hasattr(note, "owner") and note.owner is not None:
+                pass  # Owner already set by the view
+            elif self.user:
+                # Set from self.user if available
+                note.owner = self.user
+            else:
+                # If we still don't have an owner, give up
+                raise ValueError("Cannot create note: Couldn't determine who the owner is")
 
         if commit:
             note.save()

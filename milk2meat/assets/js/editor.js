@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const editor = new EasyMDE({
       element: element,
       spellChecker: false,
+      minHeight: "300px", // Add a reasonable min height for all editors
     });
 
     // Add change event listener to track unsaved changes
