@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Track whether form has unsaved changes
   let formChanged = false;
 
+  // Make formChanged accessible to other functions
+  window.formChanged = false;
+
   // Array to store editor instances
   const editors = [];
 
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add change event listener to track unsaved changes
     editor.codemirror.on("change", function () {
       formChanged = true;
+      window.formChanged = true;
     });
 
     editors.push(editor);
@@ -68,28 +72,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set up beforeunload event to catch page navigation with unsaved changes
   if (document.querySelector("form")) {
-    // Make formChanged accessible to other functions
-    window.formChanged = formChanged;
-
     // Also track form input changes for non-editor fields
     document.querySelector("form").addEventListener("input", function (e) {
       if (!e.target.matches("[data-editor]")) {
         // Avoid double-tracking editor changes
+        formChanged = true;
         window.formChanged = true;
       }
     });
 
     // Add event listener for beforeunload to warn about unsaved changes
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event
     window.addEventListener("beforeunload", function (e) {
-      if (window.formChanged) {
+      if (formChanged) {
+        // For modern browsers
         e.preventDefault();
+        // For older browsers
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
+        return "You have unsaved changes. Are you sure you want to leave?";
       }
-      return undefined;
     });
 
     // Listen for form submission to prevent the warning when form is properly submitted
     document.querySelector("form").addEventListener("submit", function () {
+      formChanged = false;
       window.formChanged = false;
     });
 
@@ -98,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (cancelButton) {
       cancelButton.addEventListener("click", function (e) {
         // If there are unsaved changes, ask for confirmation before navigating away
-        if (window.formChanged) {
+        if (formChanged) {
           if (
             !confirm(
               "You have unsaved changes. Are you sure you want to leave this page?",
@@ -106,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ) {
             e.preventDefault();
           } else {
+            formChanged = false;
             window.formChanged = false; // Don't show the beforeunload dialog if user confirmed
           }
         }
