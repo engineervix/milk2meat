@@ -47,12 +47,12 @@
             </button>
         </div>
 
-        <div class="hero-content flex-col">
+        <div class="hero-content flex-col max-w-md w-full">
             <div class="text-center">
                 <h2 class="text-3xl font-bold">Sign in to Milk2Meat</h2>
                 <p class="py-2">Your personal Bible study companion</p>
             </div>
-            <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <div class="card flex-shrink-0 w-full shadow-2xl bg-base-100">
                 <div class="card-body">
                     <form method="post" action="{% url 'auth:login' %}">
                         {% csrf_token %}
