@@ -3,7 +3,7 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -97,7 +97,7 @@ class NoteListView(LoginRequiredMixin, ListView):
     paginate_by = 12  # Show 12 notes per page
 
     def get_queryset(self):
-        """Filter notes by the current user"""
+        """Filter notes by the current user with enhanced search"""
         queryset = (
             Note.objects.get_queryset_for_user(self.request.user)
             .select_related("note_type", "owner")
@@ -120,7 +120,11 @@ class NoteListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(tags__name__iexact=tag)
 
         if search_query:
-            queryset = queryset.filter(title__icontains=search_query)
+            queryset = queryset.filter(
+                Q(title__icontains=search_query)
+                | Q(content__icontains=search_query)
+                | Q(tags__name__icontains=search_query)
+            ).distinct()
 
         return queryset
 
@@ -133,12 +137,16 @@ class NoteListView(LoginRequiredMixin, ListView):
         # Add Bible books for filter dropdown
         context["bible_books"] = Book.objects.all()
 
+        # Add search query to context for UI feedback
+        search_query = self.request.GET.get("q", "")
+        context["search_query"] = search_query
+
         # Add filter parameters to maintain state
         context["current_filters"] = {
             "type": self.request.GET.get("type", ""),
             "book": self.request.GET.get("book", ""),
             "tag": self.request.GET.get("tag", ""),
-            "q": self.request.GET.get("q", ""),
+            "q": search_query,
         }
 
         # Get all note IDs for the current user
@@ -154,6 +162,11 @@ class NoteListView(LoginRequiredMixin, ListView):
             .annotate(count=Count("core_uuidtaggeditem_items"))
             .order_by("name")
         )
+
+        # Add count of search results if search is active
+        if search_query:
+            context["is_search_active"] = True
+            context["result_count"] = context["paginator"].count
 
         return context
 
