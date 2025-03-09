@@ -51,7 +51,14 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>Found {{ total_count }} result{{ total_count|pluralize }} for "<strong>{{ search_query }}</strong>"</span>
+                        <span>
+                            Found {{ total_count }} result{{ total_count|pluralize }} for "<strong>{{ search_query }}</strong>"
+                            {% if showing_range %}
+                                <span class="text-sm opacity-75">
+                                    (Showing {{ showing_range.start }}-{{ showing_range.end }})
+                                </span>
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
 

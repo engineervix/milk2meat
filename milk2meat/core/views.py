@@ -1,5 +1,4 @@
 import json
-from itertools import groupby
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -340,19 +339,36 @@ class GlobalSearchView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         # Add search query to context
-        context["search_query"] = self.request.GET.get("q", "")
+        query = self.request.GET.get("q", "")
+        context["search_query"] = query
 
-        # Count results by model type
-        if context["search_results"]:
-            # Group results by model type
-            results_by_type = {}
-            for model_name, group in groupby(
-                context["search_results"], key=lambda x: x.content_type.model_class().__name__
-            ):
-                results_by_type[model_name] = list(group)
+        if query:
+            # For accurate result counting, we need to get the total count
+            # from the paginator rather than the page object
+            context["total_count"] = context["paginator"].count
 
-            context["results_by_type"] = results_by_type
-            context["total_count"] = len(context["search_results"])
+            # Add pagination info
+            page_obj = context["page_obj"]
+            if page_obj.has_next() or page_obj.has_previous():
+                start_index = page_obj.start_index()
+                end_index = page_obj.end_index()
+                context["showing_range"] = {
+                    "start": start_index,
+                    "end": end_index,
+                }
+
+            # Group results by model type (only for current page)
+            if context["search_results"]:
+                from itertools import groupby
+
+                # Group results by model type
+                results_by_type = {}
+                for model_name, group in groupby(
+                    context["search_results"], key=lambda x: x.content_type.model_class().__name__
+                ):
+                    results_by_type[model_name] = list(group)
+
+                context["results_by_type"] = results_by_type
 
         return context
 
