@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% block extrameta %}
-    <meta name="description"
-          content="A tool to help one get into The Word of God">
+    <meta name="description" content="A tool to help grow in the grace and knowledge of Christ">
     <meta name="author" content="Victor Miti">
     <meta property="og:title" content="{{ page.title }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:description"
-          content="A tool to help one get into The Word of God">
+    <meta property="og:description" content="A tool to help grow in the grace and knowledge of Christ">
     <meta property="og:site_name" content="Milk to Meat">
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-    <meta property="og:image" content="https://picsum.photos/480/270" />
+    <meta property="og:image" content="https://ik.imagekit.io/onezam/images/og-img-03df7feab6b701a9919b58699acdd4916500a7ef1fe39450.jpg" />
     <meta property="og:locale" content="en_ZM" />
     <meta property="og:locale:alternate" content="en_ZA" />
     <meta property="og:locale:alternate" content="en_GB" />
@@ -18,20 +16,11 @@
 {% endblock extrameta %}
 {% block promo_block %}
     <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center relative">
-            <!-- Top navigation bar with theme toggle and logout (if authenticated) -->
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center relative">
+            {# Top navigation bar with theme toggle and logout (if authenticated) #}
             <div class="absolute top-4 right-4 flex items-center space-x-2">
                 <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle bg-base-200 bg-opacity-20">
-                    <svg
-                      class="sun-icon w-5 h-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
+                    <svg class="sun-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="5"></circle>
                       <line x1="12" y1="1" x2="12" y2="3"></line>
                       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -42,16 +31,7 @@
                       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                     </svg>
-                    <svg
-                      class="moon-icon w-5 h-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
+                    <svg class="moon-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                 </button>
@@ -66,54 +46,98 @@
                 {% endif %}
             </div>
 
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">Welcome to Milk to Meat</h1>
-            <p class="mt-6 text-xl max-w-3xl mx-auto">
-                Your personal Bible study companion to help transition from the basics to deeper understanding.
-            </p>
-            <div class="mt-8 flex justify-center">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}"
-                       class="btn btn-primary">
-                        Go to Dashboard
-                    </a>
-                {% else %}
-                    <a href="{% url 'auth:login' %}"
-                       class="btn btn-primary">
-                        Sign In
-                    </a>
-                {% endif %}
+            <div class="max-w-md mx-auto">
+                <h1 class="text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl">Milk to Meat</h1>
+                <p class="mt-6 text-xl">
+                    Your personal Bible study companion to help grow in the grace and knowledge of your Lord and Saviour Jesus Christ
+                </p>
+                <div class="mt-8">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                            <i class="ph ph-gauge mr-2"></i>
+                            Go to Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'auth:login' %}" class="btn btn-primary btn-lg">
+                            <i class="ph ph-sign-in mr-2"></i>
+                            Sign In
+                        </a>
+                    {% endif %}
+                </div>
+
+                {# Scripture cycling section #}
+                <div class="mt-12 max-w-lg mx-auto p-4 bg-base-200 bg-opacity-20 rounded-lg" id="scripture-container">
+                    <blockquote class="italic text-lg" id="scripture-text">
+                        "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil."
+                    </blockquote>
+                    <p class="mt-2 text-right" id="scripture-reference">— Hebrews 5:13-14</p>
+                </div>
             </div>
         </div>
     </div>
 {% endblock promo_block %}
 {% block content %}
-    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl text-gray-900 dark:text-gray-100">From milk to solid food</h2>
-            <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-500 dark:text-gray-300">
-                "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil."
-                <span class="block mt-2 italic">— Hebrews 5:13-14</span>
-            </p>
-            <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
-                    <div class="px-4 py-5 sm:p-6">
-                        <h3 class="text-lg font-medium">Study the Word</h3>
-                        <p class="mt-2 text-sm opacity-75">Explore the Bible book by book, chapter by chapter.</p>
-                    </div>
-                </div>
-                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
-                    <div class="px-4 py-5 sm:p-6">
-                        <h3 class="text-lg font-medium">Take Notes</h3>
-                        <p class="mt-2 text-sm opacity-75">Capture your insights and reflections as you study.</p>
-                    </div>
-                </div>
-                <div class="bg-base-100 overflow-hidden shadow rounded-lg">
-                    <div class="px-4 py-5 sm:p-6">
-                        <h3 class="text-lg font-medium">Grow Deeper</h3>
-                        <p class="mt-2 text-sm opacity-75">Track your spiritual growth and understanding over time.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Scripture cycling functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const scriptures = [
+            {
+                text: "for everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil.",
+                reference: "Hebrews 5:13-14"
+            },
+            {
+                text: "But I, brothers, could not address you as spiritual people, but as people of the flesh, as infants in Christ. I fed you with milk, not solid food, for you were not ready for it. And even now you are not yet ready,",
+                reference: "1 Corinthians 3:1-2"
+            },
+            {
+                text: "But grow in the grace and knowledge of our Lord and Savior Jesus Christ. To him be the glory both now and to the day of eternity. Amen.",
+                reference: "2 Peter 3:18"
+            },
+            {
+                text: "For I decided to know nothing among you except Jesus Christ and him crucified.",
+                reference: "1 Corinthians 2:2"
+            },
+            {
+                text: "Therefore, as you received Christ Jesus the Lord, so walk in him, rooted and built up in him and established in the faith, just as you were taught, abounding in thanksgiving.",
+                reference: "Colossians 2: 6-7"
+            },
+            {
+                text: "All Scripture is breathed out by God and profitable for teaching, for reproof, for correction, and for training in righteousness, that the man of God may be competent, equipped for every good work.",
+                reference: "2 Timothy 3:16-17"
+            }
+        ];
+
+        const scriptureText = document.getElementById('scripture-text');
+        const scriptureReference = document.getElementById('scripture-reference');
+        let currentIndex = 0;
+
+        // Initial scripture is already set in the HTML
+
+        // Change scripture every 10 seconds
+        setInterval(function() {
+            currentIndex = (currentIndex + 1) % scriptures.length;
+
+            // Fade out
+            scriptureText.style.opacity = 0;
+            scriptureReference.style.opacity = 0;
+
+            setTimeout(function() {
+                // Update text
+                scriptureText.textContent = '"' + scriptures[currentIndex].text + '"';
+                scriptureReference.textContent = "— " + scriptures[currentIndex].reference;
+
+                // Fade in
+                scriptureText.style.opacity = 1;
+                scriptureReference.style.opacity = 1;
+            }, 500);
+        }, 10000);
+
+        // Add CSS transition for the fade effect
+        scriptureText.style.transition = "opacity 0.5s ease";
+        scriptureReference.style.transition = "opacity 0.5s ease";
+    });
+</script>
+{% endblock extra_js %}
