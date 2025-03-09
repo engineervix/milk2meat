@@ -1,4 +1,5 @@
 import json
+from itertools import groupby
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from taggit.models import Tag
+from watson import search as watson
 
 from .forms import BookEditForm, NoteForm, NoteTypeForm
 from .models import Book, Note, NoteType, Testament
@@ -307,6 +309,50 @@ class TagListView(LoginRequiredMixin, ListView):
 
         # Get tags with count for the tag cloud (sorted by count)
         context["tags_for_cloud"] = context["tags"].order_by("-note_count")
+
+        return context
+
+
+class GlobalSearchView(LoginRequiredMixin, ListView):
+    template_name = "core/search_results.html"
+    context_object_name = "search_results"
+    paginate_by = 20
+
+    def get_queryset(self):
+        query = self.request.GET.get("q", "")
+
+        if not query:
+            return []
+
+        # Perform search with watson
+        search_results = watson.search(
+            query,
+            # Limit search to user's own notes
+            models=(
+                Note.objects.get_queryset_for_user(self.request.user),
+                Book.objects.all(),
+            ),
+        )
+
+        return search_results
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add search query to context
+        context["search_query"] = self.request.GET.get("q", "")
+
+        # Count results by model type
+        if context["search_results"]:
+            # Group results by model type
+            results_by_type = {}
+            for model_name, group in groupby(
+                context["search_results"], key=lambda x: x.content_type.model_class().__name__
+            ):
+                results_by_type[model_name] = list(group)
+
+            context["results_by_type"] = results_by_type
+            context["total_count"] = len(context["search_results"])
 
         return context
 

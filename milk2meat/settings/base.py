@@ -68,6 +68,7 @@ THIRD_PARTY_APPS = [
     "django_extensions",  # https://github.com/django-extensions/django-extensions
     "taggit",  # https://github.com/jazzband/django-taggit
     # "django_rq",  # https://github.com/rq/django-rq
+    "watson",  # https://github.com/etianen/django-watson
     "widget_tweaks",  # https://github.com/jazzband/django-widget-tweaks
 ]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#installed-apps
@@ -101,6 +102,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     # "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "watson.middleware.SearchContextMiddleware",
 ]
 
 # URLS
@@ -261,6 +263,11 @@ MANAGERS = ADMINS
 # ------------------------------------------------------------------------------
 # https://github.com/jazzband/django-taggit
 TAGGIT_CASE_INSENSITIVE = True
+
+# watson
+# ------------------------------------------------------------------------------
+# https://github.com/etianen/django-watson/wiki/database-support
+WATSON_BACKEND = "watson.backends.PostgresSearchBackend"
 
 # Cloudflare Turnstile
 # ------------------------------------------------------------------------------

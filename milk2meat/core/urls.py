@@ -17,4 +17,6 @@ urlpatterns = [
     path("notes/<uuid:pk>/delete/", views.note_delete_view, name="note_delete"),
     path("tags/", views.TagListView.as_view(), name="tag_list"),
     path("api/note-types/create/", views.create_note_type_ajax, name="create_note_type_ajax"),
+    # Search
+    path("search/", views.GlobalSearchView.as_view(), name="global_search"),
 ]
