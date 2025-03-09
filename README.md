@@ -40,3 +40,10 @@ inv start
 ```
 
 You should be able to access the site at <http://127.0.0.1:8000>
+
+## Credits
+
+Illustrations
+
+- <https://undraw.co>
+- <https://www.svgrepo.com/svg/125463/open-book>
