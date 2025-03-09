@@ -14,6 +14,9 @@
     <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:locale:alternate" content="en_US" />
 {% endblock extrameta %}
+{% block title %}
+    {{ block.super }} Home
+{% endblock title %}
 {% block promo_block %}
     <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900">
         <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center relative">
@@ -31,7 +34,7 @@
                     {% else %}
                         <a href="{% url 'auth:login' %}" class="btn btn-primary btn-lg">
                             <i class="ph ph-sign-in mr-2"></i>
-                            Sign In
+                            Login
                         </a>
                     {% endif %}
                 </div>
