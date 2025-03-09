@@ -67,20 +67,7 @@
 {% endblock promo_block %}
 {% block content %}
     <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {# Bible Reading Section #}
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title">Continue Reading</h2>
-                    <p>Pick up where you left off in your Bible reading.</p>
-                    <div class="card-actions justify-end mt-4">
-                        <a href="#" class="btn btn-primary">
-                            Open Bible
-                        </a>
-                    </div>
-                </div>
-            </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {# Recent Notes Section #}
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body">
@@ -145,19 +132,31 @@
                                 Browse Tags
                             </a>
                         </li>
+                        <li>
+                            <a href="https://esv.org" target="_blank" rel="noopener" class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path><line x1="3" y1="6" x2="3" y2="19"></line><line x1="12" y1="6" x2="12" y2="19"></line><line x1="21" y1="6" x2="21" y2="19"></line></svg>
+                                Read Bible on ESV.org
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        {# Daily Verse Section #}
-        <div class="mt-8 card bg-accent text-accent-content shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title">Verse of the Day</h2>
-                <blockquote class="border-l-4 border-accent-content pl-4 italic">
-                    "For the word of God is living and active, sharper than any two-edged sword, piercing to the division of soul and of spirit, of joints and of marrow, and discerning the thoughts and intentions of the heart."
-                </blockquote>
-                <p class="mt-2 text-right">— Hebrews 4:12</p>
+        {# Abstract vector illustration/decorative element #}
+        <div class="mt-8 card bg-base-100 shadow-xl overflow-hidden">
+            <div class="card-body p-6">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                        <h2 class="card-title text-lg mb-3">Welcome Back</h2>
+                        <p>It's good to have you here. Ready to dive deeper into the Word today?</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        {# djlint:off H006 #}
+                        <img src="{% static 'img/abstract-bg.svg' %}" alt="Abstract Bible study illustration" class="max-w-full h-auto max-h-64">
+                        {# djlint:on #}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
