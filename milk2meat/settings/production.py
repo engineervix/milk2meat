@@ -1,4 +1,4 @@
-"""See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/"""
+"""See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/"""
 
 import logging
 from email.utils import formataddr, getaddresses
@@ -41,24 +41,24 @@ SESSION_CACHE_ALIAS = "default"
 # ------------------------------------------------------------------------------
 
 # if the next two settings are controlled by nginx, comment them out
-# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-proxy-ssl-header
+# https://docs.djangoproject.com/en/5.1/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-ssl-redirect
+# https://docs.djangoproject.com/en/5.1/ref/settings/#secure-ssl-redirect
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)  # noqa F405
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SAMESITE = "None"
 # if the next set of settings are controlled by nginx, comment them out
-# https://docs.djangoproject.com/en/5.0/topics/security/#ssl-https
-# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-hsts-seconds
+# https://docs.djangoproject.com/en/5.1/topics/security/#ssl-https
+# https://docs.djangoproject.com/en/5.1/ref/settings/#secure-hsts-seconds
 # TODO: set this to 60 seconds first and then to 518400 once you prove the former works
 # SECURE_HSTS_SECONDS = 518400
-# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-hsts-include-subdomains
+# https://docs.djangoproject.com/en/5.1/ref/settings/#secure-hsts-include-subdomains
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True)  # noqa F405
-# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-hsts-preload
+# https://docs.djangoproject.com/en/5.1/ref/settings/#secure-hsts-preload
 # SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)  # noqa F405
-# https://docs.djangoproject.com/en/5.0/ref/middleware/#x-content-type-options-nosniff
+# https://docs.djangoproject.com/en/5.1/ref/middleware/#x-content-type-options-nosniff
 SECURE_CONTENT_TYPE_NOSNIFF = env.bool("DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True)  # noqa F405
 
 # ==============================================================================
@@ -125,7 +125,7 @@ MEDIA_URL = f"https://{aws_s3_domain}/files/"
 # ------------------------------------------------------------------------------
 # https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
 INSTALLED_APPS += ["anymail"]  # noqa F405
-# https://docs.djangoproject.com/en/5.0/ref/settings/#email-backend
+# https://docs.djangoproject.com/en/5.1/ref/settings/#email-backend
 # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
 # https://anymail.dev/en/stable/esps/brevo/
 EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
@@ -143,10 +143,10 @@ LIST_OF_EMAIL_RECIPIENTS += list(map(lambda recipient: formataddr(recipient), AD
 email_address = getaddresses([env("DEFAULT_FROM_EMAIL")])[0]  # noqa F405
 DEFAULT_FROM_EMAIL = formataddr(email_address)
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/#server-email
+# https://docs.djangoproject.com/en/5.1/ref/settings/#server-email
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)  # noqa F405
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/#email-subject-prefix
+# https://docs.djangoproject.com/en/5.1/ref/settings/#email-subject-prefix
 EMAIL_SUBJECT_PREFIX = env(  # noqa F405
     "DJANGO_EMAIL_SUBJECT_PREFIX",
     default="[Milk to Meat]",
@@ -154,8 +154,8 @@ EMAIL_SUBJECT_PREFIX = env(  # noqa F405
 
 # LOGGING
 # ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/5.0/ref/settings/#logging
-# See https://docs.djangoproject.com/en/5.0/topics/logging for
+# https://docs.djangoproject.com/en/5.1/ref/settings/#logging
+# See https://docs.djangoproject.com/en/5.1/topics/logging for
 # more details on how to customize your logging configuration.
 
 LOGGING = {

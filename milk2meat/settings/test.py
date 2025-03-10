@@ -17,7 +17,7 @@ TEMPLATES[0]["OPTIONS"]["debug"] = False  # noqa: F405
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
-# See: https://docs.djangoproject.com/en/5.0/ref/settings/#secret-key
+# See: https://docs.djangoproject.com/en/5.1/ref/settings/#secret-key
 # Note: This key only used for development and testing.
 SECRET_KEY = env("DJANGO_SECRET_KEY")  # noqa: F405
 

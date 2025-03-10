@@ -4,7 +4,7 @@ from .base import *  # noqa: F403
 
 # CACHES
 # ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/5.0/ref/settings/#caches
+# https://docs.djangoproject.com/en/5.1/ref/settings/#caches
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
@@ -15,9 +15,9 @@ CACHES = {
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/#email-host
+# https://docs.djangoproject.com/en/5.1/ref/settings/#email-host
 # EMAIL_HOST = "maildev"
-# https://docs.djangoproject.com/en/5.0/ref/settings/#email-port
+# https://docs.djangoproject.com/en/5.1/ref/settings/#email-port
 # EMAIL_PORT = 1025
 
 DEFAULT_FROM_EMAIL = "Do Not Reply <do_not_reply@example.org>"
@@ -32,8 +32,8 @@ INSTALLED_APPS = ["whitenoise.runserver_nostatic"] + INSTALLED_APPS  # noqa F405
 
 # LOGGING
 # -----------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/5.0/ref/settings/#logging
-# See https://docs.djangoproject.com/en/5.0/topics/logging for
+# https://docs.djangoproject.com/en/5.1/ref/settings/#logging
+# See https://docs.djangoproject.com/en/5.1/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
     "version": 1,
