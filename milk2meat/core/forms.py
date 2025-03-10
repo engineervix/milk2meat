@@ -75,6 +75,10 @@ class BookEditForm(forms.ModelForm):
             if not isinstance(timeline_data, dict):
                 raise ValidationError("Timeline data must be a JSON object")
 
+            # Check that the 'events' key exists
+            if "events" not in timeline_data:
+                raise ValidationError("Timeline must have an 'events' key")
+
             events = timeline_data.get("events", [])
             if not isinstance(events, list):
                 raise ValidationError("Timeline events must be a list")

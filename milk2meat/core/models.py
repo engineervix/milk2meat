@@ -150,6 +150,10 @@ class Note(BaseModel):
         unique_slug = slug
         num = 1
 
+        # Skip owner uniqueness check if owner is not set
+        if not hasattr(self, "owner") or self.owner is None:
+            return unique_slug
+
         # Check uniqueness only within this user's notes
         while self.__class__.objects.filter(slug=unique_slug, owner=self.owner).exists():
             unique_slug = f"{slug}-{num}"
