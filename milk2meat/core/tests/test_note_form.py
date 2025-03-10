@@ -150,7 +150,7 @@ class TestNoteForm:
         form = NoteForm(data=form_data, user=user)
         assert form.is_valid(), f"Form errors: {form.errors}"
 
-        note = form.save()
+        note = form.save(commit=True)
         assert note.owner == user
         assert note.title == "My Test Note"
         assert note.note_type == note_type
@@ -172,7 +172,7 @@ class TestNoteForm:
 
         # Saving should raise ValueError
         with pytest.raises(ValueError, match="Cannot create note: Couldn't determine who the owner is"):
-            form.save()
+            form.save(commit=True)
 
     def test_form_for_existing_note(self):
         """Test editing an existing note"""

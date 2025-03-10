@@ -72,6 +72,7 @@ class TestTurnstileLoginView:
             user_is_authenticated = client.session.get("_auth_user_id") is not None
             assert not user_is_authenticated
 
+    @patch("milk2meat.auth.views.settings.TURNSTILE_SKIP_VALIDATION", False)
     def test_login_turnstile_failed(self, client):
         """Test login with failed turnstile validation"""
         # Create a user
@@ -96,6 +97,7 @@ class TestTurnstileLoginView:
             user_is_authenticated = client.session.get("_auth_user_id") is not None
             assert not user_is_authenticated
 
+    @patch("milk2meat.auth.views.settings.TURNSTILE_SKIP_VALIDATION", False)
     def test_login_turnstile_validation_error(self, client):
         """Test login with turnstile validation error"""
         # Create a user

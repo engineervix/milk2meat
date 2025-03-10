@@ -45,9 +45,9 @@ class TestNoteListView:
         # Check response
         assert response.status_code == 200
         content = response.content.decode()
-        assert "User's Note 1" in content
-        assert "User's Note 2" in content
-        assert "Other User's Note" not in content  # Should not see other user's notes
+        assert "User&#x27;s Note 1" in content
+        assert "User&#x27;s Note 2" in content
+        assert "Other User&#x27;s Note" not in content  # Should not see other user's notes
 
         # Check context
         assert len(response.context["notes"]) == 2  # Only user's notes
@@ -311,11 +311,12 @@ class TestNoteCreateView:
             "content": "# Note with attachment",
             "tags_input": "pdf,attachment",
             "referenced_books_json": "[]",
+            "upload": pdf_file,
         }
 
         # Submit the form with file
         url = reverse("core:note_create")
-        client.post(url, post_data, {"upload": pdf_file})
+        client.post(url, post_data)
 
         # Check that note was created with file
         note = Note.objects.get(title="Note with PDF")

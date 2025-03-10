@@ -45,6 +45,11 @@ class TestBookEditForm:
 
         # Invalid JSON
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": "{not valid json",
         }
         form = BookEditForm(data=form_data, instance=book)
@@ -53,6 +58,11 @@ class TestBookEditForm:
 
         # Valid JSON but wrong format (not an object)
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": json.dumps(["not", "an", "object"]),
         }
         form = BookEditForm(data=form_data, instance=book)
@@ -61,6 +71,11 @@ class TestBookEditForm:
 
         # Valid JSON but missing events key
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": json.dumps({"wrong_key": []}),
         }
         form = BookEditForm(data=form_data, instance=book)
@@ -69,6 +84,11 @@ class TestBookEditForm:
 
         # Valid JSON with events not being a list
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": json.dumps({"events": "not a list"}),
         }
         form = BookEditForm(data=form_data, instance=book)
@@ -77,6 +97,11 @@ class TestBookEditForm:
 
         # Valid JSON with events missing required fields
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": json.dumps({"events": [{"wrong_field": "value"}]}),
         }
         form = BookEditForm(data=form_data, instance=book)
@@ -85,6 +110,11 @@ class TestBookEditForm:
 
         # Valid JSON with properly formatted events
         form_data = {
+            "title_and_author": "",
+            "date_and_occasion": "",
+            "characteristics_and_themes": "",
+            "christ_in_book": "",
+            "outline": "",
             "timeline": json.dumps(
                 {
                     "events": [
