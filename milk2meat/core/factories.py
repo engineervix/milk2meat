@@ -22,7 +22,7 @@ class BookFactory(DjangoModelFactory):
     """Factory for creating Book objects"""
 
     title = Faker("word")
-    abbreviation = Faker("word")
+    abbreviation = Faker("pystr", max_chars=10)
     testament = factory.Iterator([Testament.OT, Testament.NT])
     number = factory.Sequence(lambda n: n + 1)  # Start at 1
     chapters = Faker("random_int", min=1, max=150)
