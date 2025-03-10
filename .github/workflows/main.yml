@@ -176,9 +176,10 @@ jobs:
           source ~/venv/bin/activate
           export LC_ALL=C.UTF-8
           export LANG=C.UTF-8
-          pip install --upgrade pip
-          python -m pip install poetry==1.8.5
-          poetry install --with dev,test,docs
+          pip install --no-cache-dir --upgrade pip setuptools wheel
+          python -m pip install --no-cache-dir poetry==1.8.5
+          poetry config virtualenvs.create false
+          poetry install --with dev,test,docs --no-interaction
           curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
           apt-get install -y nodejs
           npm ci --cache .npm --prefer-offline
