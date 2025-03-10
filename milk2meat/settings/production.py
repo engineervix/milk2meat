@@ -61,17 +61,6 @@ SESSION_COOKIE_SAMESITE = "None"
 # https://docs.djangoproject.com/en/5.1/ref/middleware/#x-content-type-options-nosniff
 SECURE_CONTENT_TYPE_NOSNIFF = env.bool("DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True)  # noqa F405
 
-# ==============================================================================
-# incorporationg Backblaze B2 Cloud Storage
-# ref: https://github.com/jschneier/django-storages/issues/765#issuecomment-699487715
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# AWS_ACCESS_KEY_ID = os.getenv('B2_USER')
-# AWS_SECRET_ACCESS_KEY = os.getenv('B2_KEY')
-# AWS_STORAGE_BUCKET_NAME = os.getenv('B2_BUCKET')
-# AWS_S3_CUSTOM_DOMAIN = 'f002.backblazeb2.com/file/B2_BUCKET'
-# AWS_S3_ENDPOINT_URL = 'https://B2_BUCKET.s3.us-west-002.backblazeb2.com' # exact url stated in b2 bucket overview page
-# ==============================================================================
-
 # STORAGES
 # ------------------------------------------------------------------------------
 # https://django-storages.readthedocs.io/en/latest/#installation
@@ -90,12 +79,10 @@ _AWS_EXPIRY = 60 * 60 * 24 * 7
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": f"max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate"}
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
-AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # noqa: F405
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#cloudfront
-AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default=None)  # noqa: F405
-# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")  # noqa: F405
-aws_s3_domain = AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.backblaze.com"
+AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN")  # noqa: F405
+AWS_LOCATION = env("AWS_LOCATION", default="files")  # noqa: F405
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="auto")  # noqa: F405
 
 # STATIC
 # ------------------------
@@ -119,7 +106,7 @@ STORAGES = {
 
 # MEDIA
 # ------------------------------------------------------------------------------
-MEDIA_URL = f"https://{aws_s3_domain}/files/"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
 
 # setup email backend via Anymail
 # ------------------------------------------------------------------------------
@@ -160,9 +147,11 @@ EMAIL_SUBJECT_PREFIX = env(  # noqa F405
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"},
+        "verbose": {"format": "%(levelname)s %(asctime)s %(module)s " "%(process)d %(thread)d %(message)s"},
+        "simple": {"format": "%(levelname)s %(message)s"},
+        "gunicorn": {"format": "%(h)s %(l)s %(u)s %(t)s %(r)s %(s)s %(b)s %(f)s %(a)s"},
         # "rq_console": {
         #     "format": "%(asctime)s %(message)s",
         #     "datefmt": "%H:%M:%S",
@@ -174,6 +163,10 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "gunicorn": {
+            "class": "logging.StreamHandler",
+            "formatter": "gunicorn",
+        },
         # "rq_console": {
         #     "level": "DEBUG",
         #     "class": "rq.logutils.ColorizingStreamHandler",
@@ -183,8 +176,33 @@ LOGGING = {
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
+        "gunicorn.access": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "gunicorn.error": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "django.db.backends": {
             "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "django.security": {
+            "level": "INFO",
             "handlers": ["console"],
             "propagate": False,
         },
