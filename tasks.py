@@ -294,9 +294,6 @@ def lint(c, fix=False):
         c.run("ruff check .", pty=True)
 
 
-# TODO: create a "clean" collection comprising the next two tasks below
-
-
 @task
 def clean_pyc(c):
     """remove Python file artifacts"""
@@ -318,6 +315,14 @@ def clean_test(c):
     c.run("rm -f coverage.json", pty=True)
     c.run("rm -fr htmlcov/", pty=True)
     c.run("rm -fr .pytest_cache", pty=True)
+
+
+@task
+def clean(c):
+    """remove both Python file and test artifacts"""
+
+    clean_pyc(c)
+    clean_test(c)
 
 
 @task(
