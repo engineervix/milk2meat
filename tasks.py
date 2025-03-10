@@ -315,6 +315,7 @@ def clean_test(c):
     c.run("rm -fr .tox/", pty=True)
     c.run("rm -f .coverage", pty=True)
     c.run("rm -f coverage.xml", pty=True)
+    c.run("rm -f coverage.json", pty=True)
     c.run("rm -fr htmlcov/", pty=True)
     c.run("rm -fr .pytest_cache", pty=True)
 
