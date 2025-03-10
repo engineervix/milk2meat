@@ -200,7 +200,7 @@ STATICFILES_FINDERS = [
 ]
 
 # ManifestStaticFilesStorage is recommended in production, to prevent outdated
-# Javascript / CSS assets being served from cache (e.g. after a Wagtail upgrade).
+# Javascript / CSS assets being served from cache (e.g. after a Django upgrade).
 # See https://docs.djangoproject.com/en/5.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
 # Deprecated in Django 4.2: STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 # New in Django 4.2: https://docs.djangoproject.com/en/5.1/ref/settings/#std-setting-STORAGES
