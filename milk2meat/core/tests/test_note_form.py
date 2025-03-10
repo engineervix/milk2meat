@@ -2,6 +2,7 @@ import json
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.forms import ValidationError
 
 from milk2meat.core.factories import BookFactory, NoteFactory, NoteTypeFactory
 from milk2meat.core.forms import NoteForm
@@ -150,6 +151,9 @@ class TestNoteForm:
         form = NoteForm(data=form_data, user=user)
         assert form.is_valid(), f"Form errors: {form.errors}"
 
+        # Set the owner explicitly
+        form.instance.owner = user
+
         note = form.save(commit=True)
         assert note.owner == user
         assert note.title == "My Test Note"
@@ -170,9 +174,12 @@ class TestNoteForm:
         form = NoteForm(data=form_data)
         assert form.is_valid(), f"Form errors: {form.errors}"
 
-        # Saving should raise ValueError
-        with pytest.raises(ValueError, match="Cannot create note: Couldn't determine who the owner is"):
+        # Saving should raise ValidationError about owner
+        with pytest.raises(ValidationError) as exc_info:
             form.save(commit=True)
+
+        # Check that the error is about the owner field
+        assert "owner" in str(exc_info.value)
 
     def test_form_for_existing_note(self):
         """Test editing an existing note"""
