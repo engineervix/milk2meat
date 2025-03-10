@@ -1,123 +1,156 @@
 {% load static %}
 <nav class="bg-base-100 shadow-md sticky top-0 z-50">
-  <div class="container mx-auto px-4">
-    <div class="flex justify-between h-16">
-      {# Logo and main navigation #}
-      <div class="flex">
-        {# Logo #}
-        <div class="flex-shrink-0 flex items-center">
-          <a href="{% url 'home' %}" class="flex items-center">
-            {# djlint:off H006 #}
-            <img class="w-8 md:w-12 lg:w-16 h-auto" src="{% static 'img/bible-illustration.svg' %}" alt="Bible Illustration">
-            {# djlint:on #}
-          </a>
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between h-16">
+            {# Logo and main navigation #}
+            <div class="flex">
+                {# Logo #}
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'home' %}" class="flex items-center">
+                        {# djlint:off H006 #}
+                        <img class="w-8 md:w-12 lg:w-16 h-auto"
+                             src="{% static 'img/bible-illustration.svg' %}"
+                             alt="Bible Illustration">
+                        {# djlint:on #}
+                    </a>
+                </div>
+                {# Main navigation - desktop #}
+                <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}"
+                           class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
+                            Dashboard
+                        </a>
+                        <a href="{% url 'core:book_list' %}"
+                           class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
+                            Books
+                        </a>
+                        <a href="{% url 'core:note_list' %}"
+                           class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
+                            Notes
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {# Right side content #}
+            <div class="flex items-center">
+                {# Search Bar #}
+                {% if user.is_authenticated %}
+                    <div class="hidden md:block mr-4">
+                        <form method="get" action="{% url 'core:global_search' %}" class="relative">
+                            <input type="text"
+                                   name="q"
+                                   placeholder="Search all content..."
+                                   class="input input-bordered input-sm w-64 pr-10">
+                            <button type="submit"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="h-4 w-4 text-base-content/70"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+                {# Theme toggle #}
+                <button id="theme-toggle-btn"
+                        aria-label="Toggle theme"
+                        class="btn btn-sm btn-circle btn-ghost mr-2">
+                    <svg class="sun-icon w-5 h-5"
+                         xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon w-5 h-5"
+                         xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                {# User/Login area #}
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'auth:logout' %}" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-accent">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'auth:login' %}" class="btn btn-sm btn-primary">Login</a>
+                {% endif %}
+                {# Mobile menu button #}
+                <div class="md:hidden ml-2">
+                    <button id="mobile-menu-button" type="button" class="btn btn-sm btn-ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-
-        {# Main navigation - desktop #}
-        <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-          {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
-              Dashboard
-            </a>
-            <a href="{% url 'core:book_list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
-              Books
-            </a>
-            <a href="{% url 'core:note_list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
-              Notes
-            </a>
-          {% endif %}
-        </div>
-      </div>
-
-      {# Right side content #}
-      <div class="flex items-center">
-        {# Search Bar #}
-        {% if user.is_authenticated %}
-          <div class="hidden md:block mr-4">
-            <form method="get" action="{% url 'core:global_search' %}" class="relative">
-              <input type="text" name="q" placeholder="Search all content..." class="input input-bordered input-sm w-64 pr-10">
-              <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </form>
-          </div>
-        {% endif %}
-
-        {# Theme toggle #}
-        <button id="theme-toggle-btn" aria-label="Toggle theme" class="btn btn-sm btn-circle btn-ghost mr-2">
-          <svg class="sun-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg class="moon-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
-
-        {# User/Login area #}
-        {% if user.is_authenticated %}
-          <form method="post" action="{% url 'auth:logout' %}" class="inline-block">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-accent">
-              Logout
-            </button>
-          </form>
-        {% else %}
-          <a href="{% url 'auth:login' %}" class="btn btn-sm btn-primary">
-            Login
-          </a>
-        {% endif %}
-
-        {# Mobile menu button #}
-        <div class="md:hidden ml-2">
-          <button id="mobile-menu-button" type="button" class="btn btn-sm btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
-
-  {# Mobile menu #}
-  <div id="mobile-menu" class="md:hidden hidden">
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-base-100 shadow-lg">
-      {% if user.is_authenticated %}
-        <a href="{% url 'dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
-          Dashboard
-        </a>
-        <a href="{% url 'core:book_list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
-          Books
-        </a>
-        <a href="{% url 'core:note_list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
-          Notes
-        </a>
-        {# Mobile search #}
-        <div class="px-3 py-2">
-          <form method="get" action="{% url 'core:global_search' %}" class="relative">
-            <input type="text" name="q" placeholder="Search all content..." class="input input-bordered input-sm w-full pr-10">
-            <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </form>
+    {# Mobile menu #}
+    <div id="mobile-menu" class="md:hidden hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-base-100 shadow-lg">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}"
+                   class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
+                    Dashboard
+                </a>
+                <a href="{% url 'core:book_list' %}"
+                   class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
+                    Books
+                </a>
+                <a href="{% url 'core:note_list' %}"
+                   class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
+                    Notes
+                </a>
+                {# Mobile search #}
+                <div class="px-3 py-2">
+                    <form method="get" action="{% url 'core:global_search' %}" class="relative">
+                        <input type="text"
+                               name="q"
+                               placeholder="Search all content..."
+                               class="input input-bordered input-sm w-full pr-10">
+                        <button type="submit"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="h-4 w-4 text-base-content/70"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
-      {% endif %}
     </div>
-  </div>
 </nav>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle

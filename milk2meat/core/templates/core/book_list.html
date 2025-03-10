@@ -1,14 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}
     {{ block.super }} Bible Books
 {% endblock title %}
-
 {% block extrameta %}
     <meta name="description" content="Bible Books - Milk2Meat">
 {% endblock extrameta %}
-
 {% block promo_block %}
     <div class="bg-primary text-primary-content">
         <div class="container mx-auto py-3 px-4">
@@ -22,7 +19,6 @@
         </div>
     </div>
 {% endblock promo_block %}
-
 {% block content %}
     <div class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -31,7 +27,8 @@
                 <h2 class="text-2xl font-bold mb-4">Old Testament</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for book in old_testament %}
-                        <a href="{% url 'core:book_detail' book.id %}" class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
+                        <a href="{% url 'core:book_detail' book.id %}"
+                           class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
                             <div class="card-body p-4">
                                 <h3 class="card-title text-lg">{{ book.title }}</h3>
                                 <p class="text-sm opacity-70">{{ book.chapters }} chapters</p>
@@ -44,13 +41,13 @@
                     {% endfor %}
                 </div>
             </div>
-
             {# New Testament Books #}
             <div>
                 <h2 class="text-2xl font-bold mb-4">New Testament</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for book in new_testament %}
-                        <a href="{% url 'core:book_detail' book.id %}" class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
+                        <a href="{% url 'core:book_detail' book.id %}"
+                           class="card bg-base-100 shadow hover:shadow-lg transition-shadow duration-300">
                             <div class="card-body p-4">
                                 <h3 class="card-title text-lg">{{ book.title }}</h3>
                                 <p class="text-sm opacity-70">{{ book.chapters }} chapters</p>

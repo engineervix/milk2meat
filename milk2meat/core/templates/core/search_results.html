@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}
     {{ block.super }} Search Results
 {% endblock title %}
-
 {% block extrameta %}
-    <meta name="description" content="Search Results - Milk2Meat Bible Study Tool">
+    <meta name="description"
+          content="Search Results - Milk2Meat Bible Study Tool">
 {% endblock extrameta %}
-
 {% block promo_block %}
     <div class="bg-primary text-primary-content">
         <div class="container mx-auto py-3 px-4">
@@ -26,42 +24,47 @@
         </div>
     </div>
 {% endblock promo_block %}
-
 {% block content %}
     <div class="container mx-auto px-4 py-8">
         {# Search form #}
         <div class="max-w-2xl mx-auto mb-8">
             <form method="get" action="{% url 'core:global_search' %}" class="flex">
-                <input type="text" name="q" value="{{ search_query }}"
+                <input type="text"
+                       name="q"
+                       value="{{ search_query }}"
                        placeholder="Search all content..."
                        class="input input-bordered flex-grow" />
                 <button type="submit" class="btn btn-primary ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     Search
                 </button>
             </form>
         </div>
-
         {% if search_query %}
             {% if search_results %}
                 <div class="alert alert-info mb-6">
                     <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5 mr-2"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>
                             Found {{ total_count }} result{{ total_count|pluralize }} for "<strong>{{ search_query }}</strong>"
                             {% if showing_range %}
-                                <span class="text-sm opacity-75">
-                                    (Showing {{ showing_range.start }}-{{ showing_range.end }})
-                                </span>
+                                <span class="text-sm opacity-75">(Showing {{ showing_range.start }}-{{ showing_range.end }})</span>
                             {% endif %}
                         </span>
                     </div>
                 </div>
-
                 {# Group results by type #}
                 {% if results_by_type.Note %}
                     <div class="mb-8">
@@ -70,7 +73,8 @@
                             {% for result in results_by_type.Note %}
                                 <div class="card bg-base-100 shadow hover:shadow-md transition-shadow">
                                     <div class="card-body p-4">
-                                        <a href="{% url 'core:note_detail' result.object.pk %}" class="card-title text-lg hover:text-primary transition-colors">
+                                        <a href="{% url 'core:note_detail' result.object.pk %}"
+                                           class="card-title text-lg hover:text-primary transition-colors">
                                             {{ result.title|safe }}
                                         </a>
                                         <p class="text-sm opacity-75">{{ result.object.note_type.name }} • {{ result.object.updated_at|date:"M d, Y" }}</p>
@@ -81,13 +85,13 @@
                         </div>
                     </div>
                 {% endif %}
-
                 {% if results_by_type.Book %}
                     <div class="mb-8">
                         <h2 class="text-xl font-bold mb-4">Bible Books ({{ results_by_type.Book|length }})</h2>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {% for result in results_by_type.Book %}
-                                <a href="{% url 'core:book_detail' result.object.pk %}" class="card bg-base-100 shadow hover:shadow-md transition-shadow">
+                                <a href="{% url 'core:book_detail' result.object.pk %}"
+                                   class="card bg-base-100 shadow hover:shadow-md transition-shadow">
                                     <div class="card-body p-4">
                                         <h3 class="card-title text-lg">{{ result.title|safe }}</h3>
                                         <p class="text-sm opacity-70">{{ result.object.get_testament_display }} • {{ result.object.chapters }} chapters</p>
@@ -97,30 +101,31 @@
                         </div>
                     </div>
                 {% endif %}
-
                 {# Pagination #}
                 {% if is_paginated %}
                     <div class="flex justify-center mt-10">
                         <div class="join">
                             {% if page_obj.has_previous %}
                                 <a href="?q={{ search_query }}&page=1" class="join-item btn btn-sm">«</a>
-                                <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">‹</a>
+                                <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}"
+                                   class="join-item btn btn-sm">‹</a>
                             {% else %}
                                 <button class="join-item btn btn-sm btn-disabled">«</button>
                                 <button class="join-item btn btn-sm btn-disabled">‹</button>
                             {% endif %}
-
                             {% for num in page_obj.paginator.page_range %}
                                 {% if page_obj.number == num %}
                                     <button class="join-item btn btn-sm btn-active">{{ num }}</button>
                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <a href="?q={{ search_query }}&page={{ num }}" class="join-item btn btn-sm">{{ num }}</a>
+                                    <a href="?q={{ search_query }}&page={{ num }}"
+                                       class="join-item btn btn-sm">{{ num }}</a>
                                 {% endif %}
                             {% endfor %}
-
                             {% if page_obj.has_next %}
-                                <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">›</a>
-                                <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}" class="join-item btn btn-sm">»</a>
+                                <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}"
+                                   class="join-item btn btn-sm">›</a>
+                                <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}"
+                                   class="join-item btn btn-sm">»</a>
                             {% else %}
                                 <button class="join-item btn btn-sm btn-disabled">›</button>
                                 <button class="join-item btn btn-sm btn-disabled">»</button>
@@ -128,11 +133,14 @@
                         </div>
                     </div>
                 {% endif %}
-
             {% else %}
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body text-center py-12">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-16 w-16 mx-auto mb-4 opacity-50"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <h3 class="text-lg font-medium">No results found</h3>
@@ -150,7 +158,11 @@
         {% else %}
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body text-center py-12">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-16 w-16 mx-auto mb-4 opacity-50"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <h3 class="text-lg font-medium">Search across all your Bible study content</h3>

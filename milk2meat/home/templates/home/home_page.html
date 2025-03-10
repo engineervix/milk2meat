@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 {% block extrameta %}
-    <meta name="description" content="A tool to help grow in the grace and knowledge of Christ">
+    <meta name="description"
+          content="A tool to help grow in the grace and knowledge of Christ">
     <meta name="author" content="Victor Miti">
     <meta property="og:title" content="{{ page.title }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="A tool to help grow in the grace and knowledge of Christ">
+    <meta property="og:description"
+          content="A tool to help grow in the grace and knowledge of Christ">
     <meta property="og:site_name" content="Milk to Meat">
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-    <meta property="og:image" content="https://ik.imagekit.io/onezam/images/og-img-03df7feab6b701a9919b58699acdd4916500a7ef1fe39450.jpg" />
+    <meta property="og:image"
+          content="https://ik.imagekit.io/onezam/images/og-img-03df7feab6b701a9919b58699acdd4916500a7ef1fe39450.jpg" />
     <meta property="og:locale" content="en_ZM" />
     <meta property="og:locale:alternate" content="en_ZA" />
     <meta property="og:locale:alternate" content="en_GB" />
@@ -38,9 +41,9 @@
                         </a>
                     {% endif %}
                 </div>
-
                 {# Scripture cycling section #}
-                <div class="mt-12 max-w-lg mx-auto p-4 bg-base-200 bg-opacity-20 rounded-lg" id="scripture-container">
+                <div class="mt-12 max-w-lg mx-auto p-4 bg-base-200 bg-opacity-20 rounded-lg"
+                     id="scripture-container">
                     <blockquote class="italic text-lg" id="scripture-text">
                         "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil."
                     </blockquote>
@@ -52,9 +55,8 @@
 {% endblock promo_block %}
 {% block content %}
 {% endblock content %}
-
 {% block extra_js %}
-<script>
+    <script>
     // Scripture cycling functionality
     document.addEventListener('DOMContentLoaded', function() {
         const scriptures = [
@@ -113,5 +115,5 @@
         scriptureText.style.transition = "opacity 0.5s ease";
         scriptureReference.style.transition = "opacity 0.5s ease";
     });
-</script>
+    </script>
 {% endblock extra_js %}
