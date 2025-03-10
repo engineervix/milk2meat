@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 
 from .forms import TurnstileLoginForm
-from .turnstile import TurnstileValidationError, validate_turnstile
+from .turnstile import validate_turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class TurnstileLoginView(LoginView):
                 if not is_valid:
                     messages.error(self.request, "Security verification failed. Please try again.")
                     return self.form_invalid(form)
-            except TurnstileValidationError as e:
+            except Exception as e:
                 logger.error(f"Turnstile validation error: {str(e)}", exc_info=True)
                 messages.error(self.request, "Security verification service unavailable. Please try again later.")
                 return self.form_invalid(form)
