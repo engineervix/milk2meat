@@ -1,0 +1,246 @@
+name: Continuous Integration
+
+# Enable Buildkit and let compose use it to speed up image building
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths-ignore: ["docs/**"]
+
+  push:
+    branches: ["main", "staging"]
+    paths-ignore: ["docs/**"]
+    tags:
+      - "v*"
+
+jobs:
+  # Runs the ruff & black linting steps inside the specified containers rather than on the VM host.
+  # Because of this the network configuration changes from host based network to a container network.
+  ruff:
+    runs-on: ubuntu-24.04
+    container: python:3.13-slim-bookworm
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          pip install ruff
+      - name: ruff
+        run: |
+          ruff check . --output-format=github
+
+  black:
+    runs-on: ubuntu-24.04
+    container: python:3.13-slim-bookworm
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          pip install black
+      - name: black
+        run: |
+          black . --check
+
+  # Runs the frontend linting steps on the VM
+  djlint:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip" # caching pip dependencies
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install djlint
+
+      - name: djlint
+        run: |
+          find milk2meat/ -name '*.html' -o -name '*.mjml' | xargs djlint --check
+
+  stylelint:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Stylelint
+        run: |
+          npm run lint:style
+
+  eslint:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: ESLint
+        run: |
+          npm run lint:js
+
+  prettier:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Prettier
+        run: |
+          npm run lint:format
+
+  # Runs the python test suite inside a specified container rather than on the VM host.
+  python_tests:
+    runs-on: ubuntu-24.04
+    needs: [ruff, black, stylelint, eslint, prettier, djlint]
+
+    container:
+      image: python:3.13-slim-bookworm
+
+    services:
+      postgres:
+        image: postgres:15.7
+        env:
+          POSTGRES_USER: test_postgres_user
+          POSTGRES_PASSWORD: custom_pass
+          POSTGRES_DB: test_postgres_db
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      # postgres://user:password@host:port/database
+      DATABASE_URL: "postgres://test_postgres_user:custom_pass@postgres/test_postgres_db"
+      DJANGO_SECRET_KEY: "secret"
+      DEBUG: False
+      ALLOWED_HOSTS: ""
+      ADMIN_URL: "fooadmin/"
+      TURNSTILE_SITE_KEY: "fake-key"
+      TURNSTILE_SECRET_KEY: "fake-key"
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        shell: bash
+        run: |
+          apt update -y && apt upgrade -y
+          export DEBIAN_FRONTEND=noninteractive
+          ln -fs /usr/share/zoneinfo/Africa/Lusaka /etc/localtime
+          dpkg-reconfigure --frontend noninteractive tzdata
+          apt install -y build-essential curl git gnupg libmagic1 libpq-dev
+          python -m venv ~/venv
+          source ~/venv/bin/activate
+          export LC_ALL=C.UTF-8
+          export LANG=C.UTF-8
+          pip install --upgrade pip
+          python -m pip install poetry==1.8.5
+          poetry install --with dev,test,docs
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt-get install -y nodejs
+          npm ci --cache .npm --prefer-offline
+          npm run build:prod
+          python manage.py collectstatic --noinput --clear
+
+      - name: Test with pytest
+        shell: bash
+        run: |
+          # Note that you have to activate the virtualenv in every step
+          # because GitHub actions doesn't preserve the environment
+          source ~/venv/bin/activate
+
+          # Run system checks
+          python manage.py check
+
+          # Check for missing migrations
+          python manage.py makemigrations --check --noinput
+
+          # Create cache table.
+          python manage.py createcachetable
+
+          # Run backend tests
+          pytest
+
+  # Runs the next steps on the VM
+  # Creates a GitHub Release when the lint & python_tests jobs succeeds, and only on pushes to tags.
+  release:
+    needs: [ruff, black, stylelint, eslint, prettier, djlint, python_tests]
+
+    permissions:
+      contents: write
+
+    if: needs.python_tests.result == 'success' && startsWith( github.ref, 'refs/tags/v' )
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install invoke colorama tomli
+      - name: Get the version
+        id: get_version
+        run: |
+          echo "${{ github.ref }}"
+          echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+      - name: Generate Release Title
+        id: get_release_title
+        shell: bash
+        run: |
+          export TODAY="($(TZ=Africa/Lusaka date --iso))"
+          echo "RELEASE_NAME=$VERSION $TODAY" >> $GITHUB_ENV
+      - name: Extract Release Notes
+        # This creates a file LATEST_RELEASE_NOTES.md in the parent directory (../)
+        shell: bash
+        run: |
+          invoke get-release-notes
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          body_path: ../LATEST_RELEASE_NOTES.md
