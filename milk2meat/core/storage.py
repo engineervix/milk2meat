@@ -1,30 +1,34 @@
 import logging
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from storages.backends.s3boto3 import S3Boto3Storage
 
 logger = logging.getLogger(__name__)
 
 
-class PrivateMediaStorage(S3Boto3Storage):
+class PrivateS3Storage(S3Boto3Storage):
     """
-    Custom storage backend for private media files in Cloudflare R2.
-    This prevents direct access to files and only allows access through
-    signed URLs for authenticated users.
+    Custom S3 storage for Cloudflare R2 with private files and signed URLs.
+    This is only used in production settings.
     """
 
-    location = settings.AWS_LOCATION
-    file_overwrite = False
+    location = getattr(settings, "AWS_LOCATION", "files")
+    file_overwrite = getattr(settings, "AWS_S3_FILE_OVERWRITE", False)
+
+    def __init__(self, **kwargs):
+        # Ensure AWS settings are properly loaded
+        self.signature_version = getattr(settings, "AWS_S3_SIGNATURE_VERSION", "s3v4")
+        self.addressing_style = getattr(settings, "AWS_S3_ADDRESSING_STYLE", "virtual")
+        super().__init__(**kwargs)
 
     def url(self, name, parameters=None, expire=None):
         """
-        Generate a signed URL that expires in a short time for authenticated access.
+        Generate a signed URL with expiration for private files.
 
         Args:
             name: Name of the file
             parameters: Additional parameters for the URL
-            expire: Expiration time in seconds (default: 300 seconds / 5 minutes)
+            expire: Expiration time in seconds
 
         Returns:
             A signed URL that grants temporary access to the file
@@ -67,22 +71,3 @@ def user_can_access_file(file_path, user):
         return False
 
     return True
-
-
-def get_secure_file_url(file_path, user, expire=300):
-    """
-    Generate a secure URL for a file, but only if the user has access.
-
-    Args:
-        file_path: Path to the file in storage
-        user: The user requesting access
-        expire: Expiration time in seconds
-
-    Returns:
-        A signed URL or raises PermissionDenied
-    """
-    if not user_can_access_file(file_path, user):
-        raise PermissionDenied("You don't have permission to access this file")
-
-    storage = PrivateMediaStorage()
-    return storage.url(file_path, expire=expire)

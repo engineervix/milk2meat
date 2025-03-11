@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -17,6 +18,8 @@ from watson import search as watson
 from .forms import BookEditForm, NoteForm, NoteTypeForm
 from .models import Book, Note, NoteType, Testament
 from .utils.markdown import parse_markdown
+
+logger = logging.getLogger(__name__)
 
 
 class BookListView(LoginRequiredMixin, ListView):
@@ -415,9 +418,11 @@ def note_delete_view(request, pk):
 @require_GET
 def serve_protected_file(request, note_id):
     """
-    Serve a protected file through a signed URL redirect.
+    Serve a protected file through a URL.
 
-    This view checks permissions and redirects to a temporary signed URL.
+    This view checks permissions and returns an appropriate URL:
+    - In development: returns the normal file URL
+    - In production: returns a signed URL with expiration
     """
     try:
         # Get the note and verify ownership
@@ -426,16 +431,19 @@ def serve_protected_file(request, note_id):
         if not note.upload:
             raise Http404("This note has no attached file")
 
-        # Generate signed URL with short expiration (5 minutes)
-        signed_url = note.get_secure_file_url(request.user, expire=300)
+        # Get the file URL - will be handled differently based on environment
+        file_url = note.get_secure_file_url(request.user)
 
-        if not signed_url:
+        if not file_url:
             raise PermissionDenied("You don't have permission to access this file")
 
-        # Return JSON response with the signed URL
-        return JsonResponse({"url": signed_url})
+        # Return JSON response with the URL
+        return JsonResponse({"url": file_url})
 
     except (Note.DoesNotExist, PermissionDenied) as e:
         return JsonResponse({"error": str(e)}, status=403)
+    except Http404 as e:
+        return JsonResponse({"error": str(e)}, status=404)
     except Exception:
+        logger.exception("Error serving protected file")
         return JsonResponse({"error": "Server error"}, status=500)

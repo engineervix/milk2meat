@@ -9,7 +9,6 @@ from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 from upload_validator import FileTypeValidator
 
-from .storage import PrivateMediaStorage
 from .utils.constants import ALLOWED_DOCUMENT_TYPES, ALLOWED_IMAGE_TYPES
 from .utils.validators import FileSizeValidator
 
@@ -140,7 +139,6 @@ class Note(BaseModel):
     content = models.TextField(blank=True)
     upload = models.FileField(
         upload_to=user_note_upload_path,
-        storage=PrivateMediaStorage(),
         blank=True,
         null=True,
         help_text="You could upload handwritten notes from iPad as PDF or image",
@@ -188,16 +186,15 @@ class Note(BaseModel):
 
         return unique_slug
 
-    def get_secure_file_url(self, user, expire=300):
+    def get_secure_file_url(self, user):
         """
         Get a secure URL for the uploaded file, but only if the user has permission.
 
         Args:
             user: The user requesting access
-            expire: Expiration time in seconds
 
         Returns:
-            A signed URL or None if no file or permission denied
+            A URL or None if no file or permission denied
         """
         if not self.upload:
             return None
@@ -206,6 +203,7 @@ class Note(BaseModel):
         if user != self.owner:
             return None
 
-        # Generate a signed URL with expiration
-        storage = PrivateMediaStorage()
-        return storage.url(self.upload.name, expire=expire)
+        # Get the URL - Django will use the appropriate storage backend
+        # In dev mode, this will return a regular file URL
+        # In production, this will use S3Boto3Storage which returns a signed URL
+        return self.upload.url
