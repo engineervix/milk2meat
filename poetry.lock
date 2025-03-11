@@ -941,6 +941,20 @@ files = [
 tokenize-rt = ">=4.1"
 
 [[package]]
+name = "django-upload-validator"
+version = "1.1.6"
+description = "A simple Django file type validator using python-magic"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-upload-validator-1.1.6.tar.gz", hash = "sha256:dbf93740fb42f8c9310b936838bbf99f873339c2f860de1c7c0d7a27464f7c8a"},
+    {file = "django_upload_validator-1.1.6-py3-none-any.whl", hash = "sha256:b4c1a2d2138b319288a20069c5dbdbbdb1257a447ec2f0b4e6cf9e8d6fd3d1bc"},
+]
+
+[package.dependencies]
+python-magic = "*"
+
+[[package]]
 name = "django-watson"
 version = "1.6.3"
 description = "Full-text multi-table search application for Django. Easy to install and use, with good performance."
@@ -3006,4 +3020,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.13"
-content-hash = "b54116cd35678bd9f997f260e3ec2f26f4360006100497b536207a62f4e19242"
+content-hash = "0037b841a7cb53506a2cfe3187f80a733b05e30b416b4912884f4541fd88dbf9"

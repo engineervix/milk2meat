@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -6,6 +7,25 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+from upload_validator import FileTypeValidator
+
+from .storage import PrivateMediaStorage
+from .utils.constants import ALLOWED_DOCUMENT_TYPES, ALLOWED_IMAGE_TYPES
+from .utils.validators import FileSizeValidator
+
+
+def user_note_upload_path(instance, filename):
+    """
+    Generate file path for user uploads.
+    Structure: notes/{user_id}/{note_id}/{filename}
+    This structure makes it easier to implement access control.
+    """
+    # Get file extension and sanitize filename
+    _, extension = os.path.splitext(filename)
+    sanitized_filename = slugify(os.path.splitext(filename)[0])[:40] + extension
+
+    # Create path with user_id/note_id structure
+    return f"notes/{instance.owner.id}/{instance.id}/{sanitized_filename}"
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
@@ -119,10 +139,17 @@ class Note(BaseModel):
     slug = models.SlugField(max_length=255)
     content = models.TextField(blank=True)
     upload = models.FileField(
-        upload_to="notes/",
+        upload_to=user_note_upload_path,
+        storage=PrivateMediaStorage(),
         blank=True,
         null=True,
         help_text="You could upload handwritten notes from iPad as PDF or image",
+        validators=[
+            FileTypeValidator(
+                allowed_types=ALLOWED_IMAGE_TYPES + ALLOWED_DOCUMENT_TYPES,
+            ),
+            FileSizeValidator(),
+        ],
     )
     note_type = models.ForeignKey(NoteType, on_delete=models.PROTECT, related_name="notes")
     tags = TaggableManager(through=UUIDTaggedItem, blank=True)
@@ -160,3 +187,25 @@ class Note(BaseModel):
             num += 1
 
         return unique_slug
+
+    def get_secure_file_url(self, user, expire=300):
+        """
+        Get a secure URL for the uploaded file, but only if the user has permission.
+
+        Args:
+            user: The user requesting access
+            expire: Expiration time in seconds
+
+        Returns:
+            A signed URL or None if no file or permission denied
+        """
+        if not self.upload:
+            return None
+
+        # Only allow access if user is the owner of the note
+        if user != self.owner:
+            return None
+
+        # Generate a signed URL with expiration
+        storage = PrivateMediaStorage()
+        return storage.url(self.upload.name, expire=expire)

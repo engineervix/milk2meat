@@ -3,12 +3,13 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from taggit.models import Tag
 from watson import search as watson
@@ -189,6 +190,10 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
         # Convert markdown content to HTML
         if self.object.content:
             context["content_html"] = mark_safe(parse_markdown(self.object.content))
+
+        # Add secure URL for file if present
+        if self.object.upload:
+            context["secure_file_url"] = self.object.get_secure_file_url(self.request.user)
 
         return context
 
@@ -404,3 +409,33 @@ def note_delete_view(request, pk):
     note.delete()
     messages.success(request, f"Note '{title}' has been deleted.")
     return redirect(reverse_lazy("core:note_list"))
+
+
+@login_required
+@require_GET
+def serve_protected_file(request, note_id):
+    """
+    Serve a protected file through a signed URL redirect.
+
+    This view checks permissions and redirects to a temporary signed URL.
+    """
+    try:
+        # Get the note and verify ownership
+        note = get_object_or_404(Note, pk=note_id, owner=request.user)
+
+        if not note.upload:
+            raise Http404("This note has no attached file")
+
+        # Generate signed URL with short expiration (5 minutes)
+        signed_url = note.get_secure_file_url(request.user, expire=300)
+
+        if not signed_url:
+            raise PermissionDenied("You don't have permission to access this file")
+
+        # Return JSON response with the signed URL
+        return JsonResponse({"url": signed_url})
+
+    except (Note.DoesNotExist, PermissionDenied) as e:
+        return JsonResponse({"error": str(e)}, status=403)
+    except Exception:
+        return JsonResponse({"error": "Server error"}, status=500)
