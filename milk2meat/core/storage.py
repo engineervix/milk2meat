@@ -12,11 +12,10 @@ class PrivateS3Storage(S3Boto3Storage):
     This is only used in production settings.
     """
 
-    location = getattr(settings, "AWS_LOCATION", "files")
-    file_overwrite = getattr(settings, "AWS_S3_FILE_OVERWRITE", False)
-
     def __init__(self, **kwargs):
         # Ensure AWS settings are properly loaded
+        self.location = getattr(settings, "AWS_LOCATION", "files")
+        self.file_overwrite = getattr(settings, "AWS_S3_FILE_OVERWRITE", False)
         self.signature_version = getattr(settings, "AWS_S3_SIGNATURE_VERSION", "s3v4")
         self.addressing_style = getattr(settings, "AWS_S3_ADDRESSING_STYLE", "virtual")
         super().__init__(**kwargs)
