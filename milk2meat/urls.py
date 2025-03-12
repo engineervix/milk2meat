@@ -27,13 +27,14 @@ admin.site.site_title = admin_name
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
-    path(settings.ADMIN_URL, admin.site.urls),
     path("auth/", include("milk2meat.auth.urls", namespace="auth")),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("", include("milk2meat.core.urls", namespace="core")),
 ]
 
 if settings.DEBUG:
+    urlpatterns.insert(1, path(settings.ADMIN_URL, admin.site.urls))
+
     import debug_toolbar
     from django.conf.urls.static import static
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
