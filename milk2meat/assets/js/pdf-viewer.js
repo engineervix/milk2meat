@@ -13,11 +13,25 @@ document.addEventListener("DOMContentLoaded", function () {
   // Only initialize if we have a PDF viewer container
   if (!pdfViewerContainer) return;
 
-  // Get the note ID for secure access
-  const noteId = pdfViewerContainer.dataset.noteId;
+  // First check if a direct PDF URL is provided
+  const directPdfUrl = pdfViewerContainer.dataset.pdfUrl;
 
-  if (noteId) {
-    // For secure URLs, we need to fetch a fresh URL before loading the PDF
+  if (directPdfUrl) {
+    // Direct URL provided in the data attribute - use it directly
+    initPdfViewer(pdfViewerContainer, directPdfUrl);
+  } else {
+    // No direct URL, need to fetch from secure endpoint
+    const noteId = pdfViewerContainer.dataset.noteId;
+    if (!noteId) {
+      showError(pdfViewerContainer, "No PDF URL or note ID provided");
+      return;
+    }
+
+    // Show loading message
+    pdfViewerContainer.innerHTML =
+      '<div class="text-center p-4"><span class="loading loading-spinner loading-md"></span> Loading PDF...</div>';
+
+    // Fetch secure URL then initialize
     fetchSecureUrl(noteId)
       .then((secureUrl) => {
         if (secureUrl) {
@@ -29,14 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => {
         showError(pdfViewerContainer, "Error loading PDF: " + error.message);
       });
-  } else {
-    // For backwards compatibility, check if a direct URL is provided
-    const pdfUrl = pdfViewerContainer.dataset.pdfUrl;
-    if (pdfUrl) {
-      initPdfViewer(pdfViewerContainer, pdfUrl);
-    } else {
-      showError(pdfViewerContainer, "No PDF URL or note ID provided");
-    }
   }
 });
 
@@ -56,6 +62,7 @@ async function fetchSecureUrl(noteId) {
     const data = await response.json();
     return data.url;
   } catch (error) {
+    // console.error("Error fetching secure URL:", error);
     throw error;
   }
 }
@@ -81,7 +88,7 @@ function showError(container, message) {
  * @param {string} noteId - Optional note ID for secure URLs
  */
 function initPdfViewer(container, pdfUrl, noteId = null) {
-  // Show loading message
+  // Clear any previous content
   container.innerHTML =
     '<div class="text-center p-4"><span class="loading loading-spinner loading-md"></span> Loading PDF...</div>';
 
@@ -96,20 +103,28 @@ function initPdfViewer(container, pdfUrl, noteId = null) {
   // Token refresh logic
   let tokenRefreshTimer = null;
 
-  // If using secure URLs, we need to refresh the token periodically
+  // Only set up token refresh for secure URLs in production environments
   if (noteId) {
-    // Refresh token every 4 minutes (signed URLs expire after 5 minutes)
-    const REFRESH_INTERVAL = 4 * 60 * 1000; // 4 minutes
+    // Check if we're in production (not localhost or 127.0.0.1)
+    const isProduction =
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1";
 
-    tokenRefreshTimer = setInterval(async () => {
-      try {
-        const newUrl = await fetchSecureUrl(noteId);
-        // We don't need to reload the PDF, just update the URL for next operations
-        pdfUrl = newUrl;
-      } catch (error) {
-        // If token refresh fails multiple times, we might want to show a warning
-      }
-    }, REFRESH_INTERVAL);
+    if (isProduction) {
+      // Refresh token every 4 minutes (signed URLs expire after 5 minutes)
+      const REFRESH_INTERVAL = 4 * 60 * 1000; // 4 minutes
+
+      tokenRefreshTimer = setInterval(async () => {
+        try {
+          const newUrl = await fetchSecureUrl(noteId);
+          // Just update the URL for next operations
+          pdfUrl = newUrl;
+          // console.log("Refreshed secure URL successfully");
+        } catch (error) {
+          // console.error("Failed to refresh secure URL:", error);
+        }
+      }, REFRESH_INTERVAL);
+    }
   }
 
   // Create UI elements
@@ -245,6 +260,7 @@ function initPdfViewer(container, pdfUrl, noteId = null) {
     })
     .catch(function (error) {
       showError(container, `Error loading PDF: ${error.message}`);
+      // console.error("PDF loading error:", error);
     });
 
   // Return a cleanup function to handle any resource releasing

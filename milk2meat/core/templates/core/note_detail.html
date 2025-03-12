@@ -175,7 +175,7 @@
                                 {# PDF preview with multi-page support #}
                                 <div id="pdf-viewer"
                                      class="w-full h-auto bg-base-100 rounded-lg overflow-hidden p-4"
-                                     data-pdf-url="{{ secure_file_url }}"></div>
+                                     data-note-id="{{ note.pk }}"></div>
                             {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
                                 {# Image preview with GLightbox #}
                                 <div class="flex justify-center">
@@ -260,7 +260,7 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    const noteId = this.getAttribute('data-note-id');
+                    const noteId = "{{ note.pk }}";
 
                     // Request a fresh signed URL
                     fetch(`/notes/${noteId}/file/`)
@@ -275,18 +275,10 @@
                         })
                         .catch(error => {
                             alert('Network error while accessing file');
+                            //console.error('File access error:', error);
                         });
                 });
             });
-
-            // For PDF viewer, update to use secure URLs that refresh
-            const pdfViewer = document.getElementById('pdf-viewer');
-            if (pdfViewer) {
-                const noteId = document.querySelector('[data-download]').getAttribute('data-note-id');
-
-                // Ensure we have the note ID for token refresh
-                pdfViewer.setAttribute('data-note-id', noteId);
-            }
         });
         </script>
     {% endif %}
@@ -295,8 +287,8 @@
         <script src="{% static 'js/pdf-viewer.min.js' %}"></script>
     {% endif %}
     <script>
-        function confirmDelete() {
-            document.getElementById('delete-modal').showModal();
-        }
+    function confirmDelete() {
+        document.getElementById('delete-modal').showModal();
+    }
     </script>
 {% endblock extra_js %}
