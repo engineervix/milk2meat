@@ -1,6 +1,6 @@
 import datetime
 import os
-from pathlib import Path  # noqa: F401
+from pathlib import Path
 
 import tomli
 from colorama import Fore, init
@@ -344,3 +344,40 @@ def get_release_notes(c):
     release_notes = os.path.join("../", "LATEST_RELEASE_NOTES.md")
     with open(release_notes, "w") as f:
         print("".join(lines), file=f, end="")
+
+
+@task(
+    help={
+        "env_file": "Path to environment file (default: bin/.deploy.env)",
+        "skip_deploy": "Setup infrastructure but don't deploy code",
+    }
+)
+def deploy(c, env_file="bin/.deploy.env", skip_deploy=False):
+    """
+    Deploy the application to Dokku
+    """
+    # Ensure the env file exists
+    env_path = Path(env_file)
+    if not env_path.exists():
+        print(f"❌ Environment file not found: {env_path}")
+        print(f"💡 Copy bin/.deploy.env.example to {env_path} and fill in your values")
+        return
+
+    # Set SKIP_DEPLOY in the environment if requested
+    env = {}
+    if skip_deploy:
+        env["SKIP_DEPLOY"] = "true"
+
+    # Run the deployment script
+    deploy_script = Path("bin/deploy.sh")
+    if not deploy_script.exists():
+        print(f"❌ Deployment script not found: {deploy_script}")
+        return
+
+    # Make deploy.sh executable if it's not already
+    if not os.access(deploy_script, os.X_OK):
+        c.run(f"chmod +x {deploy_script}")
+
+    # Run the deployment script with the specified env file
+    cmd = f"{deploy_script} --env-file={env_path.absolute()}"
+    c.run(cmd, env=env, pty=True)
