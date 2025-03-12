@@ -3,7 +3,7 @@
 > A simple tool to facilitate personal Bible Study
 
 [![Continuous Integration](https://github.com/engineervix/milk2meat/actions/workflows/main.yml/badge.svg)](https://github.com/engineervix/milk2meat/actions/workflows/main.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/engineervix/d435cc3f4234a469e5df13bf019a6385/raw/covbadge.json)](https://github.com/engineervix/milk2meat/actions?query=workflow%3A%22%22Continuous+Integration%22%22++)
+[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/engineervix/d435cc3f4234a469e5df13bf019a6385/raw/covbadge.json)](https://github.com/engineervix/milk2meat/actions)
 
 [![python3](https://img.shields.io/badge/python-3.13-brightgreen.svg)](https://python.org/)
 [![Node v22](https://img.shields.io/badge/Node-v22-teal.svg)](https://nodejs.org/en/blog/release/v22.0.0)
