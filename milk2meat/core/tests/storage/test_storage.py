@@ -24,7 +24,7 @@ class TestPrivateS3Storage:
         assert storage.location == "files"
         assert storage.file_overwrite is False
         assert storage.signature_version == "s3v4"
-        assert storage.addressing_style == "virtual"
+        assert storage.addressing_style == "path"
 
     @override_settings(
         AWS_LOCATION="custom-files",

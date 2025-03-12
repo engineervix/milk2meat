@@ -77,7 +77,7 @@ AWS_QUERYSTRING_AUTH = False
 _AWS_EXPIRY = 60 * 60 * 24 * 7
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": f"max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate"}
 
-AWS_S3_ADDRESSING_STYLE = "virtual"
+AWS_S3_ADDRESSING_STYLE = "path"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_LOCATION = env("AWS_LOCATION", default="files")  # noqa: F405
 AWS_S3_FILE_OVERWRITE = env("AWS_S3_FILE_OVERWRITE", default=False)  # noqa: F405
