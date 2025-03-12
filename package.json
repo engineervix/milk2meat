@@ -1,9 +1,9 @@
 {
   "name": "milk2meat",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A tool to help one get into The Word of God",
   "author": "Victor Miti",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
     "build": "webpack --mode development --progress",
