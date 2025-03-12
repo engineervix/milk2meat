@@ -28,6 +28,8 @@
 
 ## About
 
+![screenshot](https://github.com/user-attachments/assets/d53e9f63-ad1b-4f10-bf54-bf8812e3eaa3)
+
 Milk2Meat is a personal Bible study tool inspired by [Hebrews 5:13-14](https://biblia.com/bible/esv/hebrews/5/13-14) and [1 Corinthians 3:1-2](https://biblia.com/bible/esv/1-corinthians/3/1-2), representing the journey from spiritual milk (basics) to meat (deeper understanding). I wrote it with a view to engage more deeply with the Scriptures through structured note-taking, book introductions, and organized Bible study.
 
 The name reflects the spiritual growth process:
