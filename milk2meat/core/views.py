@@ -268,6 +268,7 @@ class NoteUpdateView(LoginRequiredMixin, UpdateView):
             messages.success(self.request, f"Note '{self.object.title}' updated successfully.")
             return response
         except Exception as e:
+            logger.exception("Error updating note")
             messages.error(self.request, f"Error updating note: {str(e)}")
             return super().form_invalid(form)
 
