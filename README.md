@@ -1,6 +1,6 @@
 # Milk to Meat
 
-> A simple tool to facilitate personal Bible Study
+> A tool to facilitate personal Bible Study
 
 [![Continuous Integration](https://github.com/engineervix/milk2meat/actions/workflows/main.yml/badge.svg)](https://github.com/engineervix/milk2meat/actions/workflows/main.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/engineervix/d435cc3f4234a469e5df13bf019a6385/raw/covbadge.json)](https://github.com/engineervix/milk2meat/actions)
@@ -17,11 +17,34 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [About](#about)
+- [Features](#features)
 - [Development](#development)
+- [Deployment](#deployment)
 - [Tips](#tips)
 - [Credits](#credits)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## About
+
+Milk2Meat is a personal Bible study tool inspired by [Hebrews 5:13-14](https://biblia.com/bible/esv/hebrews/5/13-14) and [1 Corinthians 3:1-2](https://biblia.com/bible/esv/1-corinthians/3/1-2), representing the journey from spiritual milk (basics) to meat (deeper understanding). I wrote it with a view to engage more deeply with the Scriptures through structured note-taking, book introductions, and organized Bible study.
+
+The name reflects the spiritual growth process:
+
+> "For everyone who lives on milk is unskilled in the word of righteousness, since he is a child. But solid food is for the mature, for those who have their powers of discernment trained by constant practice to distinguish good from evil." - Hebrews 5:13-14
+
+## Features
+
+- **Book Introductions**: Add detailed introductions to each book of the Bible (inspired by [The Reformation Study Bible](https://www.reformationstudybible.com/) and [The ESV Global Study Bible](https://www.crossway.org/bibles/esv-global-study-bible-hconly/))
+- **Note Taking**: Create and organize study notes, sermon notes, and devotionals
+- **File Attachments**: Upload handwritten notes or other files (PDFs, images)
+- **References**: Link notes to specific Bible books
+- **Tags**: Organize notes with custom tagging
+- **Markdown Support**: Rich text editing with Markdown (powered by [EasyMDE](https://github.com/Ionaru/easy-markdown-editor))
+- **Search**: Full-text search across all your content
+- **Private**: All notes and attached files are private to your user account
+- **Dark Mode**: Support for light and dark themes
 
 ## Development
 
@@ -59,11 +82,14 @@ inv up --build  # First time
 inv up          # Subsequent runs
 ```
 
-3. create the required `.env` file
+3. configure environment variables
 
 ```sh
 cp -v .env.example .env
 ```
+
+> [!NOTE]
+> You don't need `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` during development.
 
 4. apply database migrations
 
@@ -96,6 +122,14 @@ inv start
 ```
 
 You should be able to access the site at <http://127.0.0.1:8000>
+
+## Deployment
+
+> [!IMPORTANT]
+> This application is configured to use [Cloudflare R2](https://developers.cloudflare.com/r2/) for media storage, and [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/), a verification tool to replace CAPTCHAs. You'll need to set those up and provide the necessary environment variables.
+
+There's a `Dockerfile` configured for production deployment.
+I wrote [`bin/deploy.sh`](./bin/deploy.sh) for deployment to a machine running [Dokku](https://dokku.com/). It's accompanied by [`bin/.deploy.env.example`](./bin/.deploy.env.example) which shows the required environment variables. Even if you intend to deploy using a different approach, reading these two files will give you an idea of what you need to do to deploy the application.
 
 ## Tips
 
