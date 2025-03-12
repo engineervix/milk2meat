@@ -72,16 +72,15 @@ AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")  # noqa: F405
 AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")  # noqa: F405
 AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="auto")  # noqa: F405
 # AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN")  # noqa: F405
-# AWS_QUERYSTRING_AUTH = False
 
 _AWS_EXPIRY = 60 * 60 * 24 * 7
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": f"max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate"}
 
-# AWS_S3_ADDRESSING_STYLE = "virtual"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_LOCATION = env("AWS_LOCATION", default="files")  # noqa: F405
 AWS_S3_FILE_OVERWRITE = env("AWS_S3_FILE_OVERWRITE", default=False)  # noqa: F405
-# AWS_DEFAULT_ACL = "private"
+
+# this is a custom setting, not part of django-storages
 AWS_SIGNED_URL_EXPIRE_SECONDS = env("AWS_SIGNED_URL_EXPIRE_SECONDS", default=60 * 5)  # noqa: F405
 
 # STATIC

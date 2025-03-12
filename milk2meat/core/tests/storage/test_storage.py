@@ -24,13 +24,11 @@ class TestPrivateS3Storage:
         assert storage.location == "files"
         assert storage.file_overwrite is False
         assert storage.signature_version == "s3v4"
-        assert storage.addressing_style == "virtual"
 
     @override_settings(
         AWS_LOCATION="custom-files",
         AWS_S3_FILE_OVERWRITE=True,
         AWS_S3_SIGNATURE_VERSION="s3",
-        AWS_S3_ADDRESSING_STYLE="path",
     )
     def test_init_with_custom_settings(self):
         """Test that storage uses custom settings when provided"""
@@ -40,7 +38,6 @@ class TestPrivateS3Storage:
         assert storage.location == "custom-files"
         assert storage.file_overwrite is True
         assert storage.signature_version == "s3"
-        assert storage.addressing_style == "path"
 
     @mock.patch("storages.backends.s3boto3.S3Boto3Storage.url")
     def test_url_method_with_expiration(self, mock_url):
