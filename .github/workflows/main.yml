@@ -4,6 +4,7 @@ name: Continuous Integration
 env:
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
+  POETRY_VERSION: 1.8.5 # Make sure this matches the Dockerfile
 
 on:
   pull_request:
@@ -177,7 +178,7 @@ jobs:
           export LC_ALL=C.UTF-8
           export LANG=C.UTF-8
           pip install --no-cache-dir --upgrade pip setuptools wheel
-          python -m pip install --no-cache-dir poetry==1.8.5
+          python -m pip install --no-cache-dir poetry==$POETRY_VERSION
           poetry config virtualenvs.create false
           poetry install --with dev,test,docs --no-interaction
           curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -204,6 +205,54 @@ jobs:
 
           # Run backend tests
           pytest
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v3
+        with:
+          name: covdata
+          path: coverage.*
+
+  coverage:
+    name: Coverage
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry==$POETRY_VERSION
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "poetry"
+          cache-dependency-path: "poetry.lock"
+
+      - name: "Download coverage data"
+        uses: actions/download-artifact@v4
+        with:
+          name: covdata
+
+      - name: "Extract total coverage"
+        run: |
+          export TOTAL=$(python -c "import json;print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
+          echo "total=$TOTAL" >> $GITHUB_ENV
+          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Create coverage badge"
+        if: (github.repository == 'engineervix/milk2meat') && (github.ref == 'refs/heads/main')
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: d435cc3f4234a469e5df13bf019a6385
+          filename: covbadge.json
+          label: Coverage
+          message: ${{ env.total }}%
+          minColorRange: 50
+          maxColorRange: 90
+          valColorRange: ${{ env.total }}
 
   # Runs the next steps on the VM
   # Creates a GitHub Release when the lint & python_tests jobs succeeds, and only on pushes to tags.
