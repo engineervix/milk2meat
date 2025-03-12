@@ -3,7 +3,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, UpdateView
 
@@ -82,4 +82,4 @@ class BookUpdateView(LoginRequiredMixin, UpdateView):
             return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse_lazy("core:book_detail", kwargs={"pk": self.object.pk})
+        return reverse("core:book_detail", kwargs={"pk": self.object.pk})
