@@ -1,5 +1,3 @@
-// Create a new file: milk2meat/assets/js/pdf-viewer.js
-
 import * as pdfjsLib from "pdfjs-dist";
 
 // Set the worker source - using the path where webpack will output the worker
@@ -15,14 +13,74 @@ document.addEventListener("DOMContentLoaded", function () {
   // Only initialize if we have a PDF viewer container
   if (!pdfViewerContainer) return;
 
-  const pdfUrl = pdfViewerContainer.dataset.pdfUrl;
-  if (!pdfUrl) return;
+  // Get the note ID for secure access
+  const noteId = pdfViewerContainer.dataset.noteId;
 
-  // Initialize the PDF viewer UI
-  initPdfViewer(pdfViewerContainer, pdfUrl);
+  if (noteId) {
+    // For secure URLs, we need to fetch a fresh URL before loading the PDF
+    fetchSecureUrl(noteId)
+      .then((secureUrl) => {
+        if (secureUrl) {
+          initPdfViewer(pdfViewerContainer, secureUrl, noteId);
+        } else {
+          showError(pdfViewerContainer, "Could not load the secure PDF URL");
+        }
+      })
+      .catch((error) => {
+        showError(pdfViewerContainer, "Error loading PDF: " + error.message);
+      });
+  } else {
+    // For backwards compatibility, check if a direct URL is provided
+    const pdfUrl = pdfViewerContainer.dataset.pdfUrl;
+    if (pdfUrl) {
+      initPdfViewer(pdfViewerContainer, pdfUrl);
+    } else {
+      showError(pdfViewerContainer, "No PDF URL or note ID provided");
+    }
+  }
 });
 
-function initPdfViewer(container, pdfUrl) {
+/**
+ * Fetch a secure URL for the PDF
+ * @param {string} noteId - The ID of the note
+ * @returns {Promise<string>} - A promise that resolves to the secure URL
+ */
+async function fetchSecureUrl(noteId) {
+  try {
+    const response = await fetch(`/notes/${noteId}/file/`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Server error");
+    }
+
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Display an error in the PDF viewer container
+ * @param {HTMLElement} container - The container element
+ * @param {string} message - The error message to display
+ */
+function showError(container, message) {
+  container.innerHTML = `
+    <div class="p-4 text-center">
+      <p class="text-error mb-2">Error loading PDF</p>
+      <p class="text-sm opacity-70">${message}</p>
+    </div>
+  `;
+}
+
+/**
+ * Initialize the PDF viewer
+ * @param {HTMLElement} container - The container element
+ * @param {string} pdfUrl - The URL of the PDF to display
+ * @param {string} noteId - Optional note ID for secure URLs
+ */
+function initPdfViewer(container, pdfUrl, noteId = null) {
   // Show loading message
   container.innerHTML =
     '<div class="text-center p-4"><span class="loading loading-spinner loading-md"></span> Loading PDF...</div>';
@@ -34,6 +92,25 @@ function initPdfViewer(container, pdfUrl) {
   let pageNumPending = null;
   let canvas = null;
   let ctx = null;
+
+  // Token refresh logic
+  let tokenRefreshTimer = null;
+
+  // If using secure URLs, we need to refresh the token periodically
+  if (noteId) {
+    // Refresh token every 4 minutes (signed URLs expire after 5 minutes)
+    const REFRESH_INTERVAL = 4 * 60 * 1000; // 4 minutes
+
+    tokenRefreshTimer = setInterval(async () => {
+      try {
+        const newUrl = await fetchSecureUrl(noteId);
+        // We don't need to reload the PDF, just update the URL for next operations
+        pdfUrl = newUrl;
+      } catch (error) {
+        // If token refresh fails multiple times, we might want to show a warning
+      }
+    }, REFRESH_INTERVAL);
+  }
 
   // Create UI elements
   function createUI() {
@@ -167,13 +244,17 @@ function initPdfViewer(container, pdfUrl) {
       window.addEventListener("resize", handleResize);
     })
     .catch(function (error) {
-      // console.error("Error loading PDF:", error);
-      container.innerHTML = `
-      <div class="p-4 text-center">
-        <p class="text-error mb-2">Error loading PDF</p>
-        <p class="text-sm opacity-70">${error.message}</p>
-        <p class="mt-4">Please try downloading the file instead.</p>
-      </div>
-    `;
+      showError(container, `Error loading PDF: ${error.message}`);
     });
+
+  // Return a cleanup function to handle any resource releasing
+  return function cleanup() {
+    // Clear the token refresh timer if it exists
+    if (tokenRefreshTimer) {
+      clearInterval(tokenRefreshTimer);
+    }
+
+    // Remove event listeners
+    window.removeEventListener("resize", handleResize);
+  };
 }

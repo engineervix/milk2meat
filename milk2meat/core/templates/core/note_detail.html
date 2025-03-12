@@ -70,7 +70,7 @@
                                 <div class="mb-4">
                                     <h3 class="text-sm font-semibold text-base-content/70">Attachment</h3>
                                     <div class="flex flex-col gap-1 mt-1">
-                                        <a href="{{ note.upload.url }}"
+                                        <a href="{{ secure_file_url }}"
                                            class="flex items-center link link-hover"
                                            target="_blank">
                                             {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
@@ -175,16 +175,16 @@
                                 {# PDF preview with multi-page support #}
                                 <div id="pdf-viewer"
                                      class="w-full h-auto bg-base-100 rounded-lg overflow-hidden p-4"
-                                     data-pdf-url="{{ note.upload.url }}"></div>
+                                     data-pdf-url="{{ secure_file_url }}"></div>
                             {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
                                 {# Image preview with GLightbox #}
                                 <div class="flex justify-center">
-                                    <a href="{{ note.upload.url }}"
+                                    <a href="{{ secure_file_url }}"
                                        class="glightbox"
                                        data-gallery="note-gallery"
                                        data-title="{{ note.upload.name|split:'//'|last }}">
                                         {# djlint:off H006 #}
-                                        <img src="{{ note.upload.url }}"
+                                        <img src="{{ secure_file_url }}"
                                              alt="Attachment preview"
                                              class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
                                         {# djlint:on #}
@@ -196,12 +196,12 @@
                             {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
                                 {# SVG preview with GLightbox #}
                                 <div class="flex justify-center">
-                                    <a href="{{ note.upload.url }}"
+                                    <a href="{{ secure_file_url }}"
                                        class="glightbox"
                                        data-gallery="note-gallery"
                                        data-title="{{ note.upload.name|split:'//'|last }}">
                                         {# djlint:off H006 #}
-                                        <img src="{{ note.upload.url }}"
+                                        <img src="{{ secure_file_url }}"
                                              alt="SVG preview"
                                              class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
                                         {# djlint:on #}
@@ -220,7 +220,7 @@
                                 </div>
                             {% endif %}
                             <div class="flex justify-center mt-4">
-                                <a href="{{ note.upload.url }}" class="btn btn-primary" download>
+                                <a href="{{ secure_file_url }}" class="btn btn-primary" data-download>
                                     <i class="ph ph-download mr-1"></i>
                                     Download
                                     <span class="text-xs opacity-80 ml-1">({{ note.upload.size|filesizeformat }})</span>
@@ -250,6 +250,46 @@
     </dialog>
 {% endblock content %}
 {% block extra_js %}
+    {% if note.upload %}
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle secure file downloads to get fresh tokens
+            const secureFileLinks = document.querySelectorAll("[data-download]");
+
+            secureFileLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const noteId = this.getAttribute('data-note-id');
+
+                    // Request a fresh signed URL
+                    fetch(`/notes/${noteId}/file/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.url) {
+                                // Open the URL in a new tab
+                                window.open(data.url, '_blank');
+                            } else {
+                                alert('Error accessing file: ' + (data.error || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            alert('Network error while accessing file');
+                        });
+                });
+            });
+
+            // For PDF viewer, update to use secure URLs that refresh
+            const pdfViewer = document.getElementById('pdf-viewer');
+            if (pdfViewer) {
+                const noteId = document.querySelector('[data-download]').getAttribute('data-note-id');
+
+                // Ensure we have the note ID for token refresh
+                pdfViewer.setAttribute('data-note-id', noteId);
+            }
+        });
+        </script>
+    {% endif %}
     {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
         {# Include the bundled PDF viewer script #}
         <script src="{% static 'js/pdf-viewer.min.js' %}"></script>
