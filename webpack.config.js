@@ -17,6 +17,7 @@ const options = {
       __dirname,
       "node_modules/pdfjs-dist/build/pdf.worker.mjs",
     ),
+    "esv-integration": `./${projectRoot}/assets/js/esv-integration.js`,
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),
