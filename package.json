@@ -35,7 +35,7 @@
     "babel-loader": "^10.0.0",
     "commit-and-tag-version": "^12.4.4",
     "commitizen": "^4.3.0",
-    "copy-webpack-plugin": "^12.0.2",
+    "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.6",
     "cz-conventional-changelog": "^3.3.0",
