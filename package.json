@@ -32,7 +32,7 @@
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.19",
-    "babel-loader": "^9.2.1",
+    "babel-loader": "^10.0.0",
     "commit-and-tag-version": "^12.4.4",
     "commitizen": "^4.3.0",
     "copy-webpack-plugin": "^12.0.2",
