@@ -21,9 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Make formChanged accessible to other functions
   window.formChanged = false;
 
-  // Track whether we're currently submitting the form (used for beforeunload event)
-  let isSubmitting = false;
-
   // Array to store editor instances
   const editors = [];
 
@@ -86,8 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add event listener for beforeunload to warn about unsaved changes
     window.addEventListener("beforeunload", function (e) {
-      // Only show warning if there are unsaved changes AND we're not submitting the form
-      if (formChanged && !isSubmitting) {
+      if (formChanged) {
         // For modern browsers
         e.preventDefault();
         // For older browsers
@@ -99,7 +95,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Listen for form submission to prevent the warning when form is properly submitted
     document.querySelector("form").addEventListener("submit", function () {
-      isSubmitting = true;
       formChanged = false;
       window.formChanged = false;
     });
