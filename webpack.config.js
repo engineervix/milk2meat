@@ -18,6 +18,7 @@ const options = {
       "node_modules/pdfjs-dist/build/pdf.worker.mjs",
     ),
     "esv-integration": `./${projectRoot}/assets/js/esv-integration.js`,
+    "note-form": `./${projectRoot}/assets/js/note-form/index.js`,
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),
