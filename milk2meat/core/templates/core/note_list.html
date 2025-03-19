@@ -243,48 +243,5 @@
     </div>
 {% endblock content %}
 {% block extra_js %}
-    <script>
-        // Function to apply filters
-        function applyFilter(filterType, value) {
-            // Get current URL and parameters
-            const url = new URL(window.location.href);
-            const params = new URLSearchParams(url.search);
-
-            // Remove page parameter when changing filters
-            params.delete('page');
-
-            // Set, update, or remove the filter parameter
-            if (value) {
-                params.set(filterType, value);
-            } else {
-                params.delete(filterType);
-            }
-
-            // Redirect to new URL with updated parameters
-            window.location.href = `${url.pathname}?${params.toString()}`;
-        }
-
-        // Handle tag checkboxes
-        document.addEventListener('DOMContentLoaded', function() {
-            const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
-
-            tagCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    // Uncheck other checkboxes
-                    tagCheckboxes.forEach(cb => {
-                        if (cb !== checkbox) {
-                            cb.checked = false;
-                        }
-                    });
-
-                    // Apply tag filter
-                    if (checkbox.checked) {
-                        applyFilter('tag', checkbox.dataset.tagName);
-                    } else {
-                        applyFilter('tag', '');
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="{% static 'js/notes-list.min.js' %}"></script>
 {% endblock extra_js %}
