@@ -11,13 +11,13 @@ urlpatterns = [
     # Books
     path("books/", book_views.BookListView.as_view(), name="book_list"),
     path("books/<int:pk>/", book_views.BookDetailView.as_view(), name="book_detail"),
-    path("books/<int:pk>/edit/", book_views.BookUpdateView.as_view(), name="book_edit"),
+    path("books/<int:pk>/edit/", book_views.BookEditPageView.as_view(), name="book_edit"),
     path("api/books/<int:pk>/update/", book_views.book_save_ajax, name="book_update_ajax"),
     # Notes
     path("notes/", note_views.NoteListView.as_view(), name="note_list"),
-    path("notes/create/", note_views.NoteCreateView.as_view(), name="note_create"),
+    path("notes/create/", note_views.NoteCreatePageView.as_view(), name="note_create"),
     path("notes/<uuid:pk>/", note_views.NoteDetailView.as_view(), name="note_detail"),
-    path("notes/<uuid:pk>/edit/", note_views.NoteUpdateView.as_view(), name="note_edit"),
+    path("notes/<uuid:pk>/edit/", note_views.NoteEditPageView.as_view(), name="note_edit"),
     path("notes/<uuid:pk>/delete/", note_views.note_delete_view, name="note_delete"),
     # Secure file access
     path("notes/<uuid:note_id>/file/", note_views.serve_protected_file, name="serve_protected_file"),

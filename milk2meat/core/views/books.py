@@ -1,7 +1,6 @@
 import json
 import logging
 
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
@@ -9,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic import DetailView, ListView, TemplateView
 
 from ..forms import BookEditForm
 from ..models import Book, Testament
@@ -59,38 +58,33 @@ class BookDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class BookUpdateView(LoginRequiredMixin, UpdateView):
-    model = Book
-    form_class = BookEditForm
+class BookEditPageView(LoginRequiredMixin, TemplateView):
+    """View for rendering the book edit page"""
+
     template_name = "core/book_edit.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Get the book instance
+        book_id = self.kwargs.get("pk")
+        book = get_object_or_404(Book, pk=book_id)
+
+        # Add the book and form to the context
+        context["book"] = book
+        context["form"] = BookEditForm(instance=book)
+
         # Add timeline data as JSON string for the form
-        if self.object.timeline:
-            context["timeline_json"] = json.dumps(self.object.timeline)
+        if book.timeline:
+            context["timeline_json"] = json.dumps(book.timeline)
         else:
             context["timeline_json"] = json.dumps({"events": []})
 
         # Add the update URL for AJAX form submission
-        context["book_update_url"] = reverse("core:book_update_ajax", kwargs={"pk": self.object.pk})
-        context["current_book_id"] = self.object.pk
+        context["book_update_url"] = reverse("core:book_update_ajax", kwargs={"pk": book.pk})
+        context["current_book_id"] = book.pk
 
         return context
-
-    def form_valid(self, form):
-        """Process the form data and save"""
-        try:
-            response = super().form_valid(form)
-            messages.success(self.request, f"Successfully updated {self.object.title}.")
-            return response
-        except Exception as e:
-            messages.error(self.request, f"Error saving book: {str(e)}")
-            return super().form_invalid(form)
-
-    def get_success_url(self):
-        return reverse("core:book_detail", kwargs={"pk": self.object.pk})
 
 
 @require_POST
