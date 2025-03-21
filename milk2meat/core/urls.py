@@ -12,6 +12,7 @@ urlpatterns = [
     path("books/", book_views.BookListView.as_view(), name="book_list"),
     path("books/<int:pk>/", book_views.BookDetailView.as_view(), name="book_detail"),
     path("books/<int:pk>/edit/", book_views.BookUpdateView.as_view(), name="book_edit"),
+    path("api/books/<int:pk>/update/", book_views.book_save_ajax, name="book_update_ajax"),
     # Notes
     path("notes/", note_views.NoteListView.as_view(), name="note_list"),
     path("notes/create/", note_views.NoteCreateView.as_view(), name="note_create"),

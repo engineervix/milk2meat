@@ -19,6 +19,7 @@ const options = {
     ),
     "esv-integration": `./${projectRoot}/assets/js/esv-integration.js`,
     "note-form": `./${projectRoot}/assets/js/note-form/index.js`,
+    "book-form": `./${projectRoot}/assets/js/book-form/index.js`,
     "notes-detail": `./${projectRoot}/assets/js/notes/detail.js`,
     "notes-list": `./${projectRoot}/assets/js/notes/list.js`,
     "tags-list": `./${projectRoot}/assets/js/tags/list.js`,
