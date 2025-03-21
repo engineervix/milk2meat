@@ -2,6 +2,7 @@ import { BibleBooksManager } from "./bible-books";
 import { TagsManager } from "./tags-input";
 import { FileUploadManager } from "./file-upload";
 import { NoteTypeManager } from "./note-type";
+import { AjaxFormManager } from "./ajax-form";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize Bible Books Manager
@@ -41,5 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
     modalId: "new-type-modal",
     selectId: "id_note_type",
     createUrl: window.noteTypeCreateUrl, // This will be populated from the template
+  });
+
+  // Get editor instances for syncing before form submission
+  const editors = window.editors || [];
+
+  // Initialize AJAX Form Manager
+  const ajaxForm = new AjaxFormManager({
+    formSelector: "#note-form",
+    messageContainerId: "form-messages",
+    editorInstances: editors,
+    createUrl: window.noteCreateUrl,
+    updateUrl: window.noteUpdateUrl,
+    noteId: window.currentNoteId,
   });
 });

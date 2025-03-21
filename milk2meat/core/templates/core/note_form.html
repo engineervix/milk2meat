@@ -19,7 +19,7 @@
             <div class="flex items-center justify-between flex-wrap">
                 <div class="flex-1">
                     <p class="font-medium">
-                        <span>
+                        <span class="promo-heading">
                             {% if is_create %}
                                 New Note
                             {% else %}
@@ -46,7 +46,9 @@
     <div class="container mx-auto px-4 py-8">
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
+                <!-- Message container for form notifications -->
+                <div id="form-messages"></div>
+                <form method="post" enctype="multipart/form-data" id="note-form">
                     {% csrf_token %}
                     {# Note title #}
                     <div class="form-control mb-4">
@@ -269,6 +271,30 @@
             {% for book in bible_books %}{id: {{ book.id }}, title: "{{ book.title }}"},{% endfor %}
         ];
         window.noteTypeCreateUrl = "{% url 'core:create_note_type_ajax' %}";
+        window.noteCreateUrl = "{% url 'core:note_create_ajax' %}";
+
+        // For note updates, set the update URL and note ID
+        {% if note.pk %}
+            window.noteUpdateUrl = "{% url 'core:note_update_ajax' pk=note.pk %}";
+            window.currentNoteId = "{{ note.pk }}";
+        {% else %}
+            window.noteUpdateUrl = "{% url 'core:note_create_ajax' %}";
+            window.currentNoteId = "";
+        {% endif %}
+
+        // Pass editor instances to window to make them available for the AJAX form
+        document.addEventListener('DOMContentLoaded', function() {
+            // This will track the editor instances created by editor.js
+            window.editors = [];
+
+            // Override the EasyMDE initialization in editor.js to store editor instances
+            const originalEasyMDE = window.EasyMDE;
+            window.EasyMDE = function(...args) {
+                const editor = new originalEasyMDE(...args);
+                window.editors.push(editor);
+                return editor;
+            };
+        });
     </script>
     <script src="{% static 'js/note-form.min.js' %}"></script>
 {% endblock extra_js %}
