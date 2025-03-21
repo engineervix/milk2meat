@@ -20,9 +20,12 @@ urlpatterns = [
     path("notes/<uuid:pk>/delete/", note_views.note_delete_view, name="note_delete"),
     # Secure file access
     path("notes/<uuid:note_id>/file/", note_views.serve_protected_file, name="serve_protected_file"),
+    # AJAX endpoints
+    path("api/notes/create/", note_views.note_save_ajax, name="note_create_ajax"),
+    path("api/notes/<uuid:pk>/update/", note_views.note_save_ajax, name="note_update_ajax"),
+    path("api/note-types/create/", note_views.create_note_type_ajax, name="create_note_type_ajax"),
     # Tags
     path("tags/", tags_views.TagListView.as_view(), name="tag_list"),
-    path("api/note-types/create/", note_views.create_note_type_ajax, name="create_note_type_ajax"),
     # Search
     path("search/", search_views.GlobalSearchView.as_view(), name="global_search"),
 ]

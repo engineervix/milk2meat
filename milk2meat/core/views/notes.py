@@ -7,7 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
@@ -269,3 +269,116 @@ def serve_protected_file(request, note_id):
     except Exception:
         logger.exception("Error serving protected file")
         return JsonResponse({"error": "Server error"}, status=500)
+
+
+@require_POST
+@login_required
+def note_save_ajax(request, pk=None):
+    """
+    AJAX view for creating or updating notes without page reload.
+
+    This view handles both creation of new notes and updating existing ones through AJAX,
+    allowing for a smoother user experience where notes can be saved without navigating
+    away from the editing page.
+
+    Parameters:
+        request: The HTTP request object
+        pk (UUID, optional): The primary key of the note to update. If None, creates a new note.
+
+    Request Data:
+        - All standard NoteForm fields (title, note_type, content, etc.)
+        - tags_input: Comma-separated list of tags
+        - referenced_books_json: JSON string of book IDs to reference
+        - upload: Optional file attachment
+
+    Returns:
+        JsonResponse with the following structure:
+        - On success:
+            {
+                "success": true,
+                "is_new": true/false,
+                "note": {
+                    "id": "<note-uuid>",
+                    "title": "<note-title>",
+                    "detail_url": "<url>",
+                    "edit_url": "<url>"
+                },
+                "message": "Note saved successfully."
+            }
+        - On validation error:
+            {"success": false, "errors": {field_errors}}
+        - On permission error:
+            {"success": false, "error": "error message"}
+
+    Status Codes:
+        - 200: Success
+        - 400: Validation error
+        - 403: Permission denied
+        - 404: Note not found
+        - 500: Server error
+    """
+    try:
+        # Initialize the form with data, files, and owner
+        if pk:
+            # Update existing note - get the note and verify ownership
+            try:
+                note = get_object_or_404(Note, pk=pk)
+                # Check if the user is the owner
+                if note.owner != request.user:
+                    return JsonResponse(
+                        {"success": False, "error": "You don't have permission to edit this note"}, status=403
+                    )
+                form = NoteForm(request.POST, request.FILES, instance=note, user=request.user)
+                is_new = False
+            except Http404:
+                return JsonResponse({"success": False, "error": "Note not found"}, status=404)
+        else:
+            # Create new note
+            form = NoteForm(request.POST, request.FILES, user=request.user)
+            is_new = True
+
+        if form.is_valid():
+            # For new notes, set the owner before saving
+            note = form.save(commit=False)
+            if is_new:
+                note.owner = request.user
+            note.save()
+
+            # We need to manually handle tags and referenced books instead of using form.save_m2m()
+            # because we're saving with commit=False
+
+            # Handle referenced books
+            book_ids = form.cleaned_data.get("referenced_books_json", [])
+            note.referenced_books.clear()
+            if book_ids:
+                note.referenced_books.add(*book_ids)
+
+            # Handle tags
+            tags = form.cleaned_data.get("tags_input", [])
+            note.tags.clear()
+            if tags:
+                note.tags.add(*tags)
+
+            # Build response data
+            data = {
+                "success": True,
+                "is_new": is_new,
+                "note": {
+                    "id": str(note.pk),
+                    "title": note.title,
+                    "detail_url": reverse("core:note_detail", kwargs={"pk": note.pk}),
+                    "edit_url": reverse("core:note_edit", kwargs={"pk": note.pk}),
+                },
+                "message": "Note saved successfully.",
+            }
+
+            return JsonResponse(data)
+        else:
+            # Return form errors
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+    except PermissionDenied as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=403)
+    except Exception as e:
+        logger.exception("Error saving note via AJAX")
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
