@@ -99,6 +99,11 @@ export class AjaxFormManager {
         if (window.formChanged !== undefined) {
           window.formChanged = false;
         }
+
+        // Use the resetFormChanged function if available to properly reset all form change tracking
+        if (typeof window.resetFormChanged === "function") {
+          window.resetFormChanged();
+        }
       } else {
         // Display validation errors
         this.displayErrors(
