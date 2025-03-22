@@ -3,6 +3,7 @@ import { TagsManager } from "./tags-input";
 import { FileUploadManager } from "./file-upload";
 import { NoteTypeManager } from "./note-type";
 import { AjaxFormManager } from "./ajax-form";
+import { FormEnhancer } from "../form-enhancements";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize Bible Books Manager
@@ -55,5 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
     createUrl: window.noteCreateUrl,
     updateUrl: window.noteUpdateUrl,
     noteId: window.currentNoteId,
+  });
+
+  // Initialize Form Enhancer for keyboard shortcuts and floating save button
+  const formEnhancer = new FormEnhancer({
+    formSelector: "#note-form",
+    fabPosition: "bottom-right",
+    fabLabel: "Save",
   });
 });
