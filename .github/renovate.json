@@ -6,6 +6,10 @@
   },
   "packageRules": [
     {
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
       "matchLanguages": ["python"],
       "labels": ["dependencies", "python"],
       "updateTypes": ["minor", "patch", "pin", "digest"],
