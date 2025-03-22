@@ -47,7 +47,7 @@
     "cssnano": "^7.0.6",
     "cz-conventional-changelog": "^3.3.0",
     "daisyui": "^4.12.24",
-    "eslint": "^8.57.1",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-webpack-plugin": "^4.2.0",
