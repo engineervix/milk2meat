@@ -125,39 +125,8 @@ export class AjaxFormManager {
    * Displays a message to the user
    */
   showMessage(message, type = "success") {
-    if (!this.messageContainer) {
-      // If no container specified, use toast notification
-      this.showToast(message, type);
-      return;
-    }
-
-    // Clear existing messages
-    this.messageContainer.innerHTML = "";
-
-    // Create alert
-    const alertClass = type === "success" ? "alert-success" : "alert-error";
-    this.messageContainer.innerHTML = `
-      <div class="alert ${alertClass} shadow-lg mb-4">
-        <div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === "success" ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" : "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"}" />
-          </svg>
-          <span>${message}</span>
-        </div>
-      </div>
-    `;
-
-    // Auto-hide message after a delay
-    setTimeout(() => {
-      const alert = this.messageContainer.querySelector(".alert");
-      if (alert) {
-        alert.style.opacity = "0";
-        alert.style.transition = "opacity 0.5s";
-        setTimeout(() => {
-          this.messageContainer.innerHTML = "";
-        }, 500);
-      }
-    }, 5000);
+    // Always use toast notification
+    this.showToast(message, type);
   }
 
   /**
@@ -166,10 +135,18 @@ export class AjaxFormManager {
   showToast(message, type = "success") {
     // Create toast element
     const toast = document.createElement("div");
-    toast.className = `toast toast-end ${type === "success" ? "toast-success" : "toast-error"}`;
+    toast.className = `toast toast-bottom toast-center z-50`;
+
+    // Get icon based on type
+    const iconColor = type === "success" ? "text-success" : "text-error";
+    const iconName = type === "success" ? "check-circle" : "x-circle";
+
     toast.innerHTML = `
-      <div class="alert">
-        <span>${message}</span>
+      <div class="alert shadow-lg">
+        <div class="flex items-center">
+          <i class="ph ph-${iconName} ${iconColor} text-lg mr-2"></i>
+          <span>${message}</span>
+        </div>
       </div>
     `;
 
