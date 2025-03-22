@@ -31,8 +31,7 @@ class NoteType(TypeMixin):
     This allows for categorizing notes
     """
 
-    class Meta(TypeMixin.Meta):
-        db_table = "core_notetype"  # Explicitly use the existing table name
+    pass
 
 
 class NoteManager(models.Manager):
@@ -66,9 +65,7 @@ class Note(BaseModel):
     )
     note_type = models.ForeignKey(NoteType, on_delete=models.PROTECT, related_name="notes")
     tags = TaggableManager(through=UUIDTaggedItem, blank=True)
-    referenced_books = models.ManyToManyField(
-        Book, blank=True, related_name="notes", db_table="core_note_referenced_books"
-    )
+    referenced_books = models.ManyToManyField(Book, blank=True, related_name="notes")
     owner = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="notes")
 
     objects = NoteManager()
@@ -76,7 +73,6 @@ class Note(BaseModel):
     class Meta:
         ordering = ["-updated_at", "-created_at"]
         constraints = [models.UniqueConstraint(fields=["slug", "owner"], name="unique_owner_slug")]
-        db_table = "core_note"  # Explicitly use the existing table name
 
     def __str__(self):
         return self.title

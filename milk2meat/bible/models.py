@@ -50,7 +50,6 @@ class Book(BaseModel):
 
     class Meta:
         ordering = ["number"]
-        db_table = "core_book"  # Explicitly use the existing table name
 
     def __str__(self):
         return self.title
