@@ -60,7 +60,7 @@
                                     <h3 class="text-sm font-semibold text-base-content/70">Referenced Books</h3>
                                     <div class="flex flex-col gap-1 mt-1">
                                         {% for book in note.referenced_books.all %}
-                                            <a href="{% url 'bible:note_detail' book.id %}" class="link link-hover">{{ book.title }}</a>
+                                            <a href="{% url 'bible:book_detail' book.id %}" class="link link-hover">{{ book.title }}</a>
                                         {% endfor %}
                                     </div>
                                 </div>

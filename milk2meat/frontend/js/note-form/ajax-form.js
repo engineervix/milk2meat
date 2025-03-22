@@ -92,7 +92,7 @@ export class AjaxFormManager {
           // Update the update URL for future saves
           this.updateUrl = data.note.edit_url
             .replace("/edit/", "/update/")
-            .replace("/core/", "/api/");
+            .replace("/notes/", "/api/notes/");
         }
 
         // Reset the form changed state since we just saved

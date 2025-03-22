@@ -16,9 +16,9 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     {# Back button #}
-                    <a href="{% url 'bible:note_list' %}" class="btn btn-sm btn-ghost">Back to Books</a>
+                    <a href="{% url 'notes:note_list' %}" class="btn btn-sm btn-ghost">Back to Books</a>
                     {# Edit button #}
-                    <a href="{% url 'bible:note_edit' book.id %}"
+                    <a href="{% url 'bible:book_edit' book.id %}"
                        class="btn btn-sm btn-secondary">Edit</a>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                                    class="btn btn-primary btn-block"
                                    target="_blank"
                                    rel="noopener">Read on ESV.org</a>
-                                <a href="{% url 'bible:note_edit' book.id %}"
+                                <a href="{% url 'bible:book_edit' book.id %}"
                                    class="btn btn-outline btn-block">Edit Introduction</a>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
                             <div class="card-body text-center">
                                 <h2 class="card-title text-xl mb-4 justify-center">No Introduction Content Yet</h2>
                                 <p class="mb-4">The introduction for {{ book.title }} has not been added yet.</p>
-                                <a href="{% url 'bible:note_edit' book.id %}" class="btn btn-primary">Add Introduction</a>
+                                <a href="{% url 'bible:book_edit' book.id %}" class="btn btn-primary">Add Introduction</a>
                             </div>
                         </div>
                     {% endif %}
