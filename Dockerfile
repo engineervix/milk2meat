@@ -11,8 +11,10 @@ RUN npm ci --no-optional --no-audit --progress=false --network=host
 
 COPY ./milk2meat/frontend ./milk2meat/frontend
 
-# we need these so tailwind can detect the utility classes
+# we need these so tailwind can detect the utility classes in the django templates
 COPY ./milk2meat/auth ./milk2meat/auth
+COPY ./milk2meat/bible ./milk2meat/bible
+COPY ./milk2meat/notes ./milk2meat/notes
 COPY ./milk2meat/core ./milk2meat/core
 COPY ./milk2meat/home ./milk2meat/home
 COPY ./milk2meat/templates ./milk2meat/templates
