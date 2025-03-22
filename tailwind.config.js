@@ -2,7 +2,7 @@
 module.exports = {
   content: [
     "./milk2meat/**/templates/**/*.html", // Catches templates in all Django apps
-    "./milk2meat/assets/js/**/*.js", // Only JS files in assets
+    "./milk2meat/frontend/js/**/*.js", // Only JS files in frontend dir
     // Error pages use custom styling, so we exclude them
     "!milk2meat/**/400.html",
     "!milk2meat/**/403.html",

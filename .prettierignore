@@ -8,10 +8,10 @@ CHANGELOG.md
 # **/**/*.mjml
 
 # Ignore images
-**/assets/img/**/*.*
+**/frontend/img/**/*.*
 
 # Ignore favicon webmanifest
-**/assets/ico/**/*.*
+**/frontend/ico/**/*.*
 
 # Ignore things in the vendors folder
 **/vendors/**/*.*

@@ -6,16 +6,17 @@ module.exports = {
   },
   moduleNameMapper: {
     // Handle CSS imports in tests
-    "\\.(css|less|scss)$": "<rootDir>/milk2meat/assets/__mocks__/styleMock.js",
+    "\\.(css|less|scss)$":
+      "<rootDir>/milk2meat/frontend/__mocks__/styleMock.js",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   testPathIgnorePatterns: ["/node_modules/", "/static/"],
   collectCoverage: true,
   coverageDirectory: "coverage",
   collectCoverageFrom: [
-    "milk2meat/assets/js/**/*.js",
-    "!milk2meat/assets/js/**/*.test.js",
-    "!milk2meat/assets/js/**/__mocks__/**",
+    "milk2meat/frontend/js/**/*.js",
+    "!milk2meat/frontend/js/**/*.test.js",
+    "!milk2meat/frontend/js/**/__mocks__/**",
   ],
   coverageThreshold: {
     global: {
