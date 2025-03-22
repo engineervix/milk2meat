@@ -23,6 +23,7 @@
     "easymde": "^2.20.0",
     "glightbox": "^3.3.1",
     "pdfjs-dist": "^4.10.38",
+    "sweetalert2": "^11.17.2",
     "turndown": "^7.2.0"
   },
   "devDependencies": {

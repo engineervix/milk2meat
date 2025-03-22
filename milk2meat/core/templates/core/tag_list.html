@@ -110,49 +110,5 @@
     </div>
 {% endblock content %}
 {% block extra_js %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('tag-search');
-            const tagItems = document.querySelectorAll('.tag-item');
-            const tagCloud = document.getElementById('tag-cloud');
-            const letterSections = document.querySelectorAll('.letter-section');
-
-            searchInput.addEventListener('input', function() {
-                const searchValue = this.value.toLowerCase().trim();
-
-                // Filter individual tag items
-                tagItems.forEach(function(tag) {
-                    const tagName = tag.querySelector('span').textContent.toLowerCase();
-                    if (tagName.includes(searchValue)) {
-                        tag.style.display = '';
-                    } else {
-                        tag.style.display = 'none';
-                    }
-                });
-
-                // Filter tag cloud items
-                if (tagCloud) {
-                    const cloudTags = tagCloud.querySelectorAll('.tag-link');
-                    cloudTags.forEach(function(tag) {
-                        const tagName = tag.textContent.toLowerCase().trim();
-                        if (tagName.includes(searchValue)) {
-                            tag.style.display = '';
-                        } else {
-                            tag.style.display = 'none';
-                        }
-                    });
-                }
-
-                // Show/hide letter sections based on whether they have visible items
-                letterSections.forEach(function(section) {
-                    const visibleTags = section.querySelectorAll('.tag-item[style=""]');
-                    if (visibleTags.length === 0) {
-                        section.style.display = 'none';
-                    } else {
-                        section.style.display = '';
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="{% static 'js/tags-list.min.js' %}"></script>
 {% endblock extra_js %}

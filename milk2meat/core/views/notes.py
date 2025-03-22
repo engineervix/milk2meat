@@ -7,10 +7,10 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import DetailView, ListView, TemplateView
 from taggit.models import Tag
 
 from ..forms import NoteForm, NoteTypeForm
@@ -128,79 +128,49 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class NoteCreateView(LoginRequiredMixin, CreateView):
-    """View for creating a new note"""
+class NoteCreatePageView(LoginRequiredMixin, TemplateView):
+    """View for rendering the note creation page"""
 
-    model = Note
-    form_class = NoteForm
     template_name = "core/note_form.html"
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Add an empty form for creating a new note
+        context["form"] = NoteForm(user=self.request.user)
+
+        # Add other context data
         context["note_types"] = NoteType.objects.all()
         context["bible_books"] = Book.objects.all()
         context["is_create"] = True
         return context
 
-    def form_valid(self, form):
-        """Process the form data and save"""
-        try:
-            # Explicitly set the owner before saving
-            form.instance.owner = self.request.user
 
-            # Call the parent class's form_valid which calls form.save()
-            response = super().form_valid(form)
-            messages.success(self.request, "Note created successfully.")
-            return response
-        except Exception as e:
-            messages.error(self.request, f"Error creating note: {str(e)}")
-            return super().form_invalid(form)
+class NoteEditPageView(LoginRequiredMixin, TemplateView):
+    """View for rendering the note edit page"""
 
-    def get_success_url(self):
-        return reverse_lazy("core:note_detail", kwargs={"pk": self.object.pk})
-
-
-class NoteUpdateView(LoginRequiredMixin, UpdateView):
-    """View for editing an existing note"""
-
-    model = Note
-    form_class = NoteForm
     template_name = "core/note_form.html"
-
-    def get_queryset(self):
-        """Ensure user can only edit their own notes"""
-        return Note.objects.get_queryset_for_user(self.request.user)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Get the note instance
+        note_id = self.kwargs.get("pk")
+        note = get_object_or_404(Note, pk=note_id)
+
+        # Verify the user has permission to edit this note
+        if note.owner != self.request.user:
+            raise PermissionDenied("You don't have permission to edit this note")
+
+        # Add the note and form to the context
+        context["note"] = note
+        context["form"] = NoteForm(instance=note, user=self.request.user)
+
+        # Add other context data
         context["note_types"] = NoteType.objects.all()
         context["bible_books"] = Book.objects.all()
         context["is_create"] = False
         return context
-
-    def form_valid(self, form):
-        """Process the form data and save"""
-        try:
-            response = super().form_valid(form)
-            messages.success(self.request, f"Note '{self.object.title}' updated successfully.")
-            return response
-        except Exception as e:
-            logger.exception("Error updating note")
-            messages.error(self.request, f"Error updating note: {str(e)}")
-            return super().form_invalid(form)
-
-    def get_success_url(self):
-        return reverse_lazy("core:note_detail", kwargs={"pk": self.object.pk})
 
 
 @require_POST
@@ -223,6 +193,119 @@ def create_note_type_ajax(request):
     else:
         # Return form errors
         return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+
+@require_POST
+@login_required
+def note_save_ajax(request, pk=None):
+    """
+    AJAX view for creating or updating notes without page reload.
+
+    This view handles both creation of new notes and updating existing ones through AJAX,
+    allowing for a smoother user experience where notes can be saved without navigating
+    away from the editing page.
+
+    Parameters:
+        request: The HTTP request object
+        pk (UUID, optional): The primary key of the note to update. If None, creates a new note.
+
+    Request Data:
+        - All standard NoteForm fields (title, note_type, content, etc.)
+        - tags_input: Comma-separated list of tags
+        - referenced_books_json: JSON string of book IDs to reference
+        - upload: Optional file attachment
+
+    Returns:
+        JsonResponse with the following structure:
+        - On success:
+            {
+                "success": true,
+                "is_new": true/false,
+                "note": {
+                    "id": "<note-uuid>",
+                    "title": "<note-title>",
+                    "detail_url": "<url>",
+                    "edit_url": "<url>"
+                },
+                "message": "Note saved successfully."
+            }
+        - On validation error:
+            {"success": false, "errors": {field_errors}}
+        - On permission error:
+            {"success": false, "error": "error message"}
+
+    Status Codes:
+        - 200: Success
+        - 400: Validation error
+        - 403: Permission denied
+        - 404: Note not found
+        - 500: Server error
+    """
+    try:
+        # Initialize the form with data, files, and owner
+        if pk:
+            # Update existing note - get the note and verify ownership
+            try:
+                note = get_object_or_404(Note, pk=pk)
+                # Check if the user is the owner
+                if note.owner != request.user:
+                    return JsonResponse(
+                        {"success": False, "error": "You don't have permission to edit this note"}, status=403
+                    )
+                form = NoteForm(request.POST, request.FILES, instance=note, user=request.user)
+                is_new = False
+            except Http404:
+                return JsonResponse({"success": False, "error": "Note not found"}, status=404)
+        else:
+            # Create new note
+            form = NoteForm(request.POST, request.FILES, user=request.user)
+            is_new = True
+
+        if form.is_valid():
+            # For new notes, set the owner before saving
+            note = form.save(commit=False)
+            if is_new:
+                note.owner = request.user
+            note.save()
+
+            # We need to manually handle tags and referenced books instead of using form.save_m2m()
+            # because we're saving with commit=False
+
+            # Handle referenced books
+            book_ids = form.cleaned_data.get("referenced_books_json", [])
+            note.referenced_books.clear()
+            if book_ids:
+                note.referenced_books.add(*book_ids)
+
+            # Handle tags
+            tags = form.cleaned_data.get("tags_input", [])
+            note.tags.clear()
+            if tags:
+                note.tags.add(*tags)
+
+            # Build response data
+            data = {
+                "success": True,
+                "is_new": is_new,
+                "note": {
+                    "id": str(note.pk),
+                    "title": note.title,
+                    "detail_url": reverse("core:note_detail", kwargs={"pk": note.pk}),
+                    "edit_url": reverse("core:note_edit", kwargs={"pk": note.pk}),
+                },
+                "message": "Note saved successfully.",
+            }
+
+            return JsonResponse(data)
+        else:
+            # Return form errors
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+    except PermissionDenied as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=403)
+    except Exception as e:
+        logger.exception("Error saving note via AJAX")
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @require_POST

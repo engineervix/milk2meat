@@ -89,16 +89,16 @@ class TestBookDetailView:
         assert len(response.context["timeline_data"]) == 1
 
 
-class TestBookUpdateView:
+class TestBookEditPageView:
     def test_login_required(self, client):
-        """Test that login is required to update book"""
+        """Test that login is required to view the book edit page"""
         book = BookFactory()
         url = reverse("core:book_edit", kwargs={"pk": book.pk})
         response = client.get(url)
         assert response.status_code == 302  # Redirect to login page
 
-    def test_book_update_view_get(self, client):
-        """Test getting the book update form"""
+    def test_book_edit_page_view_get(self, client):
+        """Test getting the book edit page"""
         # Create a user and log in
         user = UserFactory()
         client.force_login(user)
@@ -114,67 +114,7 @@ class TestBookUpdateView:
         assert response.status_code == 200
         assert "form" in response.context
         assert response.context["timeline_json"] == json.dumps(book.timeline)
+        assert response.context["book_update_url"] == reverse("core:book_update_ajax", kwargs={"pk": book.pk})
+        assert response.context["current_book_id"] == book.pk
 
-    def test_book_update_view_post(self, client):
-        """Test updating a book"""
-        # Create a user and log in
-        user = UserFactory()
-        client.force_login(user)
-
-        # Create a book
-        book = BookFactory(title="Genesis")
-
-        # Prepare update data
-        timeline_data = {"events": [{"date": "4000 BC", "description": "Creation"}]}
-
-        post_data = {
-            "title_and_author": "# Genesis\n\nWritten by Moses",
-            "date_and_occasion": "Around 1400 BC",
-            "characteristics_and_themes": "Creation, Fall, Redemption",
-            "christ_in_book": "Promised seed in Genesis 3:15",
-            "outline": "1. Creation\n2. Fall",
-            "timeline": json.dumps(timeline_data),
-        }
-
-        # Submit the form
-        url = reverse("core:book_edit", kwargs={"pk": book.pk})
-        response = client.post(url, post_data)
-
-        # Should redirect to book detail view
-        assert response.status_code == 302
-        assert response.url == reverse("core:book_detail", kwargs={"pk": book.pk})
-
-        # Check that the book was updated
-        book.refresh_from_db()
-        assert book.title_and_author == "# Genesis\n\nWritten by Moses"
-        assert book.date_and_occasion == "Around 1400 BC"
-        assert book.timeline == timeline_data
-
-    def test_book_update_invalid_timeline(self, client):
-        """Test submitting invalid timeline data"""
-        # Create a user and log in
-        user = UserFactory()
-        client.force_login(user)
-
-        # Create a book
-        book = BookFactory(title="Genesis")
-        original_timeline = book.timeline
-
-        # Prepare invalid update data
-        post_data = {
-            "title_and_author": "# Genesis\n\nWritten by Moses",
-            "timeline": "not valid json",  # Invalid JSON
-        }
-
-        # Submit the form
-        url = reverse("core:book_edit", kwargs={"pk": book.pk})
-        response = client.post(url, post_data)
-
-        # Should not redirect - form is invalid
-        assert response.status_code == 200
-        assert "form" in response.context
-        assert "timeline" in response.context["form"].errors
-
-        # Check that the book was not updated
-        book.refresh_from_db()
-        assert book.timeline == original_timeline
+    # Note: POST tests have been moved to test_book_ajax.py since form submission happens via AJAX

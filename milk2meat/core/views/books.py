@@ -1,11 +1,14 @@
 import json
 import logging
 
-from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.decorators.http import require_POST
+from django.views.generic import DetailView, ListView, TemplateView
 
 from ..forms import BookEditForm
 from ..models import Book, Testament
@@ -55,31 +58,106 @@ class BookDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class BookUpdateView(LoginRequiredMixin, UpdateView):
-    model = Book
-    form_class = BookEditForm
+class BookEditPageView(LoginRequiredMixin, TemplateView):
+    """View for rendering the book edit page"""
+
     template_name = "core/book_edit.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Get the book instance
+        book_id = self.kwargs.get("pk")
+        book = get_object_or_404(Book, pk=book_id)
+
+        # Add the book and form to the context
+        context["book"] = book
+        context["form"] = BookEditForm(instance=book)
+
         # Add timeline data as JSON string for the form
-        if self.object.timeline:
-            context["timeline_json"] = json.dumps(self.object.timeline)
+        if book.timeline:
+            context["timeline_json"] = json.dumps(book.timeline)
         else:
             context["timeline_json"] = json.dumps({"events": []})
 
+        # Add the update URL for AJAX form submission
+        context["book_update_url"] = reverse("core:book_update_ajax", kwargs={"pk": book.pk})
+        context["current_book_id"] = book.pk
+
         return context
 
-    def form_valid(self, form):
-        """Process the form data and save"""
-        try:
-            response = super().form_valid(form)
-            messages.success(self.request, f"Successfully updated {self.object.title}.")
-            return response
-        except Exception as e:
-            messages.error(self.request, f"Error saving book: {str(e)}")
-            return super().form_invalid(form)
 
-    def get_success_url(self):
-        return reverse("core:book_detail", kwargs={"pk": self.object.pk})
+@require_POST
+@login_required
+def book_save_ajax(request, pk):
+    """
+    AJAX view for updating books without page reload.
+
+    This view handles updating existing books through AJAX,
+    allowing for a smoother user experience where books can be saved without navigating
+    away from the editing page.
+
+    Parameters:
+        request: The HTTP request object
+        pk (int): The primary key of the book to update
+
+    Request Data:
+        - All standard BookEditForm fields (title_and_author, date_and_occasion, etc.)
+        - timeline: JSON string of timeline events
+
+    Returns:
+        JsonResponse with the following structure:
+        - On success:
+            {
+                "success": true,
+                "book": {
+                    "id": <book-id>,
+                    "title": "<book-title>",
+                    "detail_url": "<url>"
+                },
+                "message": "Book saved successfully."
+            }
+        - On validation error:
+            {"success": false, "errors": {field_errors}}
+        - On permission error:
+            {"success": false, "error": "error message"}
+
+    Status Codes:
+        - 200: Success
+        - 400: Validation error
+        - 404: Book not found
+        - 500: Server error
+    """
+    try:
+        # Get the book to update
+        try:
+            book = get_object_or_404(Book, pk=pk)
+        except Exception:
+            return JsonResponse({"success": False, "error": "Book not found"}, status=404)
+
+        # Initialize the form with request data and the book instance
+        form = BookEditForm(request.POST, instance=book)
+
+        if form.is_valid():
+            # Save the book
+            book = form.save()
+
+            # Build response data
+            data = {
+                "success": True,
+                "book": {
+                    "id": book.pk,
+                    "title": book.title,
+                    "detail_url": reverse("core:book_detail", kwargs={"pk": book.pk}),
+                },
+                "message": f"{book.title} saved successfully.",
+            }
+
+            return JsonResponse(data)
+        else:
+            # Return form errors
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
+    except Exception as e:
+        logger.exception("Error saving book via AJAX")
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

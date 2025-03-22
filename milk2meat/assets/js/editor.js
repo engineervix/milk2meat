@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add event listener for beforeunload to warn about unsaved changes
     window.addEventListener("beforeunload", function (e) {
-      if (formChanged) {
+      if (formChanged && window.formChanged) {
         // For modern browsers
         e.preventDefault();
         // For older browsers
@@ -99,12 +99,18 @@ document.addEventListener("DOMContentLoaded", function () {
       window.formChanged = false;
     });
 
+    // For AJAX forms, we need a way to reset the form change state from outside
+    window.resetFormChanged = function () {
+      formChanged = false;
+      window.formChanged = false;
+    };
+
     // Handle cancel button click
     const cancelButton = document.getElementById("cancel-edit-btn");
     if (cancelButton) {
       cancelButton.addEventListener("click", function (e) {
         // If there are unsaved changes, ask for confirmation before navigating away
-        if (formChanged) {
+        if (formChanged && window.formChanged) {
           if (
             !confirm(
               "You have unsaved changes. Are you sure you want to leave this page?",

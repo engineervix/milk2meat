@@ -1,7 +1,6 @@
 import json
 
 import pytest
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from milk2meat.core.factories import BookFactory, NoteFactory, NoteTypeFactory
@@ -232,15 +231,15 @@ class TestNoteDetailView:
         assert response.status_code == 404
 
 
-class TestNoteCreateView:
+class TestNoteCreatePageView:
     def test_login_required(self, client):
-        """Test that login is required to create note"""
+        """Test that login is required to view the note creation page"""
         url = reverse("core:note_create")
         response = client.get(url)
         assert response.status_code == 302  # Redirect to login page
 
-    def test_note_create_view_get(self, client):
-        """Test getting the note creation form"""
+    def test_note_create_page_view_get(self, client):
+        """Test getting the note creation page"""
         user = UserFactory()
         client.force_login(user)
 
@@ -254,86 +253,19 @@ class TestNoteCreateView:
         assert "bible_books" in response.context
         assert "note_types" in response.context
 
-    def test_note_create_view_post(self, client):
-        """Test creating a new note"""
-        user = UserFactory()
-        client.force_login(user)
-
-        # Create note type and book for reference
-        note_type = NoteTypeFactory()
-        book = BookFactory()
-
-        # Prepare form data
-        post_data = {
-            "title": "New Test Note",
-            "note_type": note_type.id,
-            "content": "# Test Content\n\nThis is a test note.",
-            "tags_input": "test,note,creation",
-            "referenced_books_json": json.dumps([{"id": book.id, "title": book.title}]),
-        }
-
-        # Submit the form
-        url = reverse("core:note_create")
-        response = client.post(url, post_data)
-
-        # Check that note was created
-        assert Note.objects.filter(title="New Test Note").exists()
-        note = Note.objects.get(title="New Test Note")
-
-        # Check note details
-        assert note.owner == user
-        assert note.note_type == note_type
-        assert note.content == "# Test Content\n\nThis is a test note."
-        assert note.referenced_books.count() == 1
-        assert note.referenced_books.first() == book
-        assert note.tags.count() == 3
-        assert {tag.name for tag in note.tags.all()} == {"test", "note", "creation"}
-
-        # Check redirect
-        assert response.status_code == 302
-        assert response.url == reverse("core:note_detail", kwargs={"pk": note.pk})
-
-    def test_note_create_with_file_upload(self, client):
-        """Test creating a note with a file upload"""
-        user = UserFactory()
-        client.force_login(user)
-
-        note_type = NoteTypeFactory()
-
-        # Create a simple PDF file for testing
-        pdf_content = b"%PDF-1.4\nThis is a test PDF file"
-        pdf_file = SimpleUploadedFile("test.pdf", pdf_content, content_type="application/pdf")
-
-        # Prepare form data
-        post_data = {
-            "title": "Note with PDF",
-            "note_type": note_type.id,
-            "content": "# Note with attachment",
-            "tags_input": "pdf,attachment",
-            "referenced_books_json": "[]",
-            "upload": pdf_file,
-        }
-
-        # Submit the form with file
-        url = reverse("core:note_create")
-        client.post(url, post_data)
-
-        # Check that note was created with file
-        note = Note.objects.get(title="Note with PDF")
-        assert note.upload
-        assert "test.pdf" in note.upload.name
+    # Note: POST tests have been moved to test_note_ajax.py since form submission happens via AJAX
 
 
-class TestNoteUpdateView:
+class TestNoteEditPageView:
     def test_login_required(self, client):
-        """Test that login is required to update note"""
+        """Test that login is required to view the note edit page"""
         note = NoteFactory()
         url = reverse("core:note_edit", kwargs={"pk": note.pk})
         response = client.get(url)
         assert response.status_code == 302  # Redirect to login page
 
-    def test_note_update_view_get(self, client):
-        """Test getting the note update form"""
+    def test_note_edit_page_view_get(self, client):
+        """Test getting the note edit page"""
         user = UserFactory()
         client.force_login(user)
 
@@ -360,47 +292,8 @@ class TestNoteUpdateView:
         assert json.loads(form.initial["referenced_books_json"]) == [{"id": book.id, "title": book.title}]
         assert form.initial["tags_input"] == "original,tag"
 
-    def test_note_update_view_post(self, client):
-        """Test updating a note"""
-        user = UserFactory()
-        client.force_login(user)
-
-        # Create the original note
-        note_type = NoteTypeFactory()
-        old_book = BookFactory(title="Old Book")
-        new_book = BookFactory(title="New Book")
-
-        note = NoteFactory(title="Original Note", content="Original content", owner=user, note_type=note_type)
-        note.referenced_books.add(old_book)
-        note.tags.add("original", "tag")
-
-        # Prepare update data
-        post_data = {
-            "title": "Updated Note",
-            "note_type": note_type.id,
-            "content": "Updated content",
-            "tags_input": "updated,tags",
-            "referenced_books_json": json.dumps([{"id": new_book.id, "title": new_book.title}]),
-        }
-
-        # Submit the form
-        url = reverse("core:note_edit", kwargs={"pk": note.pk})
-        response = client.post(url, post_data)
-
-        # Should redirect to note detail view
-        assert response.status_code == 302
-        assert response.url == reverse("core:note_detail", kwargs={"pk": note.pk})
-
-        # Check that the note was updated
-        note.refresh_from_db()
-        assert note.title == "Updated Note"
-        assert note.content == "Updated content"
-        assert {tag.name for tag in note.tags.all()} == {"updated", "tags"}
-        assert note.referenced_books.count() == 1
-        assert note.referenced_books.first() == new_book
-
-    def test_cannot_update_other_users_notes(self, client):
-        """Test users cannot update notes owned by others"""
+    def test_cannot_edit_other_users_notes(self, client):
+        """Test users cannot view edit page for notes owned by others"""
         # Create two users
         user1 = UserFactory()
         user2 = UserFactory()
@@ -416,26 +309,10 @@ class TestNoteUpdateView:
         url = reverse("core:note_edit", kwargs={"pk": note.pk})
         response = client.get(url)
 
-        # Should return 404 since user1 doesn't own this note
-        assert response.status_code == 404
+        # Should be forbidden since user1 doesn't own this note
+        assert response.status_code == 403
 
-        # Try to submit updates to user2's note
-        post_data = {
-            "title": "Hacked Note",
-            "note_type": note_type.id,
-            "content": "I shouldn't be able to edit this",
-            "tags_input": "",
-            "referenced_books_json": "[]",
-        }
-
-        response = client.post(url, post_data)
-
-        # Should still return 404
-        assert response.status_code == 404
-
-        # Verify note wasn't updated
-        note.refresh_from_db()
-        assert note.title != "Hacked Note"
+    # Note: POST tests have been moved to test_note_ajax.py since form submission happens via AJAX
 
 
 class TestNoteDeleteView:

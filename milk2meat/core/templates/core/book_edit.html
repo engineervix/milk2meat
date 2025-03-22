@@ -33,7 +33,9 @@
     <div class="container mx-auto px-4 py-8">
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <form method="post">
+                {# Message container for form messages #}
+                <div id="form-messages"></div>
+                <form method="post" id="book-form">
                     {% csrf_token %}
                     {# Title and Author #}
                     <div class="form-control mb-6">
@@ -131,4 +133,11 @@
 {% block extra_js %}
     {# Include the bundled editor.js file #}
     <script src="{% static 'js/editor.min.js' %}"></script>
+    {# Include the book-form JS for AJAX functionality #}
+    <script src="{% static 'js/book-form.min.js' %}"></script>
+    <script>
+        // Expose variables needed by the book-form JS
+        window.bookUpdateUrl = "{% url 'core:book_update_ajax' book.id %}";
+        window.currentBookId = "{{ book.id }}";
+    </script>
 {% endblock extra_js %}
