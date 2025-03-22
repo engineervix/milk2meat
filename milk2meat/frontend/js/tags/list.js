@@ -43,3 +43,6 @@ function initTagSearch() {
 document.addEventListener("DOMContentLoaded", function () {
   initTagSearch();
 });
+
+// Export for testing
+export { initTagSearch };
