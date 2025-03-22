@@ -1,7 +1,8 @@
 import pytest
 from django.urls import reverse
 
-from milk2meat.core.factories import BookFactory, NoteFactory, NoteTypeFactory
+from milk2meat.bible.factories import BookFactory
+from milk2meat.notes.factories import NoteFactory, NoteTypeFactory
 from milk2meat.users.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
@@ -10,7 +11,7 @@ pytestmark = pytest.mark.django_db
 class TestTagListView:
     def test_login_required(self, client):
         """Test that login is required to view tag list"""
-        url = reverse("core:tag_list")
+        url = reverse("notes:tag_list")
         response = client.get(url)
         assert response.status_code == 302  # Redirect to login page
 
@@ -38,7 +39,7 @@ class TestTagListView:
         other_note.tags.add("other-tag", "private")
 
         # Get the tag list page
-        url = reverse("core:tag_list")
+        url = reverse("notes:tag_list")
         response = client.get(url)
 
         # Check response

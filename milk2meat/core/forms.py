@@ -4,8 +4,9 @@ import nh3
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Book, Note, NoteType
-from .utils.markdown import parse_markdown
+from milk2meat.bible.models import Book
+from milk2meat.core.utils.markdown import parse_markdown
+from milk2meat.notes.models import Note, NoteType
 
 
 class BookEditForm(forms.ModelForm):

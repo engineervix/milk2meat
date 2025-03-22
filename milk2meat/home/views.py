@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
-from milk2meat.core.models import Note
+from milk2meat.notes.models import Note
 
 
 class HomeView(TemplateView):

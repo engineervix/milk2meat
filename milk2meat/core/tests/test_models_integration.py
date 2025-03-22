@@ -1,7 +1,9 @@
 import pytest
 
-from milk2meat.core.factories import BookFactory, NoteFactory, NoteTypeFactory
-from milk2meat.core.models import Book, Note, NoteType
+from milk2meat.bible.factories import BookFactory
+from milk2meat.bible.models import Book
+from milk2meat.notes.factories import NoteFactory, NoteTypeFactory
+from milk2meat.notes.models import Note, NoteType
 from milk2meat.users.factories import UserFactory
 
 pytestmark = pytest.mark.django_db

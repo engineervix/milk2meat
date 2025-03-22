@@ -10,19 +10,19 @@ const projectRoot = "milk2meat";
 const options = {
   entry: {
     // multiple entries can be added here
-    main: `./${projectRoot}/assets/js/main.js`,
-    editor: `./${projectRoot}/assets/js/editor.js`,
-    "pdf-viewer": `./${projectRoot}/assets/js/pdf-viewer.js`,
+    main: `./${projectRoot}/frontend/js/main.js`,
+    editor: `./${projectRoot}/frontend/js/editor.js`,
+    "pdf-viewer": `./${projectRoot}/frontend/js/pdf-viewer.js`,
     "pdf.worker": path.resolve(
       __dirname,
       "node_modules/pdfjs-dist/build/pdf.worker.mjs",
     ),
-    "esv-integration": `./${projectRoot}/assets/js/esv-integration.js`,
-    "note-form": `./${projectRoot}/assets/js/note-form/index.js`,
-    "book-form": `./${projectRoot}/assets/js/book-form/index.js`,
-    "notes-detail": `./${projectRoot}/assets/js/notes/detail.js`,
-    "notes-list": `./${projectRoot}/assets/js/notes/list.js`,
-    "tags-list": `./${projectRoot}/assets/js/tags/list.js`,
+    "esv-integration": `./${projectRoot}/frontend/js/esv-integration.js`,
+    "note-form": `./${projectRoot}/frontend/js/note-form/index.js`,
+    "book-form": `./${projectRoot}/frontend/js/book-form/index.js`,
+    "notes-detail": `./${projectRoot}/frontend/js/notes/detail.js`,
+    "notes-list": `./${projectRoot}/frontend/js/notes/list.js`,
+    "tags-list": `./${projectRoot}/frontend/js/tags/list.js`,
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),
@@ -36,13 +36,13 @@ const options = {
         {
           // Copy images to be referenced directly by Django to the "img" subfolder in static files.
           from: "img",
-          context: path.resolve(`./${projectRoot}/assets/`),
+          context: path.resolve(`./${projectRoot}/frontend/`),
           to: path.resolve(`./${projectRoot}/static/img`),
         },
         {
           // Copy favicons to be referenced directly by Django to the "ico" subfolder in static files.
           from: "ico",
-          context: path.resolve(`./${projectRoot}/assets/`),
+          context: path.resolve(`./${projectRoot}/frontend/`),
           to: path.resolve(`./${projectRoot}/static/ico`),
         },
       ],

@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}
+    {{ block.super }}
+    {% if is_create %}
+        New Note
+    {% else %}
+        Edit {{ note.title }}
+    {% endif %}
+{% endblock title %}
+{% block extrameta %}
+    <meta name="description"
+          content="{% if is_create %}Create new note{% else %}Edit note{% endif %} - Milk2Meat Bible Study Tool">
+{% endblock extrameta %}
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <p class="font-medium">
+                        <span class="promo-heading">
+                            {% if is_create %}
+                                New Note
+                            {% else %}
+                                Edit Note
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Cancel button -->
+                    <a href="{% if is_create %}{% url 'notes:note_list' %}{% else %}{% url 'notes:note_detail' note.pk %}{% endif %}"
+                       class="btn btn-sm btn-ghost"
+                       id="cancel-edit-btn">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+{% block extra_css %}
+    {# Include EasyMDE styles #}
+    <link rel="stylesheet" href="{% static 'css/editor.min.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <!-- Message container for form notifications -->
+                <div id="form-messages"></div>
+                <form method="post" enctype="multipart/form-data" id="note-form">
+                    {% csrf_token %}
+                    {# Note title #}
+                    <div class="form-control mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Title</span>
+                        </label>
+                        {{ form.title|add_class:"input input-bordered"|attr:"placeholder:Enter note title" }}
+                        {% if form.title.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.title.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Note type and tags #}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label for="{{ form.note_type.id_for_label }}" class="label">
+                                <span class="label-text text-lg font-medium">Note Type</span>
+                            </label>
+                            <div class="input-group">
+                                {{ form.note_type|add_class:"select select-bordered flex-1" }}
+                                <button type="button"
+                                        class="btn btn-square"
+                                        onclick="document.getElementById('new-type-modal').showModal()">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-6 w-6"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                            {% if form.note_type.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.note_type.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {# Tags input #}
+                        <div class="form-control">
+                            <label for="tags-input" class="label">
+                                <span class="label-text text-lg font-medium">Tags</span>
+                            </label>
+                            <input type="text"
+                                   id="tags-input"
+                                   class="input input-bordered"
+                                   placeholder="Enter tags (comma separated)">
+                            {{ form.tags_input|attr:"id:hidden-tags-input" }}
+                            {# Selected tags display #}
+                            <div id="tags-container" class="flex flex-wrap gap-2 mt-2"></div>
+                            {% if form.tags_input.errors %}
+                                <div class="label">
+                                    <span class="label-text-alt text-error">{{ form.tags_input.errors|join:", " }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {# Referenced Bible books #}
+                    <div class="form-control mb-4">
+                        <label for="referenced-books" class="label">
+                            <span class="label-text text-lg font-medium">Referenced Bible Books</span>
+                        </label>
+                        <div class="flex flex-col gap-2">
+                            {# Input with autocomplete #}
+                            <div class="relative">
+                                <input type="text"
+                                       id="referenced-books"
+                                       class="input input-bordered w-full"
+                                       placeholder="Type to search Bible books...">
+                                <div id="book-suggestions"
+                                     class="absolute z-10 w-full mt-1 bg-base-100 border border-base-300 rounded-md shadow-lg max-h-60 overflow-auto hidden">
+                                    <ul class="py-1" id="book-suggestions-list">
+                                    </ul>
+                                </div>
+                            </div>
+                            {# Selected books display #}
+                            <div id="selected-books-container" class="flex flex-wrap gap-2 mt-2"></div>
+                            {# Hidden input for selected books JSON #}
+                            {{ form.referenced_books_json|attr:"id:referenced-books-json" }}
+                        </div>
+                    </div>
+                    {# Note content (Markdown Editor) #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.content.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Content</span>
+                        </label>
+                        {{ form.content|add_class:"textarea textarea-bordered h-96"|attr:"data-editor=content" }}
+                        {% if form.content.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.content.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="text-xs text-base-content/50 mt-1">
+                            Use Markdown for formatting. You can use **bold**, *italic*, [links](https://example.com), and more.
+                        </div>
+                    </div>
+                    {# File upload #}
+                    <div class="form-control mb-6">
+                        <label for="file-upload" class="label">
+                            <span class="label-text text-lg font-medium">Attachment</span>
+                        </label>
+                        <div class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center relative">
+                            <div class="flex flex-col items-center justify-center" id="upload-area">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="h-12 w-12 text-base-content/50 mb-4"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                </svg>
+                                <p class="mb-2 text-sm text-base-content/70">
+                                    <span class="font-semibold">Click to upload</span> or drag and drop
+                                </p>
+                                <p class="text-xs text-base-content/50">PDF, JPG, PNG (MAX. 10MB)</p>
+                                {{ form.upload|attr:"class:hidden"|attr:"id:file-upload" }}
+                                <button type="button"
+                                        class="btn btn-outline btn-sm mt-4"
+                                        onclick="document.getElementById('file-upload').click()">Select File</button>
+                            </div>
+                            <div id="file-preview" class="hidden">
+                                <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="h-6 w-6 mr-2"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <span id="file-name" class="font-medium"></span>
+                                    </div>
+                                    <button type="button" id="remove-file" class="btn btn-sm btn-ghost">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="h-5 w-5"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            {% if note.upload %}
+                                <div id="existing-file" class="mt-4">
+                                    <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-6 w-6 mr-2"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="font-medium">{{ note.upload.name }}</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ note.upload.url }}"
+                                               class="btn btn-sm btn-outline"
+                                               target="_blank">View</a>
+                                            <button type="button" id="replace-file" class="btn btn-sm btn-ghost">Replace</button>
+                                            <button type="button"
+                                                    id="delete-file"
+                                                    class="btn btn-sm btn-ghost text-error">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="h-5 w-5"
+                                                     fill="none"
+                                                     viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {# Form actions #}
+                    <div class="flex justify-end space-x-2 mt-8">
+                        <a href="{% if is_create %}{% url 'notes:note_list' %}{% else %}{% url 'notes:note_detail' note.pk %}{% endif %}"
+                           class="btn btn-ghost"
+                           id="cancel-edit-btn">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Note</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Add new type modal -->
+    <dialog id="new-type-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Add New Note Type</h3>
+            <form id="new-type-form" class="mt-4">
+                <div class="form-control mb-4">
+                    <label for="new-type-name" class="label">
+                        <span class="label-text">Type Name</span>
+                    </label>
+                    <input type="text"
+                           id="new-type-name"
+                           class="input input-bordered"
+                           placeholder="e.g., Family Devotion"
+                           required>
+                    <div id="new-type-name-error" class="label hidden">
+                        <span class="label-text-alt text-error"></span>
+                    </div>
+                </div>
+                <div class="form-control mb-4">
+                    <label for="new-type-description" class="label">
+                        <span class="label-text">Description (optional)</span>
+                    </label>
+                    <textarea id="new-type-description"
+                              class="textarea textarea-bordered"
+                              placeholder="Brief description of this note type"></textarea>
+                </div>
+                <div class="modal-action">
+                    <button type="button"
+                            class="btn btn-ghost"
+                            onclick="document.getElementById('new-type-modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Type</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+{% endblock content %}
+{% block extra_js %}
+    <script src="{% static 'js/editor.min.js' %}"></script>
+    <script>
+        // Provide data needed by our JavaScript modules
+        window.bibleBooks = [
+            {% for book in bible_books %}{id: {{ book.id }}, title: "{{ book.title }}"},{% endfor %}
+        ];
+        window.noteTypeCreateUrl = "{% url 'notes:create_note_type_ajax' %}";
+        window.noteCreateUrl = "{% url 'notes:note_create_ajax' %}";
+
+        // For note updates, set the update URL and note ID
+        {% if note.pk %}
+            window.noteUpdateUrl = "{% url 'notes:note_update_ajax' pk=note.pk %}";
+            window.currentNoteId = "{{ note.pk }}";
+        {% else %}
+            window.noteUpdateUrl = "{% url 'notes:note_create_ajax' %}";
+            window.currentNoteId = "";
+        {% endif %}
+
+        // Pass editor instances to window to make them available for the AJAX form
+        document.addEventListener('DOMContentLoaded', function() {
+            // This will track the editor instances created by editor.js
+            window.editors = [];
+
+            // Override the EasyMDE initialization in editor.js to store editor instances
+            const originalEasyMDE = window.EasyMDE;
+            window.EasyMDE = function(...args) {
+                const editor = new originalEasyMDE(...args);
+                window.editors.push(editor);
+                return editor;
+            };
+        });
+    </script>
+    <script src="{% static 'js/note-form.min.js' %}"></script>
+{% endblock extra_js %}

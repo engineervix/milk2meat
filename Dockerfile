@@ -9,7 +9,7 @@ FROM node:22.14-bookworm AS frontend-builder
 COPY package*.json .babelrc.js webpack.config.js postcss.config.js tailwind.config.js ./
 RUN npm ci --no-optional --no-audit --progress=false --network=host
 
-COPY ./milk2meat/assets ./milk2meat/assets
+COPY ./milk2meat/frontend ./milk2meat/frontend
 
 # we need these so tailwind can detect the utility classes
 COPY ./milk2meat/auth ./milk2meat/auth

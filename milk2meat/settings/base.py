@@ -48,8 +48,10 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 LOCAL_APPS = [
     "milk2meat.auth",
     "milk2meat.core",
-    "milk2meat.home",
     "milk2meat.users",
+    "milk2meat.home",
+    "milk2meat.bible",
+    "milk2meat.notes",
 ]
 DJANGO_APPS = [
     "django.contrib.admin",

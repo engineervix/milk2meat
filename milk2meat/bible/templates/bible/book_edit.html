@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}
+    {{ block.super }} Edit {{ book.title }}
+{% endblock title %}
+{% block extrameta %}
+    <meta name="description"
+          content="Edit {{ book.title }} - Milk2Meat Bible Study">
+{% endblock extrameta %}
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold">Edit {{ book.title }}</h1>
+                    <p class="text-sm opacity-80">{{ book.get_testament_display }} • {{ book.chapters }} chapters</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Cancel button #}
+                    <a href="{% url 'bible:book_detail' book.id %}"
+                       class="btn btn-sm btn-ghost">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+{% block extra_css %}
+    {# Include EasyMDE styles - these will be loaded by webpack #}
+    <link rel="stylesheet" href="{% static 'css/editor.min.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                {# Message container for form messages #}
+                <div id="form-messages"></div>
+                <form method="post" id="book-form">
+                    {% csrf_token %}
+                    {# Title and Author #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.title_and_author.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Title and Author</span>
+                        </label>
+                        {{ form.title_and_author|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=title_and_author" }}
+                        {% if form.title_and_author.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.title_and_author.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Date and Occasion #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.date_and_occasion.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Date and Occasion</span>
+                        </label>
+                        {{ form.date_and_occasion|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=date_and_occasion" }}
+                        {% if form.date_and_occasion.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.date_and_occasion.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Characteristics and Themes #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.characteristics_and_themes.id_for_label }}"
+                               class="label">
+                            <span class="label-text text-lg font-medium">Characteristics and Themes</span>
+                        </label>
+                        {{ form.characteristics_and_themes|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=characteristics_and_themes" }}
+                        {% if form.characteristics_and_themes.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.characteristics_and_themes.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Christ in Book #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.christ_in_book.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Christ in {{ book.title }}</span>
+                        </label>
+                        {{ form.christ_in_book|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=christ_in_book" }}
+                        {% if form.christ_in_book.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.christ_in_book.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Outline #}
+                    <div class="form-control mb-6">
+                        <label for="{{ form.outline.id_for_label }}" class="label">
+                            <span class="label-text text-lg font-medium">Outline</span>
+                        </label>
+                        {{ form.outline|add_class:"textarea textarea-bordered h-40"|attr:"data-editor=outline" }}
+                        {% if form.outline.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.outline.errors|join:", " }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {# Timeline #}
+                    <div class="form-control mb-6">
+                        <label class="label">
+                            <span class="label-text text-lg font-medium">Timeline</span>
+                            <span class="label-text-alt">Add key events with dates for this book</span>
+                        </label>
+                        <div class="timeline-editor p-4 bg-base-200 rounded-lg"
+                             id="timeline-editor">
+                            <input type="hidden"
+                                   name="timeline"
+                                   id="timeline-data"
+                                   value="{{ timeline_json }}">
+                            <div class="timeline-events mb-4" id="timeline-events">{# Timeline events will be added dynamically here #}</div>
+                            <div class="mt-4">
+                                <button type="button" id="add-timeline-event" class="btn btn-outline btn-sm">Add Event</button>
+                            </div>
+                        </div>
+                    </div>
+                    {# Form buttons #}
+                    <div class="form-control mt-8">
+                        <div class="flex justify-end space-x-2">
+                            <a href="{% url 'bible:book_detail' book.id %}"
+                               class="btn btn-ghost"
+                               id="cancel-edit-btn">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    {# Include the bundled editor.js file #}
+    <script src="{% static 'js/editor.min.js' %}"></script>
+    {# Include the book-form JS for AJAX functionality #}
+    <script src="{% static 'js/book-form.min.js' %}"></script>
+    <script>
+        // Expose variables needed by the book-form JS
+        window.bookUpdateUrl = "{% url 'bible:book_update_ajax' book.id %}";
+        window.currentBookId = "{{ book.id }}";
+    </script>
+{% endblock extra_js %}
