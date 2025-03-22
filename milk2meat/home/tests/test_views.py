@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from milk2meat.core.factories import NoteFactory, NoteTypeFactory
+from milk2meat.notes.factories import NoteFactory, NoteTypeFactory
 from milk2meat.users.factories import UserFactory
 
 pytestmark = pytest.mark.django_db

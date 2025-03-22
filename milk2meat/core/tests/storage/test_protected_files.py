@@ -5,7 +5,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from milk2meat.core.factories import NoteFactory, NoteTypeFactory
+from milk2meat.notes.factories import NoteFactory, NoteTypeFactory
 from milk2meat.users.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
@@ -45,7 +45,7 @@ class TestServeProtectedFileView:
         note = NoteFactory(title="Test Note", owner=user, note_type=note_type, upload=test_file)
 
         # Mock the get_secure_file_url method
-        with mock.patch("milk2meat.core.models.Note.get_secure_file_url") as mock_get_url:
+        with mock.patch("milk2meat.notes.models.Note.get_secure_file_url") as mock_get_url:
             mock_get_url.return_value = "https://example.com/signed-url"
 
             # Request the file
@@ -135,7 +135,7 @@ class TestServeProtectedFileView:
         note = NoteFactory(title="Test Note", owner=user, note_type=note_type, upload=test_file)
 
         # Mock get_secure_file_url to return None
-        with mock.patch("milk2meat.core.models.Note.get_secure_file_url", return_value=None):
+        with mock.patch("milk2meat.notes.models.Note.get_secure_file_url", return_value=None):
             # Request the file
             url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
             response = client.get(url)

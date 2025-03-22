@@ -108,7 +108,7 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
     """View for displaying a single note"""
 
     model = Note
-    template_name = "core/note_detail.html"
+    template_name = "notes/note_detail.html"
     context_object_name = "note"
 
     def get_queryset(self):
@@ -132,7 +132,7 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
 class NoteCreatePageView(LoginRequiredMixin, TemplateView):
     """View for rendering the note creation page"""
 
-    template_name = "core/note_form.html"
+    template_name = "notes/note_form.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -150,7 +150,7 @@ class NoteCreatePageView(LoginRequiredMixin, TemplateView):
 class NoteEditPageView(LoginRequiredMixin, TemplateView):
     """View for rendering the note edit page"""
 
-    template_name = "core/note_form.html"
+    template_name = "notes/note_form.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

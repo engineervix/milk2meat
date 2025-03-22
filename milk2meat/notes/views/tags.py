@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class TagListView(LoginRequiredMixin, ListView):
     """View for browsing tags"""
 
-    template_name = "core/tag_list.html"
+    template_name = "notes/tag_list.html"
     context_object_name = "tags"
 
     def get_queryset(self):
@@ -25,7 +25,7 @@ class TagListView(LoginRequiredMixin, ListView):
         # Get tags with note counts using UUIDTaggedItem
         return (
             Tag.objects.filter(
-                core_uuidtaggeditem_items__content_type__app_label="core",
+                core_uuidtaggeditem_items__content_type__app_label="notes",
                 core_uuidtaggeditem_items__content_type__model="note",
                 core_uuidtaggeditem_items__object_id__in=user_note_ids,
             )

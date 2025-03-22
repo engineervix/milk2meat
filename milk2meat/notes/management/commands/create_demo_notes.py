@@ -7,7 +7,8 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from faker import Faker
 
-from milk2meat.core.models import Book, Note, NoteType
+from milk2meat.bible.models import Book
+from milk2meat.notes.models import Note, NoteType
 
 User = get_user_model()
 
@@ -173,7 +174,7 @@ class Command(BaseCommand):
         updated_at = created_at + timedelta(days=random.randint(0, min(days_ago, 30)))
 
         # Generate title and content using Faker
-        title = f"{note_type.name}: {fake.sentence().replace(".", "").title()}"
+        title = f"{note_type.name}: {fake.sentence().replace('.', '').title()}"
 
         # Generate paragraphs of content
         paragraphs = []

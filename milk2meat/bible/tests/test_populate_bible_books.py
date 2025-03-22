@@ -1,7 +1,7 @@
 import pytest
 from django.core.management import call_command
 
-from milk2meat.core.models import Book, Testament
+from milk2meat.bible.models import Book, Testament
 
 pytestmark = pytest.mark.django_db
 

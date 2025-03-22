@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from milk2meat.core.models import Book, Testament
+from milk2meat.bible.models import Book, Testament
 
 
 class Command(BaseCommand):

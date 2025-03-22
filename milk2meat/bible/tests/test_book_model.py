@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from milk2meat.bible.factories import BookFactory
-from milk2meat.core.models import Book, Testament
+from milk2meat.bible.models import Book, Testament
 
 pytestmark = pytest.mark.django_db
 

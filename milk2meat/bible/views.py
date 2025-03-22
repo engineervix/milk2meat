@@ -32,7 +32,7 @@ class BookListView(LoginRequiredMixin, ListView):
 
 class BookDetailView(LoginRequiredMixin, DetailView):
     model = Book
-    template_name = "core/book_detail.html"
+    template_name = "bible/book_detail.html"
     context_object_name = "book"
 
     def get_context_data(self, **kwargs):
@@ -61,7 +61,7 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 class BookEditPageView(LoginRequiredMixin, TemplateView):
     """View for rendering the book edit page"""
 
-    template_name = "core/book_edit.html"
+    template_name = "bible/book_edit.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
