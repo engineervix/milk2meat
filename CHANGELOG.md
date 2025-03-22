@@ -4,6 +4,43 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project attempts to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.0](https://github.com/engineervix/milk2meat/compare/v1.0.0...v1.1.0) (2025-03-22)
+
+
+### 🚀 Features
+
+* add ajax endpoints for Note create/update ([18461df](https://github.com/engineervix/milk2meat/commit/18461dfbe880c5881051735c153884290fbc5b65))
+* ajax-based book updates ([8545d61](https://github.com/engineervix/milk2meat/commit/8545d616a3154620b775efff5b316b99fe06231e))
+* allow for deletion of files from Notes ([d00260e](https://github.com/engineervix/milk2meat/commit/d00260e9b38d9607f2979d7ca8ebb49599984134))
+* editor save enhancements ([05e18b6](https://github.com/engineervix/milk2meat/commit/05e18b6ff8d5bb277a0eb0f87691fb9fc44ec52a))
+* frontend updates for AJAX-based Note submissions ([f4016c0](https://github.com/engineervix/milk2meat/commit/f4016c06030686426c3df4a68bb7e15fc14451a2))
+
+
+### 🐛 Bug Fixes
+
+* prevent unsaved changes warning when submitting forms ([c0a9124](https://github.com/engineervix/milk2meat/commit/c0a912478627398cb1f6f1b1d837704238aaecd2))
+
+
+### ♻️ Code Refactoring
+
+* cleanup after AJAX-based changes from 18461df to 8545d61 ([c072d0c](https://github.com/engineervix/milk2meat/commit/c072d0c2f84910b71449a254a8f7b3a4ac73e1a4))
+* fix beforeunload event handling for Ajax submissions ([35d48af](https://github.com/engineervix/milk2meat/commit/35d48afe2cc250d8e23b17dee9122fec4461d294))
+* improve notifications with centered toast & use Phosphor icons ([e42fddb](https://github.com/engineervix/milk2meat/commit/e42fddb20faeba10a966b7d340f413c55c715691))
+* **js:** isolate template JS into dedicated modules ([83f5033](https://github.com/engineervix/milk2meat/commit/83f50336331728b736ced2a05cbd1f527c34fd6c))
+* **js:** modularize note form JavaScript code ([34ee9eb](https://github.com/engineervix/milk2meat/commit/34ee9eb2be3c83ec15fd6c37c4db0edc909af322))
+* replace BLB ScriptTagger with ESV Cross-Reference Tool ([ef9c4b1](https://github.com/engineervix/milk2meat/commit/ef9c4b195e62ee8ebba48a391f74d2cd572d69df))
+* we don't need django admin ([bb35262](https://github.com/engineervix/milk2meat/commit/bb352627af21870b729cbe1de46181ce638347c6))
+
+
+### ⚙️ Build System
+
+* **deps:** update dependency boto3 to v1.37.13 ([2b02fdd](https://github.com/engineervix/milk2meat/commit/2b02fdd3a6e9b7b1921168ce4b2ced8985979153))
+* **deps:** update dependency django to v5.1.7 ([ec17e5e](https://github.com/engineervix/milk2meat/commit/ec17e5eee6d2f696194fe788003b4d9a9342f133))
+* **deps:** update dependency django-environ to v0.12.0 ([#9](https://github.com/engineervix/milk2meat/issues/9)) ([40949b9](https://github.com/engineervix/milk2meat/commit/40949b932106d079b2e46e63c096a1efbd19335d))
+* **deps:** update dependency mkdocs-git-revision-date-localized-plugin to v1.4.5 ([#5](https://github.com/engineervix/milk2meat/issues/5)) ([7bbdd48](https://github.com/engineervix/milk2meat/commit/7bbdd48c53be1df32d8a7fde17d0713d1702df26))
+* **deps:** update dependency mkdocs-material to v9.6.8 ([#6](https://github.com/engineervix/milk2meat/issues/6)) ([c557ce5](https://github.com/engineervix/milk2meat/commit/c557ce5f26da72ad9338402d131a928d8cde7918))
+* **deps:** update dependency ruff to ^0.11.0 ([#10](https://github.com/engineervix/milk2meat/issues/10)) ([d2f03bf](https://github.com/engineervix/milk2meat/commit/d2f03bf202704f8cd8830a2266575ae8b57f410a))
+
 ## 1.0.0 (2025-03-12)
 
 
