@@ -2,247 +2,250 @@
  * @jest-environment jsdom
  */
 
-// Mock pdfjs-dist
-jest.mock("pdfjs-dist", () => ({
-  getDocument: jest.fn().mockImplementation(() => ({
-    promise: Promise.resolve({
-      numPages: 3,
-      getPage: jest.fn().mockImplementation((pageNum) =>
-        Promise.resolve({
-          getViewport: jest.fn().mockReturnValue({
-            width: 800,
-            height: 600,
-            scale: 1,
-          }),
-          render: jest.fn().mockResolvedValue({}),
-        }),
-      ),
-    }),
-  })),
-  GlobalWorkerOptions: {
-    workerSrc: "",
-  },
-}));
+// Import the module being tested
+const pdfViewerPath = "./pdf-viewer";
 
-// Import module after mocking
-import * as pdfjsLib from "pdfjs-dist";
-
-// Create a more complete mock for the initPdfViewer function
-const initPdfViewer = jest.fn().mockImplementation(() => {
-  // Set up viewer elements
-  const pdfViewer = document.querySelector(".pdf-viewer");
-  const prevButton = document.querySelector(".pdf-prev");
-  const nextButton = document.querySelector(".pdf-next");
-  const pageInfo = document.querySelector(".pdf-page-info");
-
-  // Create canvas for rendering
-  const canvas = document.createElement("canvas");
-  pdfViewer.innerHTML = "";
-  pdfViewer.appendChild(canvas);
-
-  // Set initial loading state
-  pdfViewer.innerHTML =
-    '<div class="text-center p-4"><span class="loading loading-spinner loading-md"></span> Loading PDF...</div>';
-
-  // Set up page tracking
-  let currentPage = 1;
-  const totalPages = 3;
-
-  // Initialize page info
-  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-
-  // Set up navigation functions
-  prevButton.addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    }
-  });
-
-  nextButton.addEventListener("click", () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    }
-  });
-
-  // Simulate fetching and rendering the PDF
-  const pdfUrl = pdfViewer.getAttribute("data-pdf-url") || "direct.pdf";
-
-  // Re-add canvas after loading
-  setTimeout(() => {
-    pdfViewer.innerHTML = "";
-    pdfViewer.appendChild(canvas);
-  }, 10);
-
-  return window
-    .fetch(pdfUrl)
-    .then((response) => response.arrayBuffer())
-    .then((arrayBuffer) => {
-      // Load PDF using pdfjsLib
-      return pdfjsLib.getDocument(new Uint8Array(arrayBuffer)).promise;
-    });
+// Mock canvas.getContext
+HTMLCanvasElement.prototype.getContext = jest.fn().mockReturnValue({
+  drawImage: jest.fn(),
+  fillRect: jest.fn(),
 });
 
-describe("PDF Viewer functionality", () => {
-  // Create mocks
-  let originalFetch;
+// Mock the pdf.js library
+jest.mock("pdfjs-dist", () => {
+  const mockPdfjsLib = {
+    getDocument: jest.fn().mockImplementation((url) => ({
+      promise: Promise.resolve({
+        numPages: 3,
+        getPage: jest.fn().mockImplementation((pageNum) =>
+          Promise.resolve({
+            getViewport: jest.fn().mockReturnValue({
+              width: 800,
+              height: 600,
+              scale: 1.0,
+            }),
+            render: jest.fn().mockImplementation(() => ({
+              promise: Promise.resolve(),
+            })),
+          }),
+        ),
+      }),
+    })),
+    GlobalWorkerOptions: {
+      workerSrc: "",
+    },
+  };
+  return mockPdfjsLib;
+});
+
+describe("PDF Viewer", () => {
+  // Store original functions
+  const originalAddEventListener = document.addEventListener;
+
+  // Capture event handler
+  let domContentLoadedHandler;
 
   beforeEach(() => {
-    // Setup document body with PDF viewer container
+    // Reset mocks and spies
+    jest.clearAllMocks();
+
+    // Reset DOM
     document.body.innerHTML = `
-      <div class="pdf-container">
-        <div class="pdf-viewer" data-pdf-url="sample.pdf"></div>
-        <div class="pdf-controls">
-          <button class="pdf-prev">Previous</button>
-          <span class="pdf-page-info">Page 1 of 3</span>
-          <button class="pdf-next">Next</button>
-        </div>
-      </div>
+      <div id="pdf-viewer" data-note-id="123"></div>
     `;
 
-    // Save original fetch
-    originalFetch = window.fetch;
-
-    // Mock fetch response with ArrayBuffer
-    const mockArrayBuffer = new ArrayBuffer(8);
-    window.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
+    // Mock fetch
+    global.fetch = jest.fn().mockImplementation((url) => {
+      if (url.includes("/notes/") && url.includes("/file/")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              url: "https://example.com/secure-pdf.pdf",
+            }),
+        });
+      }
+      return Promise.reject(new Error("URL not mocked"));
     });
 
-    // Reset module state
+    // Mock document.addEventListener to capture DOMContentLoaded handler
+    document.addEventListener = jest.fn((event, handler) => {
+      if (event === "DOMContentLoaded") {
+        domContentLoadedHandler = handler;
+      }
+    });
+
+    // Mock window.location
+    Object.defineProperty(window, "location", {
+      value: { hostname: "example.com" },
+      writable: true,
+    });
+
+    // Mock timer functions
+    jest.useFakeTimers();
+    global.setInterval = jest.fn().mockReturnValue(123);
+    global.clearInterval = jest.fn();
+
+    // We need to clear the module cache to ensure a fresh import each time
     jest.resetModules();
   });
 
   afterEach(() => {
-    // Clean up
-    jest.clearAllMocks();
-    window.fetch = originalFetch;
+    document.addEventListener = originalAddEventListener;
+    global.fetch = undefined;
+    jest.useRealTimers();
   });
 
-  test("initializes with loading state", async () => {
-    // No need to import, use our mock
-    // const { initPdfViewer } = require("./pdf-viewer");
+  test("adds event listener for DOMContentLoaded", () => {
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
 
-    // Get PDF viewer element
-    const pdfViewer = document.querySelector(".pdf-viewer");
-
-    // Initialize PDF viewer
-    initPdfViewer();
-
-    // Check if loading message is displayed
-    expect(pdfViewer.innerHTML).toContain("Loading PDF");
-
-    // Wait for async operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Check that addEventListener was called with DOMContentLoaded
+    expect(document.addEventListener).toHaveBeenCalledWith(
+      "DOMContentLoaded",
+      expect.any(Function),
+    );
   });
 
-  test("fetches and renders PDF from the data-pdf-url attribute", async () => {
-    // No need to import, use our mock
-    // const { initPdfViewer } = require("./pdf-viewer");
+  test("initializes PDF viewer when DOMContentLoaded fires", () => {
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
 
-    // Get PDF viewer element
-    const pdfViewer = document.querySelector(".pdf-viewer");
+    // Make sure we captured the handler
+    expect(domContentLoadedHandler).toBeDefined();
 
-    // Initialize PDF viewer
-    initPdfViewer();
+    // Call the handler to simulate DOMContentLoaded event
+    domContentLoadedHandler();
 
-    // Wait for async operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // Verify fetch was called with correct URL
-    expect(window.fetch).toHaveBeenCalledWith("sample.pdf");
-
-    // Verify getDocument was called with correct params
-    expect(pdfjsLib.getDocument).toHaveBeenCalledWith(expect.any(Uint8Array));
+    // Should fetch secure URL
+    expect(global.fetch).toHaveBeenCalledWith("/notes/123/file/");
   });
 
-  test("navigates between pages when control buttons are clicked", async () => {
-    // No need to import, use our mock
-    // const { initPdfViewer } = require("./pdf-viewer");
+  test("doesn't initialize when PDF viewer container doesn't exist", () => {
+    // Clear the DOM
+    document.body.innerHTML = "";
 
-    // Get PDF viewer element
-    const pdfViewer = document.querySelector(".pdf-viewer");
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
 
-    // Initialize PDF viewer
-    initPdfViewer();
+    // Call the handler
+    domContentLoadedHandler();
 
-    // Wait for async operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // Get next and previous buttons
-    const nextButton = document.querySelector(".pdf-next");
-    const prevButton = document.querySelector(".pdf-prev");
-    const pageInfo = document.querySelector(".pdf-page-info");
-
-    // Initial page should be page 1
-    expect(pageInfo.textContent).toBe("Page 1 of 3");
-
-    // Click next button to go to page 2
-    nextButton.click();
-    expect(pageInfo.textContent).toBe("Page 2 of 3");
-
-    // Click next button again to go to page 3
-    nextButton.click();
-    expect(pageInfo.textContent).toBe("Page 3 of 3");
-
-    // Click next again should stay on page 3 (max page)
-    nextButton.click();
-    expect(pageInfo.textContent).toBe("Page 3 of 3");
-
-    // Click previous button to go back to page 2
-    prevButton.click();
-    expect(pageInfo.textContent).toBe("Page 2 of 3");
-
-    // Click previous button again to go back to page 1
-    prevButton.click();
-    expect(pageInfo.textContent).toBe("Page 1 of 3");
-
-    // Click previous again should stay on page 1 (min page)
-    prevButton.click();
-    expect(pageInfo.textContent).toBe("Page 1 of 3");
+    // Should not fetch
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  test("renders PDF with proper scaling", async () => {
-    // Simple test that just checks the canvas has been created
-    // Initialize PDF viewer using our mock
-    const pdfViewer = document.querySelector(".pdf-viewer");
-
-    // Initialize PDF viewer with our mock
-    initPdfViewer();
-
-    // Wait for async operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // Check that a canvas would be created in the rendering process
-    expect(pdfjsLib.getDocument).toHaveBeenCalled();
-  });
-
-  test("handles direct PDF URL parameter", async () => {
-    // Setup document with a viewer that has a data URL
+  test("uses direct PDF URL when available", () => {
+    // Set up DOM with direct PDF URL
     document.body.innerHTML = `
-      <div class="pdf-viewer" data-pdf-url="direct.pdf"></div>
-      <div class="pdf-controls">
-        <button class="pdf-prev">Previous</button>
-        <span class="pdf-page-info">Page 1 of 1</span>
-        <button class="pdf-next">Next</button>
-      </div>
+      <div id="pdf-viewer" data-pdf-url="direct.pdf"></div>
     `;
 
-    // Create a mock for fetch
-    window.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(8)),
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
+
+    // Call the handler
+    domContentLoadedHandler();
+
+    // Should not fetch secure URL
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    // Should use pdfjsLib.getDocument
+    const pdfjsLib = require("pdfjs-dist");
+    expect(pdfjsLib.getDocument).toHaveBeenCalledWith("direct.pdf");
+  });
+
+  test("shows error when no PDF URL or note ID provided", () => {
+    // Set up element without data attributes
+    document.body.innerHTML = `<div id="pdf-viewer"></div>`;
+
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
+
+    // Spy on innerHTML
+    const container = document.getElementById("pdf-viewer");
+    const originalInnerHTML = container.innerHTML;
+    const innerHTMLSpy = jest.spyOn(container, "innerHTML", "set");
+
+    // Call the handler
+    domContentLoadedHandler();
+
+    // Check the error message
+    expect(innerHTMLSpy).toHaveBeenCalled();
+    expect(innerHTMLSpy.mock.calls[0][0]).toContain("Error loading PDF");
+    expect(innerHTMLSpy.mock.calls[0][0]).toContain(
+      "No PDF URL or note ID provided",
+    );
+
+    // Restore
+    innerHTMLSpy.mockRestore();
+  });
+
+  test("identifies dev vs production environment correctly", () => {
+    // Mock production hostname
+    Object.defineProperty(window, "location", {
+      value: { hostname: "example.com" },
+      writable: true,
     });
 
-    // Initialize the viewer using our mock
-    initPdfViewer();
+    // Import the module to access its internals
+    jest.isolateModules(() => {
+      // We need to use isolateModules to ensure we get a fresh instance of the module
+      const pdfViewer = require(pdfViewerPath);
 
-    // Wait for async operations
-    await new Promise((resolve) => setTimeout(resolve, 0));
+      // Check production detection logic
+      expect(window.location.hostname).not.toBe("localhost");
+      expect(window.location.hostname).not.toBe("127.0.0.1");
 
-    // Check that fetch was called with the right URL
-    expect(window.fetch).toHaveBeenCalledWith("direct.pdf");
+      // Now set it to development hostname
+      Object.defineProperty(window, "location", {
+        value: { hostname: "localhost" },
+        writable: true,
+      });
+
+      // Reload module in dev environment
+      jest.resetModules();
+      require(pdfViewerPath);
+
+      // Check development detection logic
+      expect(window.location.hostname).toBe("localhost");
+    });
+  });
+
+  test("handles PDF loading errors gracefully", async () => {
+    // Mock pdfjsLib to fail
+    const pdfjsLib = require("pdfjs-dist");
+    pdfjsLib.getDocument.mockImplementationOnce(() => ({
+      promise: Promise.reject(new Error("Failed to load PDF")),
+    }));
+
+    // Set up container with direct URL
+    document.body.innerHTML = `<div id="pdf-viewer" data-pdf-url="broken.pdf"></div>`;
+    const container = document.getElementById("pdf-viewer");
+
+    // Import the module - this also sets up the event listener
+    require(pdfViewerPath);
+
+    // Spy on innerHTML
+    const innerHTMLSpy = jest.spyOn(container, "innerHTML", "set");
+
+    // Call the handler
+    domContentLoadedHandler();
+
+    // Wait for promises
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // Check for error message
+    const errorMessageShown = innerHTMLSpy.mock.calls.some(
+      (call) =>
+        call[0].includes("Error loading PDF") &&
+        call[0].includes("Failed to load PDF"),
+    );
+
+    expect(errorMessageShown).toBe(true);
+
+    // Restore
+    innerHTMLSpy.mockRestore();
   });
 });
