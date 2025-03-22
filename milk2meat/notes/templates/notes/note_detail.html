@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load static %}
+{% load file_filters %}
+{% block title %}
+    {{ block.super }} {{ note.title }}
+{% endblock title %}
+{% block extrameta %}
+    <meta name="description"
+          content="{{ note.title }} - Milk2Meat Bible Study Note">
+{% endblock extrameta %}
+{% block promo_block %}
+    <div class="bg-primary text-primary-content">
+        <div class="container mx-auto py-3 px-4">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold">{{ note.title }}</h1>
+                    <p class="text-sm opacity-80">{{ note.note_type.name }} • {{ note.updated_at|date:"M d, Y" }}</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {# Back to notes #}
+                    <a href="{% url 'notes:note_list' %}" class="btn btn-sm btn-ghost">Back to Notes</a>
+                    {# Edit button #}
+                    <a href="{% url 'notes:note_edit' note.pk %}"
+                       class="btn btn-sm btn-secondary">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock promo_block %}
+{% block content %}
+    <div class="container mx-auto px-4 py-8" data-note-id="{{ note.pk }}">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {# Left sidebar with metadata #}
+            <div class="lg:col-span-1">
+                <div class="sticky top-4">
+                    <div class="card bg-base-100 shadow-xl">
+                        <div class="card-body">
+                            <h2 class="card-title">Note Information</h2>
+                            <div class="divider my-2"></div>
+                            {# Note type #}
+                            <div class="mb-4">
+                                <h3 class="text-sm font-semibold text-base-content/70">Note Type</h3>
+                                <div class="badge badge-accent mt-1">{{ note.note_type.name }}</div>
+                            </div>
+                            {# Tags #}
+                            {% if note.tags.all %}
+                                <div class="mb-4">
+                                    <h3 class="text-sm font-semibold text-base-content/70">Tags</h3>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        {% for tag in note.tags.all %}
+                                            <a href="{% url 'notes:note_list' %}?tag={{ tag.name }}"
+                                               class="badge badge-outline">{{ tag.name }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {# Referenced books #}
+                            {% if note.referenced_books.all %}
+                                <div class="mb-4">
+                                    <h3 class="text-sm font-semibold text-base-content/70">Referenced Books</h3>
+                                    <div class="flex flex-col gap-1 mt-1">
+                                        {% for book in note.referenced_books.all %}
+                                            <a href="{% url 'bible:note_detail' book.id %}" class="link link-hover">{{ book.title }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {# Attachment #}
+                            {% if note.upload %}
+                                <div class="mb-4">
+                                    <h3 class="text-sm font-semibold text-base-content/70">Attachment</h3>
+                                    <div class="flex flex-col gap-1 mt-1">
+                                        <a href="{{ secure_file_url }}"
+                                           class="flex items-center link link-hover"
+                                           target="_blank">
+                                            {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
+                                                <i class="ph ph-file-pdf text-error mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" %}
+                                                <i class="ph ph-image text-primary mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".png" %}
+                                                <i class="ph ph-image text-success mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".gif" %}
+                                                <i class="ph ph-image-square text-secondary mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
+                                                <i class="ph ph-file-svg text-warning mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".doc" or note.upload.name|lower|slice:"-5:" == ".docx" %}
+                                                <i class="ph ph-file-doc text-info mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".xls" or note.upload.name|lower|slice:"-5:" == ".xlsx" %}
+                                                <i class="ph ph-file-xls text-success mr-1 text-lg"></i>
+                                            {% elif note.upload.name|lower|slice:"-4:" == ".txt" %}
+                                                <i class="ph ph-file-text text-base-content/70 mr-1 text-lg"></i>
+                                            {% else %}
+                                                <i class="ph ph-file text-base-content/70 mr-1 text-lg"></i>
+                                            {% endif %}
+                                            <span>{{ note.upload.name|split:"/"|last }}</span>
+                                        </a>
+                                        <div class="text-xs text-base-content/50 ml-5">{{ note.upload.size|filesizeformat }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="divider my-2"></div>
+                            {# Metadata #}
+                            <div class="text-xs text-base-content/60">
+                                <p>Created: {{ note.created_at|date:"M d, Y" }}</p>
+                                <p>Last updated: {{ note.updated_at|date:"M d, Y" }}</p>
+                            </div>
+                            {# Actions #}
+                            <div class="card-actions mt-4">
+                                <a href="{% url 'notes:note_edit' note.pk %}"
+                                   class="btn btn-outline btn-sm btn-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-4 mr-1"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit Note
+                                </a>
+                                <button class="btn btn-outline btn-error btn-sm btn-block"
+                                        onclick="confirmDelete()">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-4 mr-1"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Note
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {# Main content area #}
+            <div class="lg:col-span-2">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        {# Rendered markdown content #}
+                        <div class="prose max-w-none">
+                            {# djlint:off H008 #}
+                            {{ content_html|default:"<p class='text-center opacity-70'>No content</p>" }}
+                            {# djlint:on #}
+                        </div>
+                    </div>
+                </div>
+                {# File Attachment Preview #}
+                {% if note.upload %}
+                    <div class="card bg-base-100 shadow-xl mt-8">
+                        <div class="card-body">
+                            <h2 class="card-title flex items-center">
+                                {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
+                                    <i class="ph ph-file-pdf text-error mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" %}
+                                    <i class="ph ph-image text-primary mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".png" %}
+                                    <i class="ph ph-image text-success mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".gif" %}
+                                    <i class="ph ph-image-square text-secondary mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
+                                    <i class="ph ph-file-svg text-warning mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".doc" or note.upload.name|lower|slice:"-5:" == ".docx" %}
+                                    <i class="ph ph-file-doc text-info mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".xls" or note.upload.name|lower|slice:"-5:" == ".xlsx" %}
+                                    <i class="ph ph-file-xls text-success mr-2 text-xl"></i>
+                                {% elif note.upload.name|lower|slice:"-4:" == ".txt" %}
+                                    <i class="ph ph-file-text text-base-content/70 mr-2 text-xl"></i>
+                                {% else %}
+                                    <i class="ph ph-file text-base-content/70 mr-2 text-xl"></i>
+                                {% endif %}
+                                {{ note.upload.name|split:"/"|last }}
+                            </h2>
+                            {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
+                                {# PDF preview with multi-page support #}
+                                <div id="pdf-viewer"
+                                     class="w-full h-auto bg-base-100 rounded-lg overflow-hidden p-4"
+                                     data-note-id="{{ note.pk }}"></div>
+                            {% elif note.upload.name|lower|slice:"-4:" == ".jpg" or note.upload.name|lower|slice:"-5:" == ".jpeg" or note.upload.name|lower|slice:"-4:" == ".png" or note.upload.name|lower|slice:"-4:" == ".gif" %}
+                                {# Image preview with GLightbox #}
+                                <div class="flex justify-center">
+                                    <a href="{{ secure_file_url }}"
+                                       class="glightbox"
+                                       data-gallery="note-gallery"
+                                       data-title="{{ note.upload.name|split:'//'|last }}">
+                                        {# djlint:off H006 #}
+                                        <img src="{{ secure_file_url }}"
+                                             alt="Attachment preview"
+                                             class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
+                                        {# djlint:on #}
+                                    </a>
+                                </div>
+                                <div class="text-center mt-2 text-sm text-base-content/70">
+                                    <i class="ph ph-arrows-out"></i> Click image to view in fullscreen
+                                </div>
+                            {% elif note.upload.name|lower|slice:"-4:" == ".svg" %}
+                                {# SVG preview with GLightbox #}
+                                <div class="flex justify-center">
+                                    <a href="{{ secure_file_url }}"
+                                       class="glightbox"
+                                       data-gallery="note-gallery"
+                                       data-title="{{ note.upload.name|split:'//'|last }}">
+                                        {# djlint:off H006 #}
+                                        <img src="{{ secure_file_url }}"
+                                             alt="SVG preview"
+                                             class="max-w-full max-h-96 object-contain rounded-lg border border-base-300 cursor-pointer hover:opacity-90 transition-opacity" />
+                                        {# djlint:on #}
+                                    </a>
+                                </div>
+                                <div class="text-center mt-2 text-sm text-base-content/70">
+                                    <i class="ph ph-arrows-out"></i> Click image to view in fullscreen
+                                </div>
+                            {% else %}
+                                {# Generic file preview #}
+                                <div class="w-full h-48 bg-base-200 rounded-lg flex items-center justify-center">
+                                    <div class="text-center p-4">
+                                        <i class="ph ph-file-dashed text-6xl mb-4 text-base-content/50"></i>
+                                        <p class="mb-2">This file type cannot be previewed</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="flex justify-center mt-4">
+                                <a href="{{ secure_file_url }}" class="btn btn-primary" data-download>
+                                    <i class="ph ph-download mr-1"></i>
+                                    Download
+                                    <span class="text-xs opacity-80 ml-1">({{ note.upload.size|filesizeformat }})</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {# Delete confirmation modal #}
+    <dialog id="delete-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-error">Delete Note</h3>
+            <p class="py-4">Are you sure you want to delete this note? This action cannot be undone.</p>
+            <div class="modal-action">
+                <form method="post" action="{% url 'notes:note_delete' note.pk %}">
+                    {% csrf_token %}
+                    <button type="button"
+                            class="btn btn-ghost"
+                            onclick="document.getElementById('delete-modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-error">Delete</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+{% endblock content %}
+{% block extra_js %}
+    {% if note.upload %}
+        <script src="{% static 'js/notes-detail.min.js' %}"></script>
+    {% endif %}
+    {% if note.upload.name|lower|slice:"-4:" == ".pdf" %}
+        {# Include the bundled PDF viewer script #}
+        <script src="{% static 'js/pdf-viewer.min.js' %}"></script>
+    {% endif %}
+    <script>
+    function confirmDelete() {
+        document.getElementById('delete-modal').showModal();
+    }
+    </script>
+{% endblock extra_js %}

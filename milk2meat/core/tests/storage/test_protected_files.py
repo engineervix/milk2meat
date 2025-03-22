@@ -21,7 +21,7 @@ class TestServeProtectedFileView:
         note = NoteFactory(owner=user)
 
         # Try to access the endpoint without logging in
-        url = reverse("core:serve_protected_file", kwargs={"note_id": note.pk})
+        url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
         response = client.get(url)
 
         # Should redirect to login
@@ -49,7 +49,7 @@ class TestServeProtectedFileView:
             mock_get_url.return_value = "https://example.com/signed-url"
 
             # Request the file
-            url = reverse("core:serve_protected_file", kwargs={"note_id": note.pk})
+            url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
             response = client.get(url)
 
             # Check the response
@@ -80,7 +80,7 @@ class TestServeProtectedFileView:
         note = NoteFactory(title="Test Note", owner=user2, note_type=note_type, upload=test_file)
 
         # Request the file
-        url = reverse("core:serve_protected_file", kwargs={"note_id": note.pk})
+        url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
         response = client.get(url)
 
         # Should return 404 as user1 doesn't own the note
@@ -97,7 +97,7 @@ class TestServeProtectedFileView:
         note = NoteFactory(title="Test Note", owner=user, note_type=note_type, upload=None)
 
         # Request the file
-        url = reverse("core:serve_protected_file", kwargs={"note_id": note.pk})
+        url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
         response = client.get(url)
 
         # Should return 404 as there's no file
@@ -115,7 +115,7 @@ class TestServeProtectedFileView:
         client.force_login(user)
 
         # Request a file for a nonexistent note
-        url = reverse("core:serve_protected_file", kwargs={"note_id": "00000000-0000-0000-0000-000000000000"})
+        url = reverse("notes:serve_protected_file", kwargs={"note_id": "00000000-0000-0000-0000-000000000000"})
         response = client.get(url)
 
         # Should return 404
@@ -137,7 +137,7 @@ class TestServeProtectedFileView:
         # Mock get_secure_file_url to return None
         with mock.patch("milk2meat.core.models.Note.get_secure_file_url", return_value=None):
             # Request the file
-            url = reverse("core:serve_protected_file", kwargs={"note_id": note.pk})
+            url = reverse("notes:serve_protected_file", kwargs={"note_id": note.pk})
             response = client.get(url)
 
             # Should return 403 Forbidden

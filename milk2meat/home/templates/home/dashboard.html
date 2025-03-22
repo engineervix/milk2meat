@@ -32,7 +32,7 @@
                         <ul class="menu bg-base-100 w-full p-0">
                             {% for note in recent_notes %}
                                 <li>
-                                    <a href="{% url 'core:note_detail' note.pk %}"
+                                    <a href="{% url 'notes:note_detail' note.pk %}"
                                        class="flex justify-between">
                                         <span class="truncate">{{ note.title }}</span>
                                         <span class="badge badge-sm">{{ note.note_type.name }}</span>
@@ -41,13 +41,13 @@
                             {% endfor %}
                         </ul>
                         <div class="card-actions justify-end mt-4">
-                            <a href="{% url 'core:note_list' %}" class="btn btn-outline btn-sm">View All Notes</a>
-                            <a href="{% url 'core:note_create' %}" class="btn btn-primary btn-sm">Create Note</a>
+                            <a href="{% url 'notes:note_list' %}" class="btn btn-outline btn-sm">View All Notes</a>
+                            <a href="{% url 'notes:note_create' %}" class="btn btn-primary btn-sm">Create Note</a>
                         </div>
                     {% else %}
                         <p>You don't have any notes yet.</p>
                         <div class="card-actions justify-end mt-4">
-                            <a href="{% url 'core:note_create' %}" class="btn btn-primary">Create Note</a>
+                            <a href="{% url 'notes:note_create' %}" class="btn btn-primary">Create Note</a>
                         </div>
                     {% endif %}
                 </div>
@@ -58,7 +58,7 @@
                     <h2 class="card-title">Quick Actions</h2>
                     <ul class="menu bg-base-100 w-full p-0">
                         <li>
-                            <a href="{% url 'core:book_list' %}" class="flex items-center">
+                            <a href="{% url 'bible:note_list' %}" class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="h-5 w-5 mr-2"
                                      viewBox="0 0 24 24"
@@ -74,7 +74,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'core:note_list' %}" class="flex items-center">
+                            <a href="{% url 'notes:note_list' %}" class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="h-5 w-5 mr-2"
                                      viewBox="0 0 24 24"
@@ -90,7 +90,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'core:note_create' %}" class="flex items-center">
+                            <a href="{% url 'notes:note_create' %}" class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="h-5 w-5 mr-2"
                                      viewBox="0 0 24 24"
@@ -106,7 +106,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'core:tag_list' %}" class="flex items-center">
+                            <a href="{% url 'notes:tag_list' %}" class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="h-5 w-5 mr-2"
                                      viewBox="0 0 24 24"

@@ -3,8 +3,8 @@ from unittest import mock
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from milk2meat.core.factories import NoteFactory, NoteTypeFactory
-from milk2meat.core.models import Note
+from milk2meat.notes.factories import NoteFactory, NoteTypeFactory
+from milk2meat.notes.models import Note
 from milk2meat.users.factories import UserFactory
 
 pytestmark = pytest.mark.django_db

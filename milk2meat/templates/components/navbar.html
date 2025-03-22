@@ -21,11 +21,11 @@
                            class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
                             Dashboard
                         </a>
-                        <a href="{% url 'core:book_list' %}"
+                        <a href="{% url 'bible:note_list' %}"
                            class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
                             Books
                         </a>
-                        <a href="{% url 'core:note_list' %}"
+                        <a href="{% url 'notes:note_list' %}"
                            class="px-3 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %} transition duration-150 ease-in-out">
                             Notes
                         </a>
@@ -120,11 +120,11 @@
                    class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
                     Dashboard
                 </a>
-                <a href="{% url 'core:book_list' %}"
+                <a href="{% url 'bible:note_list' %}"
                    class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
                     Books
                 </a>
-                <a href="{% url 'core:note_list' %}"
+                <a href="{% url 'notes:note_list' %}"
                    class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'note_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
                     Notes
                 </a>

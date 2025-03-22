@@ -73,7 +73,7 @@
                             {% for result in results_by_type.Note %}
                                 <div class="card bg-base-100 shadow hover:shadow-md transition-shadow">
                                     <div class="card-body p-4">
-                                        <a href="{% url 'core:note_detail' result.object.pk %}"
+                                        <a href="{% url 'notes:note_detail' result.object.pk %}"
                                            class="card-title text-lg hover:text-primary transition-colors">
                                             {{ result.title|safe }}
                                         </a>
@@ -90,7 +90,7 @@
                         <h2 class="text-xl font-bold mb-4">Bible Books ({{ results_by_type.Book|length }})</h2>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {% for result in results_by_type.Book %}
-                                <a href="{% url 'core:book_detail' result.object.pk %}"
+                                <a href="{% url 'bible:note_detail' result.object.pk %}"
                                    class="card bg-base-100 shadow hover:shadow-md transition-shadow">
                                     <div class="card-body p-4">
                                         <h3 class="card-title text-lg">{{ result.title|safe }}</h3>

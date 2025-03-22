@@ -30,6 +30,8 @@ urlpatterns = [
     path("auth/", include("milk2meat.auth.urls", namespace="auth")),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("", include("milk2meat.core.urls", namespace="core")),
+    path("", include("milk2meat.bible.urls", namespace="bible")),
+    path("", include("milk2meat.notes.urls", namespace="notes")),
 ]
 
 if settings.DEBUG:

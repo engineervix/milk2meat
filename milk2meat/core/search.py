@@ -1,6 +1,7 @@
 from watson import search as watson
 
-from .models import Book, Note
+from milk2meat.bible.models import Book
+from milk2meat.notes.models import Note
 
 
 def register_watson_models():

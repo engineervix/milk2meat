@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="You could upload handwritten notes from iPad as PDF or image",
                         null=True,
-                        upload_to=milk2meat.core.models.user_note_upload_path,
+                        upload_to=milk2meat.notes.models.user_note_upload_path,
                         validators=[
                             upload_validator.FileTypeValidator(
                                 allowed_types=[

@@ -83,10 +83,10 @@ class TestDashboardView:
 
         # Check quick actions
         assert "Quick Actions" in content
-        assert reverse("core:book_list") in content
-        assert reverse("core:note_list") in content
-        assert reverse("core:note_create") in content
-        assert reverse("core:tag_list") in content
+        assert reverse("bible:book_list") in content
+        assert reverse("notes:note_list") in content
+        assert reverse("notes:note_create") in content
+        assert reverse("notes:tag_list") in content
 
     def test_dashboard_no_notes(self, client):
         """Test the dashboard view when user has no notes"""
@@ -107,4 +107,4 @@ class TestDashboardView:
 
         # Check create note button
         assert "Create Note" in content
-        assert reverse("core:note_create") in content
+        assert reverse("notes:note_create") in content
