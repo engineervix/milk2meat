@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     removeFileBtnId: "remove-file",
     existingFileId: "existing-file",
     replaceFileBtnId: "replace-file",
+    deleteFileBtnId: "delete-file",
   });
 
   // Initialize Note Type Manager

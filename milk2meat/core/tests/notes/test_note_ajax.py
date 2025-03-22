@@ -186,3 +186,45 @@ class TestNoteAjaxViews:
         note = Note.objects.get(pk=note_id)
         assert note.upload is not None
         assert "test_file.pdf" in note.upload.name
+
+    def test_update_note_ajax_with_file_deletion(self, client):
+        """Test successful deletion of a file attachment via AJAX"""
+        user = UserFactory()
+        note_type = NoteTypeFactory()
+
+        # Create a test file
+        test_file = SimpleUploadedFile(
+            name="test_file.pdf",
+            content=b"%PDF-1.5\n%\xff\xff\xff\xff\ntest pdf content",
+            content_type="application/pdf",
+        )
+
+        # Create note with attached file
+        note = NoteFactory(owner=user, note_type=note_type, title="Note with File", upload=test_file)
+
+        # Verify file exists
+        assert note.upload is not None
+
+        client.force_login(user)
+
+        # Prepare update data with delete_upload=true
+        form_data = {
+            "title": "Updated Title - File Deleted",
+            "note_type": note_type.id,
+            "content": "This note had a file attachment that was deleted",
+            "tags_input": "file,deleted",
+            "referenced_books_json": "[]",
+            "delete_upload": "true",
+        }
+
+        url = reverse("core:note_update_ajax", kwargs={"pk": note.pk})
+        response = client.post(url, form_data)
+
+        # Verify response
+        assert response.status_code == 200
+        data = json.loads(response.content)
+        assert data["success"] is True
+
+        # Verify file was deleted
+        note.refresh_from_db()
+        assert note.upload is None or note.upload == ""

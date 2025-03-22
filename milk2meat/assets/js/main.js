@@ -2,6 +2,10 @@ import "../css/main.css";
 import "@phosphor-icons/web/regular";
 import GLightbox from "glightbox";
 import "glightbox/dist/css/glightbox.min.css";
+import Swal from "sweetalert2";
+
+// Make SweetAlert2 available globally
+window.Swal = Swal;
 
 // Theme management
 document.addEventListener("DOMContentLoaded", () => {

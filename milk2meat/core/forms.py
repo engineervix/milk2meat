@@ -141,6 +141,9 @@ class NoteForm(forms.ModelForm):
     # A hidden field to store selected tags
     tags_input = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+    # A hidden field to track if the upload file should be deleted
+    delete_upload = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = Note
         fields = [
@@ -150,6 +153,7 @@ class NoteForm(forms.ModelForm):
             "upload",
             "referenced_books_json",
             "tags_input",
+            "delete_upload",
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": "input input-bordered", "placeholder": "Enter note title"}),
@@ -233,8 +237,21 @@ class NoteForm(forms.ModelForm):
                 # If we still don't have an owner, give up
                 raise ValueError("Cannot create note: Couldn't determine who the owner is")
 
+        # Handle file deletion if requested
+        if self.cleaned_data.get("delete_upload") and note.upload:
+            # Store the file to delete after saving
+            file_to_delete = note.upload
+            note.upload = None
+        else:
+            file_to_delete = None
+
         if commit:
             note.save()
+
+            # Delete the file if needed
+            if file_to_delete:
+                # This will also remove the file from storage
+                file_to_delete.delete(save=False)
 
             # Handle referenced books (clear and add)
             book_ids = self.cleaned_data.get("referenced_books_json", [])
