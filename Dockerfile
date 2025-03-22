@@ -1,5 +1,5 @@
 #################################################################################
-# use node:22.4-bookworm as the base image for building the frontend
+# use node:22.*-bookworm as the base image for building the frontend
 #################################################################################
 
 FROM node:22.14-bookworm AS frontend-builder
