@@ -17,7 +17,14 @@
             <div class="flex items-center justify-between flex-wrap">
                 <div class="flex-1">
                     <h1 class="text-2xl font-bold">{{ note.title }}</h1>
-                    <p class="text-sm opacity-80">{{ note.note_type.name }} • {{ note.updated_at|date:"M d, Y" }}</p>
+                    <p class="text-sm opacity-80">
+                        {{ note.note_type.name }}
+                        <span class="mx-1">•</span>
+                        <span title="Last updated">
+                            <i class="ph ph-clock-clockwise"></i>
+                            {{ note.updated_at }}
+                        </span>
+                    </p>
                 </div>
                 <div class="flex items-center space-x-2">
                     {# Back to notes #}
