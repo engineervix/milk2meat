@@ -136,7 +136,8 @@ I wrote [`bin/deploy.sh`](./bin/deploy.sh) for deployment to a machine running [
 
 ## Tips
 
-- Run tests via `pytest`
+- Run python tests via `pytest`
+- Run javascript tests via `npm test`
 - Run `invoke -l` to see all available [Invoke](https://www.pyinvoke.org/) tasks. These are defined in the [tasks.py](tasks.py) file.
 - You'll want to setup [pre-commit](https://pre-commit.com/) by running `pre-commit install` followed by `pre-commit install --hook-type commit-msg`. Optionally run `pre-commit run --all-files` to make sure your pre-commit setup is okay.
 
