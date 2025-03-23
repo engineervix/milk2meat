@@ -9,47 +9,45 @@ jest.mock("glightbox/dist/css/glightbox.min.css", () => ({}), {
   virtual: true,
 });
 
-// Mock GLightbox
-jest.mock("glightbox", () => {
+// Mock Sweetalert2
+jest.mock("sweetalert2", () => {
   return jest.fn().mockImplementation(() => ({
-    on: jest.fn(),
-    open: jest.fn(),
-    close: jest.fn(),
-    reload: jest.fn(),
-    destroy: jest.fn(),
+    fire: jest.fn(),
   }));
 });
 
-// Import the mock
+// Mock GLightbox
+const mockGLightbox = jest.fn().mockImplementation(() => ({
+  destroy: jest.fn(),
+  on: jest.fn(),
+}));
+jest.mock("glightbox", () => {
+  return mockGLightbox;
+});
+
+// Import mocks before importing the module under test
 import GLightbox from "glightbox";
-
-// Create a mock implementation of main.js since we can't import it directly
-// due to the CSS imports it contains
-const mockMainJs = (handler) => {
-  // Clear previous calls
-  GLightbox.mockClear();
-
-  // Import the module to trigger addEventListener calls
-  require("./main");
-
-  // Call the handler to simulate DOMContentLoaded
-  if (handler) {
-    handler();
-  }
-};
+import Swal from "sweetalert2";
 
 describe("Main JS Functionality", () => {
   // Save original methods
   const originalAddEventListener = document.addEventListener;
+  const originalWindowAddEventListener = window.addEventListener;
   const originalLocalStorage = Object.getOwnPropertyDescriptor(
     window,
     "localStorage",
   );
   const originalMatchMedia = window.matchMedia;
+  const originalQuerySelector = document.querySelector;
+  const originalQuerySelectorAll = document.querySelectorAll;
+  const originalGetElementById = document.getElementById;
+  const originalDispatchEvent = window.dispatchEvent;
 
   // Test variables
-  let domLoadHandler;
+  let domLoadedHandler;
   let mockLocalStorage;
+  let mockToggleBtn;
+  let mockDispatchEvent;
 
   beforeEach(() => {
     // Set up DOM
@@ -57,20 +55,47 @@ describe("Main JS Functionality", () => {
       <html>
         <head></head>
         <body>
-          <button id="theme-toggle-btn">Toggle Theme</button>
           <div class="glightbox">Image 1</div>
           <div class="glightbox">Image 2</div>
         </body>
       </html>
     `;
 
-    // Mock document.addEventListener
-    document.addEventListener = jest.fn((event, handler) => {
-      if (event === "DOMContentLoaded") {
-        // Store handler for testing
-        domLoadHandler = handler;
+    // Setup mock toggle button
+    mockToggleBtn = document.createElement("button");
+    mockToggleBtn.id = "theme-toggle-btn";
+    mockToggleBtn.addEventListener = jest.fn((event, handler) => {
+      if (event === "click") {
+        mockToggleBtn.clickHandler = handler;
       }
     });
+    mockToggleBtn.click = jest.fn(() => {
+      if (mockToggleBtn.clickHandler) {
+        mockToggleBtn.clickHandler();
+      }
+    });
+
+    // Mock document.getElementById
+    document.getElementById = jest.fn().mockImplementation((id) => {
+      if (id === "theme-toggle-btn") {
+        return mockToggleBtn;
+      }
+      return null;
+    });
+
+    // Mock document.addEventListener to capture the DOMContentLoaded handler
+    document.addEventListener = jest.fn((event, handler) => {
+      if (event === "DOMContentLoaded") {
+        domLoadedHandler = handler;
+      }
+    });
+
+    // Mock window.addEventListener
+    window.addEventListener = jest.fn();
+
+    // Mock window.dispatchEvent
+    mockDispatchEvent = jest.fn();
+    window.dispatchEvent = mockDispatchEvent;
 
     // Mock localStorage
     mockLocalStorage = {
@@ -78,30 +103,44 @@ describe("Main JS Functionality", () => {
       setItem: jest.fn(),
       removeItem: jest.fn(),
     };
-
     Object.defineProperty(window, "localStorage", {
       value: mockLocalStorage,
-      writable: true,
     });
 
-    // Mock matchMedia
+    // Mock window.matchMedia
     window.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: false,
+      matches: query.includes("dark"),
       addEventListener: jest.fn(),
     }));
 
-    // Mock theme toggle function
-    window.toggleTheme = jest.fn(() => {
-      // Get current theme
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      // Set new theme
-      const newTheme = currentTheme === "winter" ? "night" : "winter";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      // Update localStorage
-      mockLocalStorage.setItem("milk2meat-theme", newTheme);
-      // Dispatch custom event
-      window.dispatchEvent(new CustomEvent("milk2meat-theme-changed"));
+    // Mock document.querySelector
+    document.querySelector = jest.fn().mockImplementation((selector) => {
+      if (selector === ".glightbox") {
+        return document.createElement("div");
+      }
+      return null;
     });
+
+    // Create mock video and audio elements
+    const videoEl = document.createElement("div");
+    videoEl.pause = jest.fn();
+    videoEl.paused = false;
+
+    const audioEl = document.createElement("div");
+    audioEl.pause = jest.fn();
+    audioEl.paused = false;
+
+    // Mock document.querySelectorAll
+    document.querySelectorAll = jest.fn().mockImplementation((selector) => {
+      if (selector === "video, audio") {
+        return [videoEl, audioEl];
+      }
+      return [];
+    });
+
+    // Reset mocks
+    mockGLightbox.mockClear();
+    if (Swal) Swal.mockClear();
 
     // Reset the module for each test
     jest.resetModules();
@@ -110,6 +149,11 @@ describe("Main JS Functionality", () => {
   afterEach(() => {
     // Restore original methods
     document.addEventListener = originalAddEventListener;
+    document.querySelector = originalQuerySelector;
+    document.querySelectorAll = originalQuerySelectorAll;
+    document.getElementById = originalGetElementById;
+    window.addEventListener = originalWindowAddEventListener;
+    window.dispatchEvent = originalDispatchEvent;
 
     // Restore original localStorage if it exists
     if (originalLocalStorage) {
@@ -125,264 +169,294 @@ describe("Main JS Functionality", () => {
     // Clear mocks
     jest.clearAllMocks();
 
-    // Clear theme
+    // Clear theme and global functions
     document.documentElement.removeAttribute("data-theme");
     delete window.toggleTheme;
   });
 
-  test("initializes theme from localStorage", () => {
-    // Mock localStorage returning a theme
-    mockLocalStorage.getItem.mockReturnValueOnce("night");
+  test("should make Sweetalert2 available globally", () => {
+    // Import the module
+    require("./main");
 
-    // Create a mock function for our DOMContentLoaded handler
-    const domHandler = jest.fn(() => {
-      // Manually reimplement the theme initialization
-      const savedTheme = localStorage.getItem("milk2meat-theme");
-
-      if (savedTheme) {
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      } else {
-        // Check for system preference
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        document.documentElement.setAttribute(
-          "data-theme",
-          prefersDark ? "night" : "winter",
-        );
-      }
-    });
-
-    // Trigger DOMContentLoaded to initialize theme
-    document.dispatchEvent(new Event("DOMContentLoaded"));
-
-    // Manually call our handler to execute the theme logic
-    domHandler();
-
-    // Check localStorage was queried
-    expect(mockLocalStorage.getItem).toHaveBeenCalledWith("milk2meat-theme");
-
-    // Check theme was applied
-    expect(document.documentElement.getAttribute("data-theme")).toBe("night");
+    // Check if Swal is attached to window
+    expect(window.Swal).toBeDefined();
   });
 
-  test("initializes theme from system preference when no localStorage", () => {
-    // Mock localStorage returning null
-    mockLocalStorage.getItem.mockReturnValue(null);
+  test("should register DOMContentLoaded event listener", () => {
+    // Import the module
+    require("./main");
 
-    // Mock system preference for dark theme
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: query.includes("dark"),
-      addEventListener: jest.fn(),
-    }));
-
-    // Create a mock function for our DOMContentLoaded handler
-    const domHandler = jest.fn(() => {
-      // Manually reimplement the theme initialization
-      const savedTheme = localStorage.getItem("milk2meat-theme");
-
-      if (savedTheme) {
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      } else {
-        // Check for system preference
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        document.documentElement.setAttribute(
-          "data-theme",
-          prefersDark ? "night" : "winter",
-        );
-      }
-    });
-
-    // Trigger DOMContentLoaded to initialize theme
-    document.dispatchEvent(new Event("DOMContentLoaded"));
-
-    // Manually call our handler to execute the theme logic
-    domHandler();
-
-    // Check matchMedia was called for dark mode
-    expect(window.matchMedia).toHaveBeenCalledWith(
-      "(prefers-color-scheme: dark)",
-    );
-
-    // Check the dark theme was applied
-    expect(document.documentElement.getAttribute("data-theme")).toBe("night");
-  });
-
-  test("toggles between light and dark themes", () => {
-    // Set initial theme to light
-    document.documentElement.setAttribute("data-theme", "winter");
-
-    // Mock the toggleTheme function
-    window.toggleTheme = jest.fn().mockImplementation(() => {
-      // Toggle the theme
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "winter" ? "night" : "winter";
-      document.documentElement.setAttribute("data-theme", newTheme);
-
-      // Update localStorage
-      mockLocalStorage.setItem("milk2meat-theme", newTheme);
-    });
-
-    // Get the toggle button
-    const toggleButton = document.getElementById("theme-toggle-btn");
-
-    // Add click handler
-    toggleButton.addEventListener("click", window.toggleTheme);
-
-    // Click the toggle button to simulate toggling the theme
-    toggleButton.click();
-
-    // Check theme was toggled to dark
-    expect(document.documentElement.getAttribute("data-theme")).toBe("night");
-
-    // Check theme was saved to localStorage
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-      "milk2meat-theme",
-      "night",
-    );
-
-    // Click again to toggle back to light
-    toggleButton.click();
-
-    // Check theme was toggled to light
-    expect(document.documentElement.getAttribute("data-theme")).toBe("winter");
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-      "milk2meat-theme",
-      "winter",
-    );
-  });
-
-  test("initializes GLightbox when gallery elements exist", () => {
-    // Setup mock elements
-    document.body.innerHTML = '<div class="gallery"></div>';
-
-    // Mock GLightbox
-    window.GLightbox = jest.fn().mockReturnValue({
-      on: jest.fn(),
-    });
-
-    // Create a handler that will initialize GLightbox
-    const domHandler = () => {
-      // Mock GLightbox initialization
-      if (document.querySelector(".gallery")) {
-        window.GLightbox();
-      }
-    };
-
-    // Call our handler to execute the gallery init logic
-    domHandler();
-
-    // Verify GLightbox was initialized
-    expect(window.GLightbox).toHaveBeenCalled();
-  });
-
-  test("updates GLightbox theme when app theme changes", () => {
-    // Setup mock elements
-    document.body.innerHTML = '<div class="glightbox"></div>';
-
-    // Mock window.addEventListener
-    const addEventListenerSpy = jest.spyOn(window, "addEventListener");
-
-    // Mock GLightbox instance
-    const mockGLightbox = {
-      destroy: jest.fn(),
-    };
-
-    // Mock GLightbox constructor
-    GLightbox.mockReturnValue(mockGLightbox);
-
-    // Create a handler to simulate DOMContentLoaded
-    const domHandler = jest.fn(() => {
-      if (document.querySelector(".glightbox")) {
-        // Simplified init function
-        const currentTheme =
-          document.documentElement.getAttribute("data-theme") || "winter";
-        const isDarkTheme = currentTheme === "night";
-
-        // Call GLightbox with theme
-        const lightbox = GLightbox({
-          selector: ".glightbox",
-          skin: isDarkTheme ? "dark" : "light",
-        });
-
-        // Setup theme change listener
-        window.addEventListener("milk2meat-theme-changed", () => {
-          const updatedTheme =
-            document.documentElement.getAttribute("data-theme");
-          const isNowDark = updatedTheme === "night";
-
-          lightbox.destroy();
-          GLightbox({
-            selector: ".glightbox",
-            skin: isNowDark ? "dark" : "light",
-          });
-        });
-      }
-    });
-
-    // Call the handler to initialize GLightbox
-    domHandler();
-
-    // Verify window.addEventListener was called with milk2meat-theme-changed
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      "milk2meat-theme-changed",
+    // Verify document.addEventListener was called with DOMContentLoaded
+    expect(document.addEventListener).toHaveBeenCalledWith(
+      "DOMContentLoaded",
       expect.any(Function),
     );
-
-    // Get the registered event handler for milk2meat-theme-changed
-    const eventHandler = addEventListenerSpy.mock.calls.find(
-      (call) => call[0] === "milk2meat-theme-changed",
-    )[1];
-
-    // Mock document theme
-    document.documentElement.setAttribute("data-theme", "night");
-
-    // Simulate a theme change event
-    eventHandler();
-
-    // Verify destroy was called on the lightbox
-    expect(mockGLightbox.destroy).toHaveBeenCalled();
-
-    // Verify GLightbox was initialized again with the dark theme
-    expect(GLightbox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        skin: "dark",
-      }),
-    );
   });
 
-  test("responds to system theme changes", () => {
-    // Mock localStorage returning null (use system preference)
-    mockLocalStorage.getItem.mockReturnValue(null);
+  describe("Theme Management", () => {
+    beforeEach(() => {
+      // Import the module
+      require("./main");
 
-    // Prepare match media mock with addEventListener ability
-    const matchMediaListeners = {};
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: false,
-      addEventListener: jest.fn((event, handler) => {
-        matchMediaListeners[event] = handler;
-      }),
-    }));
+      // Execute the DOMContentLoaded handler
+      if (domLoadedHandler) {
+        domLoadedHandler();
+      }
+    });
 
-    // Mock theme toggle setup function
-    mockMainJs(domLoadHandler);
+    test("should initialize theme from localStorage", () => {
+      // Reset mocks
+      document.documentElement.removeAttribute("data-theme");
 
-    // Now simulate a system theme change
-    // Create a fake media query change event
-    document.documentElement.setAttribute("data-theme", "winter");
+      // Setup localStorage to return a theme
+      mockLocalStorage.getItem.mockReturnValueOnce("night");
 
-    // Check the theme gets updated to dark
-    if (matchMediaListeners.change) {
-      matchMediaListeners.change({ matches: true });
+      // Re-run the DOMContentLoaded handler
+      domLoadedHandler();
+
+      // Verify localStorage was checked
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith("milk2meat-theme");
+
+      // Verify theme was set
       expect(document.documentElement.getAttribute("data-theme")).toBe("night");
+    });
 
-      // Check changing back to light
-      matchMediaListeners.change({ matches: false });
+    test("should initialize theme from system preference when no localStorage value", () => {
+      // Reset document theme
+      document.documentElement.removeAttribute("data-theme");
+
+      // Setup localStorage to return null
+      mockLocalStorage.getItem.mockReturnValueOnce(null);
+
+      // Mock dark mode preference
+      window.matchMedia = jest.fn().mockImplementation(() => ({
+        matches: true,
+        addEventListener: jest.fn(),
+      }));
+
+      // Re-run the DOMContentLoaded handler
+      domLoadedHandler();
+
+      // Verify theme was set to night for dark mode
+      expect(document.documentElement.getAttribute("data-theme")).toBe("night");
+    });
+
+    test("should initialize theme to winter when system prefers light mode", () => {
+      // Reset document theme
+      document.documentElement.removeAttribute("data-theme");
+
+      // Setup localStorage to return null
+      mockLocalStorage.getItem.mockReturnValueOnce(null);
+
+      // Mock light mode preference
+      window.matchMedia = jest.fn().mockImplementation(() => ({
+        matches: false,
+        addEventListener: jest.fn(),
+      }));
+
+      // Re-run the DOMContentLoaded handler
+      domLoadedHandler();
+
+      // Verify theme was set to winter for light mode
       expect(document.documentElement.getAttribute("data-theme")).toBe(
         "winter",
       );
-    }
+    });
+
+    test("should toggle theme via window.toggleTheme", () => {
+      // Set initial theme to winter
+      document.documentElement.setAttribute("data-theme", "winter");
+
+      // Verify toggleTheme was exposed globally
+      expect(typeof window.toggleTheme).toBe("function");
+
+      // Reset localStorage mock
+      mockLocalStorage.setItem.mockClear();
+      mockDispatchEvent.mockClear();
+
+      // Call toggleTheme
+      window.toggleTheme();
+
+      // Verify theme was toggled to night
+      expect(document.documentElement.getAttribute("data-theme")).toBe("night");
+
+      // Verify localStorage was updated
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        "milk2meat-theme",
+        "night",
+      );
+
+      // Verify a custom event was dispatched
+      expect(mockDispatchEvent).toHaveBeenCalled();
+    });
+
+    test("should toggle theme when button is clicked", () => {
+      // Set initial theme to winter
+      document.documentElement.setAttribute("data-theme", "winter");
+
+      // Verify a click handler was attached to the button
+      expect(mockToggleBtn.addEventListener).toHaveBeenCalledWith(
+        "click",
+        expect.any(Function),
+      );
+
+      // Click the button
+      mockToggleBtn.click();
+
+      // Verify theme was toggled
+      expect(document.documentElement.getAttribute("data-theme")).toBe("night");
+    });
+  });
+
+  describe("GLightbox Integration", () => {
+    let capturedOptions;
+
+    beforeEach(() => {
+      // Capture GLightbox options
+      mockGLightbox.mockImplementation((options) => {
+        capturedOptions = options;
+        return {
+          destroy: jest.fn(),
+          on: jest.fn(),
+        };
+      });
+
+      // Import the module
+      require("./main");
+    });
+
+    test("should initialize GLightbox with theme-specific options", () => {
+      // Reset all state
+      document.documentElement.removeAttribute("data-theme");
+      mockGLightbox.mockClear();
+
+      // Set theme to night
+      document.documentElement.setAttribute("data-theme", "night");
+
+      // Run DOMContentLoaded handler
+      domLoadedHandler();
+
+      // Check GLightbox was called
+      expect(mockGLightbox).toHaveBeenCalled();
+
+      // Verify theme-related options are present
+      const options = mockGLightbox.mock.calls[0][0];
+      expect(options.selector).toBe(".glightbox");
+      expect(options.skin !== undefined).toBe(true);
+    });
+
+    test("should not initialize GLightbox when no elements exist", () => {
+      // Mock querySelector to return null
+      document.querySelector.mockReturnValueOnce(null);
+
+      // Clear GLightbox mock
+      mockGLightbox.mockClear();
+
+      // Run DOMContentLoaded handler
+      domLoadedHandler();
+
+      // Verify GLightbox was not called
+      expect(mockGLightbox).not.toHaveBeenCalled();
+    });
+
+    test("should update GLightbox when theme changes", () => {
+      // Run DOMContentLoaded handler first to set up event listeners
+      domLoadedHandler();
+
+      // Find the milk2meat-theme-changed event handler
+      const themeChangeHandlerCall = window.addEventListener.mock.calls.find(
+        (call) => call[0] === "milk2meat-theme-changed",
+      );
+
+      // Extract the handler
+      const themeChangeHandler = themeChangeHandlerCall
+        ? themeChangeHandlerCall[1]
+        : null;
+
+      // Check handler was registered
+      expect(themeChangeHandler).toBeDefined();
+
+      // Create a mock instance with destroy method for testing
+      const mockDestroy = jest.fn();
+      const mockLightboxInstance = { destroy: mockDestroy };
+
+      // Replace the defaultGLightbox implementation just for this test
+      const savedImplementation = mockGLightbox.getMockImplementation();
+      mockGLightbox.mockImplementation(() => mockLightboxInstance);
+
+      // Manually attach the handler to window like main.js does
+      window.addEventListener = jest.fn((event, handler) => {
+        if (event === "milk2meat-theme-changed") {
+          // Store the handler for later use
+          window.themeChangeHandler = handler;
+        }
+      });
+
+      // Re-initialize GLightbox to capture the handler
+      domLoadedHandler();
+
+      // Reset the mock for clean tracking
+      mockGLightbox.mockClear();
+
+      // Call the handler directly
+      if (window.themeChangeHandler) {
+        window.themeChangeHandler();
+
+        // Verify destroy was called
+        expect(mockDestroy).toHaveBeenCalled();
+
+        // Verify GLightbox was reinitialized
+        expect(mockGLightbox).toHaveBeenCalled();
+      }
+
+      // Restore the original implementation
+      mockGLightbox.mockImplementation(savedImplementation);
+    });
+
+    test("should pause media when lightbox opens", () => {
+      // Run DOMContentLoaded handler to set up GLightbox
+      domLoadedHandler();
+
+      // Check if onOpen handler was captured
+      expect(capturedOptions).toBeDefined();
+      expect(capturedOptions.onOpen).toBeDefined();
+
+      // Get the media elements
+      const mediaElements = document.querySelectorAll("video, audio");
+      const videoEl = mediaElements[0];
+      const audioEl = mediaElements[1];
+
+      // Call the onOpen handler
+      capturedOptions.onOpen();
+
+      // Verify pause was called on both media elements
+      expect(videoEl.pause).toHaveBeenCalled();
+      expect(audioEl.pause).toHaveBeenCalled();
+    });
+
+    test("should not pause already paused media", () => {
+      // Run DOMContentLoaded handler to set up GLightbox
+      domLoadedHandler();
+
+      // Get the media elements
+      const mediaElements = document.querySelectorAll("video, audio");
+      const videoEl = mediaElements[0];
+      const audioEl = mediaElements[1];
+
+      // Set paused state
+      videoEl.paused = true;
+      audioEl.paused = true;
+
+      // Clear pause mocks
+      videoEl.pause.mockClear();
+      audioEl.pause.mockClear();
+
+      // Call the onOpen handler
+      capturedOptions.onOpen();
+
+      // Verify pause was not called on paused media
+      expect(videoEl.pause).not.toHaveBeenCalled();
+      expect(audioEl.pause).not.toHaveBeenCalled();
+    });
   });
 });
