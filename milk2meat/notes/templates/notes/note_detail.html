@@ -104,8 +104,8 @@
                             <div class="divider my-2"></div>
                             {# Metadata #}
                             <div class="text-xs text-base-content/60">
-                                <p>Created: {{ note.created_at|date:"M d, Y" }}</p>
-                                <p>Last updated: {{ note.updated_at|date:"M d, Y" }}</p>
+                                <p title="{{ note.created_at|date:'F j, Y, g:i a' }}">Created: {{ note.created_at|timesince }} ago</p>
+                                <p title="{{ note.updated_at|date:'F j, Y, g:i a' }}">Last updated: {{ note.updated_at|timesince }} ago</p>
                             </div>
                             {# Actions #}
                             <div class="card-actions mt-4">
