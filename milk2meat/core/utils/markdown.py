@@ -17,22 +17,22 @@ def parse_markdown(text):
 
     # Configure markdown extensions
     extensions = [
+        "smarty",
         "tables",
-        "pymdownx.superfences",
-        "pymdownx.highlight",
+        "toc",
         "pymdownx.betterem",
-        "pymdownx.tasklist",
+        "pymdownx.caret",
+        "pymdownx.keys",
+        "pymdownx.magiclink",
+        "pymdownx.mark",
         "pymdownx.smartsymbols",
+        "pymdownx.superfences",
+        "pymdownx.tasklist",
+        "pymdownx.tilde",
     ]
 
-    extension_configs = {
-        "pymdownx.highlight": {
-            "css_class": "highlight",
-        }
-    }
-
     # Convert markdown to HTML
-    html = markdown.markdown(text, extensions=extensions, extension_configs=extension_configs)
+    html = markdown.markdown(text, extensions=extensions)
 
     # Sanitize HTML
     sanitized_html = nh3.clean(html)
