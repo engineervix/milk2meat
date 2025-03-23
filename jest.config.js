@@ -13,6 +13,7 @@ module.exports = {
   testPathIgnorePatterns: ["/node_modules/", "/static/"],
   collectCoverage: true,
   coverageDirectory: "coverage",
+  coverageReporters: ["json-summary", "text", "lcov"],
   collectCoverageFrom: [
     "milk2meat/frontend/js/**/*.js",
     "!milk2meat/frontend/js/**/*.test.js",
@@ -20,10 +21,10 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      statements: 80,
+      branches: 65,
+      functions: 80,
+      lines: 80,
     },
   },
 };
