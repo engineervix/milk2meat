@@ -133,6 +133,39 @@ jobs:
         run: |
           npm run lint:format
 
+  javascript_tests:
+    runs-on: ubuntu-24.04
+    needs: [ruff, black, stylelint, eslint, prettier, djlint]
+    outputs:
+      coverage: ${{ steps.extract_coverage.outputs.coverage }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:cov
+
+      - name: Extract JS coverage
+        id: extract_coverage
+        run: |
+          export JS_TOTAL=$(node -e "console.log(require('./coverage/coverage-summary.json').total.lines.pct)")
+          echo "coverage=$JS_TOTAL" >> $GITHUB_OUTPUT
+          echo "### Total JS coverage: ${JS_TOTAL}%" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Upload JS coverage data"
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-covdata
+          path: coverage/
+
   # Runs the python test suite inside a specified container rather than on the VM host.
   python_tests:
     runs-on: ubuntu-24.04
@@ -214,7 +247,7 @@ jobs:
 
   coverage:
     name: Coverage
-    needs: python_tests
+    needs: [python_tests, javascript_tests]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code Repository
@@ -235,24 +268,48 @@ jobs:
         with:
           name: covdata
 
+      - name: "Download JS coverage data"
+        uses: actions/download-artifact@v4
+        with:
+          name: js-covdata
+          path: js-coverage/
+
       - name: "Extract total coverage"
         run: |
-          export TOTAL=$(python -c "import json;print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
-          echo "total=$TOTAL" >> $GITHUB_ENV
-          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+          export PY_TOTAL=$(python -c "import json;print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
+          export JS_TOTAL=${{ needs.javascript_tests.outputs.coverage }}
+          echo "py_total=$PY_TOTAL" >> $GITHUB_ENV
+          echo "js_total=$JS_TOTAL" >> $GITHUB_ENV
+          echo "### Python coverage: ${PY_TOTAL}%" >> $GITHUB_STEP_SUMMARY
+          echo "### JavaScript coverage: ${JS_TOTAL}%" >> $GITHUB_STEP_SUMMARY
 
-      - name: "Create coverage badge"
+      - name: "Create Python coverage badge"
         if: (github.repository == 'engineervix/milk2meat') && (github.ref == 'refs/heads/main')
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: d435cc3f4234a469e5df13bf019a6385
           filename: covbadge.json
-          label: Coverage
-          message: ${{ env.total }}%
+          label: Python Coverage
+          message: ${{ env.py_total }}%
           minColorRange: 50
           maxColorRange: 90
-          valColorRange: ${{ env.total }}
+          valColorRange: ${{ env.py_total }}
+          namedLogo: pytest
+
+      - name: "Create JavaScript coverage badge"
+        if: (github.repository == 'engineervix/milk2meat') && (github.ref == 'refs/heads/main')
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.JEST_GIST_TOKEN }}
+          gistID: c2c521fe0d35ef3db3801b3203ed1fe4
+          filename: covbadge.json
+          label: JS Coverage
+          message: ${{ env.js_total }}%
+          minColorRange: 50
+          maxColorRange: 90
+          valColorRange: ${{ env.js_total }}
+          namedLogo: jest
 
   # Runs the next steps on the VM
   # Creates a GitHub Release when the lint & python_tests jobs succeeds, and only on pushes to tags.
