@@ -20,6 +20,13 @@ module.exports = {
           "source-sans-pro",
           "sans-serif",
         ],
+        serif: [
+          "Charter",
+          "Bitstream Charter",
+          "Sitka Text",
+          "Cambria",
+          "serif",
+        ],
       },
     },
   },

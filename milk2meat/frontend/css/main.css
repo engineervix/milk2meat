@@ -8,6 +8,16 @@
     @apply p-4 my-4 bg-accent/10 border-l-4 border-accent rounded-r-md;
   }
 
+  /* Note content and book introductions */
+  .content-serif {
+    @apply font-serif text-lg leading-relaxed;
+  }
+
+  /* Make prose blocks use serif font when inside content areas */
+  .content-serif .prose {
+    @apply font-serif text-lg;
+  }
+
   /* Alert container and alerts */
   .alert-container {
     @apply fixed top-0 left-0 right-0 z-[100] pt-4 px-4;
