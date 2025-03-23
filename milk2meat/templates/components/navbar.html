@@ -120,7 +120,7 @@
                    class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
                     Dashboard
                 </a>
-                <a href="{% url 'notes:note_list' %}"
+                <a href="{% url 'bible:book_list' %}"
                    class="block px-3 py-2 rounded-md text-base font-medium {% if request.resolver_match.url_name == 'book_list' %}text-primary font-bold{% else %}text-base-content hover:text-primary hover:bg-base-200{% endif %}">
                     Books
                 </a>
