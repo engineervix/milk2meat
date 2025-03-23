@@ -4,42 +4,77 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project attempts to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.0](https://github.com/engineervix/milk2meat/compare/v1.0.0...v1.1.0) (2025-03-22)
+## [v2.0.0](https://github.com/engineervix/milk2meat/compare/v1.1.0...v2.0.0) (2025-03-23)
 
+
+### ⚠ BREAKING CHANGES
+
+* the `core` app was becoming unwieldy, so various
+functionality has been moved to separate, dedicated apps for better
+separation of concerns. In particular, book-related models/features
+are now in the `bible` app, note-related models & features have been
+moved to the `notes` app.
 
 ### 🚀 Features
 
-* add ajax endpoints for Note create/update ([18461df](https://github.com/engineervix/milk2meat/commit/18461dfbe880c5881051735c153884290fbc5b65))
-* ajax-based book updates ([8545d61](https://github.com/engineervix/milk2meat/commit/8545d616a3154620b775efff5b316b99fe06231e))
-* allow for deletion of files from Notes ([d00260e](https://github.com/engineervix/milk2meat/commit/d00260e9b38d9607f2979d7ca8ebb49599984134))
-* editor save enhancements ([05e18b6](https://github.com/engineervix/milk2meat/commit/05e18b6ff8d5bb277a0eb0f87691fb9fc44ec52a))
-* frontend updates for AJAX-based Note submissions ([f4016c0](https://github.com/engineervix/milk2meat/commit/f4016c06030686426c3df4a68bb7e15fc14451a2))
+* use Merriweather font for Note content & Book intro text ([5667670](https://github.com/engineervix/milk2meat/commit/5667670172a09f383d53a742b2859856ad1b4003))
+* use serif font for Book intros and Note content ([48dab39](https://github.com/engineervix/milk2meat/commit/48dab39bcccbc401c6f9ffc28320836bd94a95b5))
 
 
 ### 🐛 Bug Fixes
 
-* prevent unsaved changes warning when submitting forms ([c0a9124](https://github.com/engineervix/milk2meat/commit/c0a912478627398cb1f6f1b1d837704238aaecd2))
+* broken urls in templates & JS after the massive refactor ([9a2f0aa](https://github.com/engineervix/milk2meat/commit/9a2f0aad6a8aa431d84a4a0188ccf6bfcf9d8fc2))
+* update list of directories to copy so that tailwind detects utility classes ([65f98b9](https://github.com/engineervix/milk2meat/commit/65f98b9efcb8b3de7bc905db423db9436b126bd2))
+* update references to app names / models & URLs ([b075afe](https://github.com/engineervix/milk2meat/commit/b075afe50e5c8f316a0429b1e3c40a6f7543a33a))
+
+
+### 📝 Docs
+
+* add jest coverage badge ([b829121](https://github.com/engineervix/milk2meat/commit/b829121c20180166f65f78f4e1cf0041f428ca38))
+* fix jest coverage badge ([5a2a3d0](https://github.com/engineervix/milk2meat/commit/5a2a3d07e0514d6551dda948d58c348f7f4387dc))
+* update notes on tests ([e7a9bf0](https://github.com/engineervix/milk2meat/commit/e7a9bf030cbb584bbb5b5a10d3fb03e4f9932475))
 
 
 ### ♻️ Code Refactoring
 
-* cleanup after AJAX-based changes from 18461df to 8545d61 ([c072d0c](https://github.com/engineervix/milk2meat/commit/c072d0c2f84910b71449a254a8f7b3a4ac73e1a4))
-* fix beforeunload event handling for Ajax submissions ([35d48af](https://github.com/engineervix/milk2meat/commit/35d48afe2cc250d8e23b17dee9122fec4461d294))
-* improve notifications with centered toast & use Phosphor icons ([e42fddb](https://github.com/engineervix/milk2meat/commit/e42fddb20faeba10a966b7d340f413c55c715691))
-* **js:** isolate template JS into dedicated modules ([83f5033](https://github.com/engineervix/milk2meat/commit/83f50336331728b736ced2a05cbd1f527c34fd6c))
-* **js:** modularize note form JavaScript code ([34ee9eb](https://github.com/engineervix/milk2meat/commit/34ee9eb2be3c83ec15fd6c37c4db0edc909af322))
-* replace BLB ScriptTagger with ESV Cross-Reference Tool ([ef9c4b1](https://github.com/engineervix/milk2meat/commit/ef9c4b195e62ee8ebba48a391f74d2cd572d69df))
-* we don't need django admin ([bb35262](https://github.com/engineervix/milk2meat/commit/bb352627af21870b729cbe1de46181ce638347c6))
+* custom migrations to prevent data loss ([90528c8](https://github.com/engineervix/milk2meat/commit/90528c81ce521dc3f2baa1ab575f30809f12cb33))
+* in conjuction with 90528c8, you need to specify `db_table` ([00fea03](https://github.com/engineervix/milk2meat/commit/00fea033b2cc68edddce599af7ac1ded3c15e736))
+* move things around and introduce separate apps ([3cdca58](https://github.com/engineervix/milk2meat/commit/3cdca587da075175e259a441457598972d7e6240))
+* rename milk2meat/assets/ to milk2meat/frontend/ ([08d43c9](https://github.com/engineervix/milk2meat/commit/08d43c91a19382ff8ba2c819f9c1a45fac66d0bd))
+* we'll just recreate migrations & start fresh ([d8f1ed0](https://github.com/engineervix/milk2meat/commit/d8f1ed0b61f5f5316155e08562fc038b3c08bb21))
+
+
+### ✅ Tests
+
+* add more frontend tests ([98b3af1](https://github.com/engineervix/milk2meat/commit/98b3af18e3a579c27f722dcd4dd7ad90a011732a))
+* add unit tests for tag filtering functionality in tag list page ([4b44cb1](https://github.com/engineervix/milk2meat/commit/4b44cb1322cf32d8c537841d5d3f7ef328c8ed93))
+* **book-form:** add test coverage for index.js initialization ([e63c7bb](https://github.com/engineervix/milk2meat/commit/e63c7bbb7b1d18b245b368a713f100a2c74ade60))
+* fix tests for pdf-viewer.js ([983de2f](https://github.com/engineervix/milk2meat/commit/983de2f5c23729f8168d08dd2ed4eedb756c6c6d))
+* improve more frontend tests ([d5e88c5](https://github.com/engineervix/milk2meat/commit/d5e88c55e24aa5cf7b0608c6b1b1d5fb7eac4de6))
+* improve test coverage for editor.js ([23f4c7d](https://github.com/engineervix/milk2meat/commit/23f4c7d309ed1ff52a30045f7422e109c1b30ce4))
+* rewrite tests for main.js ([e2ee386](https://github.com/engineervix/milk2meat/commit/e2ee3860e8e6dce40d11e159b7ec96a88bb5f9dd))
+* setup frontend testing with jest ([8414276](https://github.com/engineervix/milk2meat/commit/8414276666b73dae99338aec2c4b325f0bf86bd6))
+* update jest coverage config ([190f37f](https://github.com/engineervix/milk2meat/commit/190f37f542bebdafb2e40a88018685a59b6b87ba))
+* write more frontend tests ([0a90a23](https://github.com/engineervix/milk2meat/commit/0a90a23afc1906507c4b85045b720217c2a6db12))
+* write tests for note-detail & note-list components ([4291c65](https://github.com/engineervix/milk2meat/commit/4291c659907194f46a8393ecc2e4f6a96ba12be4))
+* write tests for note-form components ([3d711c0](https://github.com/engineervix/milk2meat/commit/3d711c09e98f2c9ca42f3ff80453dbdc918b8743))
 
 
 ### ⚙️ Build System
 
-* **deps:** update dependency boto3 to v1.37.13 ([2b02fdd](https://github.com/engineervix/milk2meat/commit/2b02fdd3a6e9b7b1921168ce4b2ced8985979153))
-* **deps:** update dependency django to v5.1.7 ([ec17e5e](https://github.com/engineervix/milk2meat/commit/ec17e5eee6d2f696194fe788003b4d9a9342f133))
-* **deps:** update dependency django-environ to v0.12.0 ([#9](https://github.com/engineervix/milk2meat/issues/9)) ([40949b9](https://github.com/engineervix/milk2meat/commit/40949b932106d079b2e46e63c096a1efbd19335d))
-* **deps:** update dependency mkdocs-git-revision-date-localized-plugin to v1.4.5 ([#5](https://github.com/engineervix/milk2meat/issues/5)) ([7bbdd48](https://github.com/engineervix/milk2meat/commit/7bbdd48c53be1df32d8a7fde17d0713d1702df26))
-* **deps:** update dependency mkdocs-material to v9.6.8 ([#6](https://github.com/engineervix/milk2meat/issues/6)) ([c557ce5](https://github.com/engineervix/milk2meat/commit/c557ce5f26da72ad9338402d131a928d8cde7918))
-* **deps:** update dependency ruff to ^0.11.0 ([#10](https://github.com/engineervix/milk2meat/issues/10)) ([d2f03bf](https://github.com/engineervix/milk2meat/commit/d2f03bf202704f8cd8830a2266575ae8b57f410a))
+* **deps:** downgrade daisyui to v4 (reverts [#18](https://github.com/engineervix/milk2meat/issues/18)) ([c913545](https://github.com/engineervix/milk2meat/commit/c9135452994f79c85e148ede6f950bdaac55ae22))
+* **deps:** downgrade eslint-webpack-plugin (reverts [#21](https://github.com/engineervix/milk2meat/issues/21)) ([23686df](https://github.com/engineervix/milk2meat/commit/23686dfccaed2c04baed645be42da4f83b82cf4c))
+* **deps:** update dependency boto3 to v1.37.18 ([#24](https://github.com/engineervix/milk2meat/issues/24)) ([111cf95](https://github.com/engineervix/milk2meat/commit/111cf9504300f0abcf3b57ccdb54d926d6794d19))
+* **deps:** update dependency django-debug-toolbar to v5.1.0 ([#28](https://github.com/engineervix/milk2meat/issues/28)) ([cdecf85](https://github.com/engineervix/milk2meat/commit/cdecf85a48823db8b3bb4f4d979d6d637d281054))
+* **deps:** update dependency mkdocs-material to v9.6.9 ([#25](https://github.com/engineervix/milk2meat/issues/25)) ([806c96a](https://github.com/engineervix/milk2meat/commit/806c96a9b34f63d7881839adbb810d51f95b983f))
+* **deps:** update dependency pre-commit to ~4.2.0 ([#29](https://github.com/engineervix/milk2meat/issues/29)) ([80ed7cf](https://github.com/engineervix/milk2meat/commit/80ed7cf6679556c145c0271e6fd79ed6274c2955))
+* **deps:** update dependency ruff to v0.11.2 ([#26](https://github.com/engineervix/milk2meat/issues/26)) ([088bcff](https://github.com/engineervix/milk2meat/commit/088bcff926c2524893c6391098b6675ce710aed0))
+
+
+### 👷 CI/CD
+
+* [@renovate-bot](https://github.com/renovate-bot) should not do major updates across the board ([39805a2](https://github.com/engineervix/milk2meat/commit/39805a270c3b6fdb4a18ccb87d2f05a8a33ba4c6))
+* add jest test job ([0d2deca](https://github.com/engineervix/milk2meat/commit/0d2decad77e6e9ff9ad9cb2435219a32066530f0))
 
 ## 1.0.0 (2025-03-12)
 
