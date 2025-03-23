@@ -8,6 +8,9 @@
     <meta name="description"
           content="{{ note.title }} - Milk2Meat Bible Study Note">
 {% endblock extrameta %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/syntax-highlight.min.css' %}">
+{% endblock extra_css %}
 {% block promo_block %}
     <div class="bg-primary text-primary-content">
         <div class="container mx-auto py-3 px-4">
@@ -262,4 +265,5 @@
         document.getElementById('delete-modal').showModal();
     }
     </script>
+    <script src="{% static 'js/syntax-highlight.min.js' %}"></script>
 {% endblock extra_js %}

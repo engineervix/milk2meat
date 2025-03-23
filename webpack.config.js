@@ -23,6 +23,7 @@ const options = {
     "notes-detail": `./${projectRoot}/frontend/js/notes/detail.js`,
     "notes-list": `./${projectRoot}/frontend/js/notes/list.js`,
     "tags-list": `./${projectRoot}/frontend/js/tags/list.js`,
+    "syntax-highlight": `./${projectRoot}/frontend/js/syntax-highlight.js`,
   },
   output: {
     path: path.resolve(`./${projectRoot}/static/`),
