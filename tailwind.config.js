@@ -21,6 +21,7 @@ module.exports = {
           "sans-serif",
         ],
         serif: [
+          "Merriweather",
           "Charter",
           "Bitstream Charter",
           "Sitka Text",
