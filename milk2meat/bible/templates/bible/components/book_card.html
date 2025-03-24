@@ -1,0 +1,17 @@
+<a href="{% url 'bible:book_detail' book.id %}"
+   class="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 border border-base-300 dark:border-base-content/20 dark:hover:border-base-content/30 overflow-hidden group relative">
+    <div class="card-body p-4">
+        <div class="absolute bottom-0 right-0 text-6xl font-serif opacity-15 group-hover:opacity-10 transition-opacity duration-300">
+            {{ book.number }}
+        </div>
+        <div class="relative z-10">
+            <h3 class="card-title text-lg group-hover:text-primary transition-colors duration-300">{{ book.title }}</h3>
+            <p class="text-sm opacity-70">{{ book.chapters }} chapters</p>
+            {% if book.has_introductory_notes %}
+                <div class="absolute top-2 right-2 text-primary opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                    <i class="ph ph-note text-2xl"></i>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</a>

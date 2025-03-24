@@ -53,3 +53,16 @@ class Book(BaseModel):
 
     def __str__(self):
         return self.title
+
+    @property
+    def has_introductory_notes(self) -> bool:
+        """Check if the book has any introductory notes."""
+        return any(
+            [
+                self.title_and_author,
+                self.date_and_occasion,
+                self.characteristics_and_themes,
+                self.christ_in_book,
+                self.outline,
+            ]
+        )
