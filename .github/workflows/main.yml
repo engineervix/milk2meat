@@ -176,7 +176,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15.7
+        image: postgres:15.12
         env:
           POSTGRES_USER: test_postgres_user
           POSTGRES_PASSWORD: custom_pass
