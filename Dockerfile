@@ -97,7 +97,7 @@ COPY --chown=django:django . .
 RUN chmod +x entrypoint.sh
 
 # Collect static files
-RUN DJANGO_SECRET_KEY=fake DATABASE_URL=fake python manage.py collectstatic --noinput --clear
+RUN DJANGO_SECRET_KEY=fake DATABASE_URL=postgres://user:password@host:5432/db python manage.py collectstatic --noinput --clear
 
 # Set the entrypoint script
 ENTRYPOINT ["./entrypoint.sh"]
