@@ -1,17 +1,18 @@
 #################################################################################
-# use node:22.*-bookworm as the base image for building the frontend
+# use node:22.*-bookworm-slim as the base image for building the frontend
 #################################################################################
 
-FROM node:22.15-bookworm AS frontend-builder
+FROM node:22.15-bookworm-slim AS frontend-builder
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+WORKDIR /app
+
+# Copy only package files first to leverage Docker caching
 COPY package*.json .babelrc.js webpack.config.js postcss.config.js tailwind.config.js ./
-RUN npm ci --no-optional --no-audit --progress=false --network=host
+RUN npm ci --no-optional --no-audit --progress=false
 
+# Copy only the files needed for the frontend build
 COPY ./milk2meat/frontend ./milk2meat/frontend
-
-# we need these so tailwind can detect the utility classes in the django templates
+# Copy template files needed for tailwind to detect utility classes
 COPY ./milk2meat/auth ./milk2meat/auth
 COPY ./milk2meat/bible ./milk2meat/bible
 COPY ./milk2meat/notes ./milk2meat/notes
@@ -22,91 +23,81 @@ COPY ./milk2meat/templates ./milk2meat/templates
 RUN npm run build:prod
 
 #################################################################################
-# use python:3.13-slim-bookworm as the base image for production and development
+# use python:3.13-slim-bookworm as the base image for production
 #################################################################################
 
 FROM python:3.13-slim-bookworm AS production
 
 # Add user that will be used in the container
-RUN groupadd django && \
-    useradd --create-home --shell /bin/bash -g django django
+RUN groupadd --system django && \
+    useradd --system --create-home --shell /bin/bash -g django django
 
 RUN mkdir -p /home/django/app && chown django:django /home/django/app
 
-# set work directory
+# Set work directory
 WORKDIR /home/django/app
 
-# Port used by this container to serve HTTP.
+# Port used by this container to serve HTTP
 EXPOSE 8000
 
-# set environment variables
-# 1. Force Python stdout and stderr streams to be unbuffered.
-# 2. Set PORT variable that is used by Gunicorn. This should match "EXPOSE"
-#    command.
+# Set environment variables
 ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
     PYTHONPATH=/home/django/app \
     DJANGO_SETTINGS_MODULE=milk2meat.settings.production \
-    ## Note: feel free to adjust WEB_CONCURRENCY based on the memory requirements of your processes
-    ## ref: https://docs.gunicorn.org/en/stable/settings.html
-    ## The suggested number of workers is (2*CPU)+1
-    WEB_CONCURRENCY=3 \
-    NODE_MAJOR=22
+    WEB_CONCURRENCY=3
 
 # Install system dependencies required by Django and the project
-RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
+RUN apt-get update --yes --quiet && \
+    apt-get install --yes --quiet --no-install-recommends \
     build-essential \
-    ca-certificates gnupg \
+    ca-certificates \
     curl \
-    gdal-bin libgdal-dev binutils libproj-dev \
+    gdal-bin \
+    libgdal-dev \
+    binutils \
+    libproj-dev \
     git \
     imagemagick \
     libjpeg62-turbo-dev \
     libmagic1 \
     libpq-dev \
     libwebp-dev \
-    zlib1g-dev \
-    && apt-get clean
+    zlib1g-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install node (Keep the version in sync with the node container above)
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
-    apt-get install -y nodejs
-
-# Use user "django" to run the build commands below and the server itself.
+# Use user "django" to run the build commands below and the server itself
 USER django
 
-# set up virtual environment & install python dependencies
-ARG DEVELOPMENT
+# Set up virtual environment & install python dependencies
+ARG DEVELOPMENT=false
 ARG POETRY_VERSION=1.8.5
 ENV VIRTUAL_ENV=/home/django/venv \
     DEVELOPMENT=${DEVELOPMENT}
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-RUN pip install --upgrade pip
-RUN python -m pip install poetry==$POETRY_VERSION
+RUN pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir poetry==$POETRY_VERSION
 
-COPY --chown=django ./pyproject.toml .
-COPY --chown=django ./poetry.lock .
-RUN poetry install ${DEVELOPMENT:+--with dev,test,docs} --no-root
+# Install dependencies first to leverage Docker caching
+COPY --chown=django:django ./pyproject.toml ./poetry.lock ./
+RUN poetry config virtualenvs.create false && \
+    poetry install --only main --no-interaction --no-ansi
 
 # Copy build artifacts from frontend-builder stage
 RUN mkdir -p /home/django/app/milk2meat/static
-COPY --from=frontend-builder --chown=django:django /milk2meat/static /home/django/app/milk2meat/static
+COPY --from=frontend-builder --chown=django:django /app/milk2meat/static /home/django/app/milk2meat/static
 
 # Copy the source code of the project into the container
 COPY --chown=django:django . .
 
-# Run poetry install again to install the project (so that the `milk2meat` package is always importable)
-RUN poetry install
-
-# Run collectstatic.
-# This step is deferred, because it somehow messes up production settings
-# RUN python manage.py collectstatic --noinput --clear
+# Collect static files
+RUN python manage.py collectstatic --noinput --clear
 
 # Runtime command that executes when "docker run" is called
-# guicorn will:
-#   - use the settings defined in gunicorn.conf.py
-#   - make use of PORT and WEB_CONCURRENCY
+# gunicorn will use the settings defined in gunicorn.conf.py
 CMD ["gunicorn"]
 
 #################################################################################
@@ -118,14 +109,24 @@ FROM production AS dev
 # Swap user, so the following tasks can be run as root
 USER root
 
-# Install `psql`, useful for `manage.py dbshell`
-RUN apt-get install -y postgresql-client
+# Install Node.js for development
+ENV NODE_MAJOR=22
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    nodejs \
+    postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Restore user
+# Install development dependencies
 USER django
+RUN poetry install --with dev,test,docs --no-interaction --no-ansi
 
 # Pull in the node modules for the frontend
-COPY --chown=django:django --from=frontend-builder ./node_modules ./node_modules
+COPY --chown=django:django --from=frontend-builder /app/node_modules ./node_modules
 
 # do nothing - exec commands elsewhere
 CMD tail -f /dev/null

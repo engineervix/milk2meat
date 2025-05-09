@@ -27,6 +27,7 @@ htmlcov
 fly.toml
 .pytest_cache
 .ruff_cache
+.mypy_cache/
 
 # Distribution / packaging
 .Python
@@ -47,4 +48,29 @@ wheels/
 .installed.cfg
 *.egg
 
-# Custom
+# Docker related
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile*
+.dockerignore
+
+# CI/CD related
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Documentation
+docs/
+*.md
+LICENSE
+AUTHORS
+*.rst
+
+# Development
+bin/
+tests/
+test_*.py
+conftest.py
+.pre-commit-config.yaml
+tasks.py
