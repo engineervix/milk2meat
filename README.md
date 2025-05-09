@@ -60,7 +60,10 @@ This project requires
 
 > [!NOTE]
 > When I started this project via `django-admin startproject milk2meat .`, I wanted to get up and running quickly, so I didn't bother to do a proper Docker Compose development setup. However, I don't like using a system-wide Postgres installation, so I set up Postgres using [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/).
-> The `docker-compose.yml` file therefore only contains a `db` service for Postgres. I only added the `Dockerfile` for production deployment. While it can also be used for development, additional setup is required, and I didn't get the chance to do that. If that's what you really want to do, you might wanna have a look at a sample configuration from a project generated via [`cookiecutter-wagtail-vix`](https://github.com/engineervix/cookiecutter-wagtail-vix/). If I have time, I'll update the setup to something similar.
+>
+> The development docker compose config file is located in `docker/docker-compose.dev.yml` and only contains a `db` service for Postgres.
+>
+> For production, there's a separate `docker-compose.yml` in the root directory that contains the complete stack.
 
 Steps:
 
@@ -74,8 +77,8 @@ npm ci
 2. fire up the postgres container
 
 ```sh
-docker compose up -d --build  # First time
-docker compose up -d          # Subsequent runs
+docker compose -f docker/docker-compose.dev.yml up -d --build  # First time
+docker compose -f docker/docker-compose.dev.yml up -d          # Subsequent runs
 ```
 
 Or you could use the [Invoke](https://www.pyinvoke.org/) commands:

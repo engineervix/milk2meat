@@ -46,32 +46,32 @@ def up(c, build=False):
     """docker-compose up -d"""
     if build:
         c.run(
-            "docker-compose up -d --build",
+            "docker-compose -f docker/docker-compose.dev.yml up -d --build",
             pty=True,
         )
     else:
-        c.run("docker-compose up -d", pty=True)
+        c.run("docker-compose -f docker/docker-compose.dev.yml up -d", pty=True)
 
 
 @task
 def exec(c, container, command):
     """docker-compose exec [container] [command(s)]"""
-    c.run(f"docker-compose exec {container} {command}", pty=True)
+    c.run(f"docker-compose -f docker/docker-compose.dev.yml exec {container} {command}", pty=True)
 
 
 @task(help={"follow": "Follow log output"})
 def logs(c, container, follow=False):
     """docker-compose logs [container] [-f]"""
     if follow:
-        c.run(f"docker-compose logs {container} -f", pty=True)
+        c.run(f"docker-compose -f docker/docker-compose.dev.yml logs {container} -f", pty=True)
     else:
-        c.run(f"docker-compose logs {container}", pty=True)
+        c.run(f"docker-compose -f docker/docker-compose.dev.yml logs {container}", pty=True)
 
 
 @task
 def stop(c):
     """docker-compose stop"""
-    c.run("docker-compose stop", pty=True)
+    c.run("docker-compose -f docker/docker-compose.dev.yml stop", pty=True)
 
 
 @task(
@@ -82,9 +82,9 @@ def stop(c):
 def down(c, volumes=False):
     """docker-compose down"""
     if volumes:
-        c.run("docker-compose down -v", pty=True)
+        c.run("docker-compose -f docker/docker-compose.dev.yml down -v", pty=True)
     else:
-        c.run("docker-compose down", pty=True)
+        c.run("docker-compose -f docker/docker-compose.dev.yml down", pty=True)
 
 
 @task(help={"dump_file": "The name of the dump file to import"})
