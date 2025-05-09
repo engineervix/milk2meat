@@ -19,7 +19,7 @@ class Book(BaseModel):
     # ----------------------------------------------------------------------
     title = models.CharField(max_length=55, unique=True)
     abbreviation = models.CharField(max_length=10, unique=True)
-    testament = models.CharField(max_length=2, choices=Testament.choices)
+    testament = models.CharField(max_length=2, choices=Testament)
     number = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1, message="Value must be at least 1"),
