@@ -22,6 +22,7 @@
 - [Features](#features)
 - [Development](#development)
 - [Deployment](#deployment)
+  - [Docker Compose Deployment](#docker-compose-deployment)
 - [Tips](#tips)
 - [Credits](#credits)
 
@@ -127,8 +128,55 @@ You should be able to access the site at <http://127.0.0.1:8000>
 > [!IMPORTANT]
 > This application is configured to use [Cloudflare R2](https://developers.cloudflare.com/r2/) for media storage, and [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/), a verification tool to replace CAPTCHAs. You'll need to set those up and provide the necessary environment variables.
 
-There's a `Dockerfile` configured for production deployment.
-I wrote [`bin/deploy.sh`](./bin/deploy.sh) for deployment to a machine running [Dokku](https://dokku.com/). It's accompanied by [`bin/.deploy.env.example`](./bin/.deploy.env.example) which shows the required environment variables. Even if you intend to deploy using a different approach, reading these two files will give you an idea of what you need to do to deploy the application.
+### Docker Compose Deployment
+
+The [`docker-compose.yml`](./docker-compose.yml) is configured to work with [Traefik](https://traefik.io/), based on the following requirements:
+
+- A server with Docker and Docker Compose installed
+- [Traefik](https://traefik.io/) already set up and configured [like this](https://gitlab.com/engineervix/run-core-traefik)
+- Domain name pointing to your server
+
+1. Copy the example environment file to `.env` and edit the latter with your production settings:
+
+   ```sh
+   cp .env.example .env
+   ```
+
+2. Spin up the containers and start the application:
+
+   ```sh
+   docker compose up -d --build
+   ```
+
+3. Create a superuser:
+
+   ```sh
+   docker compose exec milk2meat python manage.py createsuperuser
+   ```
+
+4. Populate Bible books data:
+   ```sh
+   docker compose exec milk2meat python manage.py populate_bible_books
+   ```
+
+That's it! The application should be running at your configured domain with Traefik handling SSL certificates.
+
+### Dokku Deployment
+
+You'd have to remove the following lines from the Dockerfile:
+
+```Dockerfile
+# Make entrypoint script executable
+RUN chmod +x entrypoint.sh
+
+# Collect static files
+RUN python manage.py collectstatic --noinput --clear
+
+# Set the entrypoint script
+ENTRYPOINT ["./entrypoint.sh"]
+```
+
+I wrote [`bin/deploy.sh`](./bin/deploy.sh) for deployment to a machine running [Dokku](https://dokku.com/). It's accompanied by [`bin/.deploy.env.example`](./bin/.deploy.env.example) which shows the required environment variables.
 
 ## Tips
 
