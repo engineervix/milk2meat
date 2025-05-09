@@ -21,7 +21,3 @@ workers = 3
 
 # Load app pre-fork to save memory and worker startup time
 preload_app = True
-
-# Bind to all network interfaces so Traefik can connect
-# https://docs.gunicorn.org/en/stable/settings.html#bind
-bind = "0.0.0.0:8000"

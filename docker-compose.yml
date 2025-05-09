@@ -25,6 +25,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: milk2meat.settings.production
       DEBUG: ${DEBUG:-False}
+      PORT: 8000
       ALLOWED_HOSTS: ${DOMAIN_NAME}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
