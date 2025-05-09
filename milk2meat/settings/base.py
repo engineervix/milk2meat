@@ -30,8 +30,8 @@ if os.environ["DJANGO_SETTINGS_MODULE"] in [
     "milk2meat.settings.dev",
     "milk2meat.settings.test",
 ]:
-    # Take environment variables from .env file
-    environ.Env.read_env(os.path.join(ROOT_DIR, ".env"))
+    # Take environment variables from .dev.env file
+    environ.Env.read_env(os.path.join(ROOT_DIR, ".dev.env"))
 
 
 # GENERAL

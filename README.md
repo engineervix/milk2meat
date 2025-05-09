@@ -91,7 +91,7 @@ inv up          # Subsequent runs
 3. configure environment variables
 
 ```sh
-cp -v .env.example .env
+cp -v .dev.env.example .dev.env
 ```
 
 > [!NOTE]

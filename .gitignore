@@ -699,4 +699,4 @@ webpack-stats.json
 
 mediafiles/
 .backups/
-.deploy.env
+*.env

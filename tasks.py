@@ -6,6 +6,13 @@ import tomli
 from colorama import Fore, init
 from invoke import task
 
+# Base Docker Compose command for development
+DOCKER_COMPOSE_DEV_CMD = "docker-compose -f docker/docker-compose.dev.yml --env-file .dev.env"
+# Project name from the .dev.env file
+PROJECT_NAME = "milk2meat"
+# Container name for the database (explicit container name from docker-compose.dev.yml)
+DB_CONTAINER = "milk2meat-db"
+
 
 @task
 def dev(c):
@@ -46,32 +53,32 @@ def up(c, build=False):
     """docker-compose up -d"""
     if build:
         c.run(
-            "docker-compose -f docker/docker-compose.dev.yml up -d --build",
+            f"{DOCKER_COMPOSE_DEV_CMD} up -d --build",
             pty=True,
         )
     else:
-        c.run("docker-compose -f docker/docker-compose.dev.yml up -d", pty=True)
+        c.run(f"{DOCKER_COMPOSE_DEV_CMD} up -d", pty=True)
 
 
 @task
 def exec(c, container, command):
     """docker-compose exec [container] [command(s)]"""
-    c.run(f"docker-compose -f docker/docker-compose.dev.yml exec {container} {command}", pty=True)
+    c.run(f"{DOCKER_COMPOSE_DEV_CMD} exec {container} {command}", pty=True)
 
 
 @task(help={"follow": "Follow log output"})
 def logs(c, container, follow=False):
     """docker-compose logs [container] [-f]"""
     if follow:
-        c.run(f"docker-compose -f docker/docker-compose.dev.yml logs {container} -f", pty=True)
+        c.run(f"{DOCKER_COMPOSE_DEV_CMD} logs {container} -f", pty=True)
     else:
-        c.run(f"docker-compose -f docker/docker-compose.dev.yml logs {container}", pty=True)
+        c.run(f"{DOCKER_COMPOSE_DEV_CMD} logs {container}", pty=True)
 
 
 @task
 def stop(c):
     """docker-compose stop"""
-    c.run("docker-compose -f docker/docker-compose.dev.yml stop", pty=True)
+    c.run(f"{DOCKER_COMPOSE_DEV_CMD} stop", pty=True)
 
 
 @task(
@@ -82,9 +89,9 @@ def stop(c):
 def down(c, volumes=False):
     """docker-compose down"""
     if volumes:
-        c.run("docker-compose -f docker/docker-compose.dev.yml down -v", pty=True)
+        c.run(f"{DOCKER_COMPOSE_DEV_CMD} down -v", pty=True)
     else:
-        c.run("docker-compose -f docker/docker-compose.dev.yml down", pty=True)
+        c.run(f"{DOCKER_COMPOSE_DEV_CMD} down", pty=True)
 
 
 @task(help={"dump_file": "The name of the dump file to import"})
@@ -103,7 +110,7 @@ def restore_db(c, dump_file):
     db_password = "milk2meat"
 
     # copy dump file into db container
-    c.run(f"docker cp {dump_file} milk2meat-db-1:/tmp/{dump_filename}", pty=True)
+    c.run(f"docker cp {dump_file} {DB_CONTAINER}:/tmp/{dump_filename}", pty=True)
 
     # drop existing database with password
     c.run(
@@ -145,7 +152,7 @@ def backup_db(c):
 
     # Generate timestamped filename
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    dump_filename = f"milk2meat_backup_{timestamp}.dump"
+    dump_filename = f"{PROJECT_NAME}_backup_{timestamp}.dump"
     container_path = f"/tmp/{dump_filename}"
 
     # Create database dump in container with password
@@ -157,7 +164,7 @@ def backup_db(c):
 
     # Copy dump from container to local machine
     local_path = os.path.join(backup_dir, dump_filename)
-    c.run(f"docker cp milk2meat-db-1:{container_path} {local_path}", pty=True)
+    c.run(f"docker cp {DB_CONTAINER}:{container_path} {local_path}", pty=True)
 
     # Clean up dump file in container
     c.run(f'inv exec "db" "rm -vf {container_path}"', pty=True)
