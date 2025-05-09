@@ -74,24 +74,17 @@ poetry install --with dev,docs,test --no-root
 npm ci
 ```
 
-2. fire up the postgres container
+2. configure environment variables
 
 ```sh
-docker compose -f docker/docker-compose.dev.yml up -d --build  # First time
-docker compose -f docker/docker-compose.dev.yml up -d          # Subsequent runs
+cp -v .dev.env.example .dev.env
 ```
 
-Or you could use the [Invoke](https://www.pyinvoke.org/) commands:
+3. fire up the postgres container
 
 ```sh
 inv up --build  # First time
 inv up          # Subsequent runs
-```
-
-3. configure environment variables
-
-```sh
-cp -v .dev.env.example .dev.env
 ```
 
 > [!NOTE]
