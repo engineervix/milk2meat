@@ -93,8 +93,14 @@ COPY --from=frontend-builder --chown=django:django /app/milk2meat/static /home/d
 # Copy the source code of the project into the container
 COPY --chown=django:django . .
 
+# Make entrypoint script executable
+RUN chmod +x entrypoint.sh
+
 # Collect static files
 RUN python manage.py collectstatic --noinput --clear
+
+# Set the entrypoint script
+ENTRYPOINT ["./entrypoint.sh"]
 
 # Runtime command that executes when "docker run" is called
 # gunicorn will use the settings defined in gunicorn.conf.py
