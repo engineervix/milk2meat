@@ -97,7 +97,19 @@ COPY --chown=django:django . .
 RUN chmod +x entrypoint.sh
 
 # Collect static files
-RUN DJANGO_SECRET_KEY=fake DATABASE_URL=postgres://user:password@host:5432/db python manage.py collectstatic --noinput --clear
+RUN DJANGO_SECRET_KEY=fake \
+    DATABASE_URL=postgres://user:password@host:5432/db \
+    REDIS_URL=redis://:password@redis:6379/0 \
+    REDIS_KEY_PREFIX=fake \
+    AWS_ACCESS_KEY_ID=fake \
+    AWS_SECRET_ACCESS_KEY=fake \
+    AWS_STORAGE_BUCKET_NAME=fake \
+    AWS_S3_ENDPOINT_URL=fake \
+    BREVO_API_KEY=fake \
+    EMAIL_RECIPIENTS='' \
+    DEFAULT_FROM_EMAIL='' \
+    SENTRY_DSN=https://fakekey@foo.ingest.de.sentry.io/12345 \
+    python manage.py collectstatic --noinput --clear
 
 # Set the entrypoint script
 ENTRYPOINT ["./entrypoint.sh"]
