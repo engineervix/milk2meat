@@ -124,8 +124,8 @@ services:
       - default
     volumes:
       - database_dump_data:/backup/database_dump:ro
-      - redis_data:/backup/redis_data:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # so we can run our cron rules in local timezone
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
