@@ -149,6 +149,28 @@ services:
       <<: *default-labels
       traefik.enable: "false"
 
+  ofelia:
+    image: mcuadros/ofelia:0.3
+    container_name: milk2meat-ofelia
+    restart: unless-stopped
+    depends_on:
+      - milk2meat
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - default
+    command: daemon --docker
+    logging: *default-logging
+    labels:
+      <<: *default-labels
+      traefik.enable: "false"
+      # https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
+      ofelia.job-exec.clearsessions.schedule: "@daily"
+      ofelia.job-exec.clearsessions.container: "milk2meat"
+      ofelia.job-exec.clearsessions.command: "python manage.py clearsessions"
+
 volumes:
   postgres_data:
   database_dump_data:
