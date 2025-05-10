@@ -23,6 +23,7 @@
 - [Development](#development)
 - [Deployment](#deployment)
   - [Docker Compose Deployment](#docker-compose-deployment)
+  - [Dokku Deployment](#dokku-deployment)
 - [Tips](#tips)
 - [Credits](#credits)
 
