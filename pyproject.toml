@@ -8,7 +8,7 @@ description = "A tool to help one get into The Word of God"
 name = "milk2meat"
 packages = [{ include = "milk2meat" }]
 readme = "README.md"
-version = "2.0.0"
+version = "2.1.0"
 
 [tool.poetry.dependencies]
 # Core

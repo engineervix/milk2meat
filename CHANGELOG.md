@@ -4,6 +4,101 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project attempts to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.1.0](https://github.com/engineervix/milk2meat/compare/v2.0.0...v2.1.0) (2025-05-10)
+
+
+### 🚀 Features
+
+* add some useful markdown extensions ([dc53484](https://github.com/engineervix/milk2meat/commit/dc5348459a533594c62623f23d5e9fdc87b954c2))
+* book listing UI enhancements ([c232549](https://github.com/engineervix/milk2meat/commit/c23254947b43f65a28cee4f76196d884b1595d6d))
+* code syntax highlighting ([dcb607c](https://github.com/engineervix/milk2meat/commit/dcb607c97982541c8bd531f0e643c7ef1a6358c0))
+* floating edit button on note detail ([64f7acc](https://github.com/engineervix/milk2meat/commit/64f7acc3703cdaea2abcc376f147aa0b9dbd0d9d))
+* show relative created/updated time on note detail ([08d8f40](https://github.com/engineervix/milk2meat/commit/08d8f4006e568cfce599a1c0e82ba928a32f1e50))
+
+
+### 🐛 Bug Fixes
+
+* mobile menu books URL ([c2fec45](https://github.com/engineervix/milk2meat/commit/c2fec45f44bfa2543328c728182bcadedc960f4b))
+* Set Gunicorn to bind to 0.0.0.0 to allow external connections ([4426d54](https://github.com/engineervix/milk2meat/commit/4426d54f2512218e8d5e6314259800a6cac51cb0))
+* use correct URL for "Back to Books" ([b8ed71b](https://github.com/engineervix/milk2meat/commit/b8ed71b6580cdb8e200885afbec31f3a05176662))
+
+
+### 📝 Docs
+
+* correct order of operations when setting up dev environment ([c67f34b](https://github.com/engineervix/milk2meat/commit/c67f34b57df4ce1387e7dc8942e399d6825d5596))
+* update README ([7e5996e](https://github.com/engineervix/milk2meat/commit/7e5996ead33cd12e7e0278460fe6b834fb431094))
+
+
+### ♻️ Code Refactoring
+
+* adjust how development .env variables are managed ([b97ba88](https://github.com/engineervix/milk2meat/commit/b97ba88ae079135ae005bc6bf7b287554352aab8))
+* choices=Testament (instead of choices=Testament.choices) ([738b110](https://github.com/engineervix/milk2meat/commit/738b110921702ab50a57fcf901056cf7cd53dfe7))
+* improve representation of note metadata on note detail ([e794834](https://github.com/engineervix/milk2meat/commit/e794834b7b2b017c763eccf5545e65ea39d2c303))
+
+
+### ⚙️ Build System
+
+* actually, just set PORT env variable ([68f90af](https://github.com/engineervix/milk2meat/commit/68f90af065c03362908a1b9d1702347a64ae1607))
+* add dummy values so collectstatic doesn't fail ([38cd71d](https://github.com/engineervix/milk2meat/commit/38cd71dbba5d2be8db8d7220540ff751494192e9))
+* add Ofelia job scheduler for cron jobs ([08f1582](https://github.com/engineervix/milk2meat/commit/08f15823b30088e588dac675d5ebf8ad172b6da3))
+* bump several outdated packages ([8cfd75a](https://github.com/engineervix/milk2meat/commit/8cfd75ae242dc97616cbdb2f4f0e70d43939dcdd))
+* define docker entrypoint ([ea8550a](https://github.com/engineervix/milk2meat/commit/ea8550a4c50fd09c1733e298dfdabc60fe36bb6e))
+* **deps:** update dependency @babel/preset-env to v7.27.2 ([#87](https://github.com/engineervix/milk2meat/issues/87)) ([68c5228](https://github.com/engineervix/milk2meat/commit/68c5228fae5c7d34bb41dff0129f7a91307c780f))
+* **deps:** update dependency @phosphor-icons/web to v2.1.2 ([#49](https://github.com/engineervix/milk2meat/issues/49)) ([707d555](https://github.com/engineervix/milk2meat/commit/707d555097c5b85b44d5cc264f0148ffebb3252b))
+* **deps:** update dependency boto3 to v1.37.23 ([#33](https://github.com/engineervix/milk2meat/issues/33)) ([12d4dab](https://github.com/engineervix/milk2meat/commit/12d4dab4918d2413c67fb1795f4df1d153515e09))
+* **deps:** update dependency boto3 to v1.37.28 ([#43](https://github.com/engineervix/milk2meat/issues/43)) ([344b52e](https://github.com/engineervix/milk2meat/commit/344b52ef0a5b5aacd88fe93a969d52bcc7562da1))
+* **deps:** update dependency boto3 to v1.37.33 ([#55](https://github.com/engineervix/milk2meat/issues/55)) ([64e7025](https://github.com/engineervix/milk2meat/commit/64e702540781671292ea0023f63130f90674cade))
+* **deps:** update dependency boto3 to v1.37.37 ([#64](https://github.com/engineervix/milk2meat/issues/64)) ([1734a72](https://github.com/engineervix/milk2meat/commit/1734a7220d6e2f8c336f7bc9787fb3475126b924))
+* **deps:** update dependency boto3 to v1.38.13 ([#84](https://github.com/engineervix/milk2meat/issues/84)) ([a8e47e3](https://github.com/engineervix/milk2meat/commit/a8e47e3977b4140beb045a3a76e32d71838b43b5))
+* **deps:** update dependency boto3 to v1.38.3 ([ee78689](https://github.com/engineervix/milk2meat/commit/ee7868985ac2c5ec660d6d40f0c4ce66164075fc))
+* **deps:** update dependency boto3 to v1.38.8 ([#76](https://github.com/engineervix/milk2meat/issues/76)) ([ad02ba4](https://github.com/engineervix/milk2meat/commit/ad02ba471fbea5ac190a8158932e77d7d6489f7a))
+* **deps:** update dependency cssnano to v7.0.7 ([#88](https://github.com/engineervix/milk2meat/issues/88)) ([c6dc6f7](https://github.com/engineervix/milk2meat/commit/c6dc6f7e38e8740555556e36b9e75d965de20bfa))
+* **deps:** update dependency django to >=5.2,<5.3 ([#50](https://github.com/engineervix/milk2meat/issues/50)) ([9ac5551](https://github.com/engineervix/milk2meat/commit/9ac5551de66750cd07e489309efe2c12e270319a))
+* **deps:** update dependency django to v5.2.1 ([#85](https://github.com/engineervix/milk2meat/issues/85)) ([fd115e1](https://github.com/engineervix/milk2meat/commit/fd115e132a109035eb0c51ef9215cba0dbc020f1))
+* **deps:** update dependency django-debug-toolbar to v5.2.0 ([#79](https://github.com/engineervix/milk2meat/issues/79)) ([2a54740](https://github.com/engineervix/milk2meat/commit/2a5474070020a0f2ffcd459d6083e39827059849))
+* **deps:** update dependency django-ninja to v1.4.0 ([#37](https://github.com/engineervix/milk2meat/issues/37)) ([9aeb1e0](https://github.com/engineervix/milk2meat/commit/9aeb1e050dab590d411d442d6e713bafd6edd35a))
+* **deps:** update dependency django-ninja to v1.4.1 ([#56](https://github.com/engineervix/milk2meat/issues/56)) ([35fd50a](https://github.com/engineervix/milk2meat/commit/35fd50a3a6fceeb6f24f09122e0efa827e79f1a6))
+* **deps:** update dependency django-storages to v1.14.6 ([#44](https://github.com/engineervix/milk2meat/issues/44)) ([2e6b7e2](https://github.com/engineervix/milk2meat/commit/2e6b7e22833a8e3daf461caa85cc5542f6d64be3))
+* **deps:** update dependency django-upgrade to v1.24.0 ([#38](https://github.com/engineervix/milk2meat/issues/38)) ([5299781](https://github.com/engineervix/milk2meat/commit/5299781044e5e175aa2730f495bcb6e95b0d6ce9))
+* **deps:** update dependency eslint-config-prettier to v10.1.5 ([#89](https://github.com/engineervix/milk2meat/issues/89)) ([403ee23](https://github.com/engineervix/milk2meat/commit/403ee23c8f0ba644e91414837d220551e05fe432))
+* **deps:** update dependency eslint-plugin-prettier to v5.4.0 ([#91](https://github.com/engineervix/milk2meat/issues/91)) ([b789737](https://github.com/engineervix/milk2meat/commit/b7897370b33395d04c9761a5961e248d290487f9))
+* **deps:** update dependency markdown to v3.8 ([#61](https://github.com/engineervix/milk2meat/issues/61)) ([4643617](https://github.com/engineervix/milk2meat/commit/464361774ad13d3aa040753e01386107b3894368))
+* **deps:** update dependency mkdocs-material to v9.6.10 ([#42](https://github.com/engineervix/milk2meat/issues/42)) ([41e792b](https://github.com/engineervix/milk2meat/commit/41e792b726433f46bfb708d40fed8400268a90b2))
+* **deps:** update dependency mkdocs-material to v9.6.11 ([#45](https://github.com/engineervix/milk2meat/issues/45)) ([d03d0e8](https://github.com/engineervix/milk2meat/commit/d03d0e8fb9c38938bd5af549e78a94c2323934a5))
+* **deps:** update dependency mkdocs-material to v9.6.12 ([#65](https://github.com/engineervix/milk2meat/issues/65)) ([17a4f1e](https://github.com/engineervix/milk2meat/commit/17a4f1e424130ff3e5e3e2d4dd7d7f95df8c5910))
+* **deps:** update dependency mkdocs-material to v9.6.13 ([#92](https://github.com/engineervix/milk2meat/issues/92)) ([64f96e8](https://github.com/engineervix/milk2meat/commit/64f96e8bbbb9cdfade5e04881d4ef278fd6ae8d9))
+* **deps:** update dependency pillow to v11.2.1 ([#63](https://github.com/engineervix/milk2meat/issues/63)) ([cb60a1c](https://github.com/engineervix/milk2meat/commit/cb60a1c67827041f00962b210619e001ee9f6f90))
+* **deps:** update dependency pydantic to v2.11.1 ([#39](https://github.com/engineervix/milk2meat/issues/39)) ([57af6fa](https://github.com/engineervix/milk2meat/commit/57af6fa8f317b2e74d552c8909c6f52342b95745))
+* **deps:** update dependency pydantic to v2.11.2 ([#46](https://github.com/engineervix/milk2meat/issues/46)) ([933ba13](https://github.com/engineervix/milk2meat/commit/933ba13ee2776020d2501758b1740ae7e8a6f07d))
+* **deps:** update dependency pydantic to v2.11.3 ([#57](https://github.com/engineervix/milk2meat/issues/57)) ([104fb85](https://github.com/engineervix/milk2meat/commit/104fb850989b56705bccb6e2ba05943e2a986eb1))
+* **deps:** update dependency pydantic to v2.11.4 ([#77](https://github.com/engineervix/milk2meat/issues/77)) ([5f3ea44](https://github.com/engineervix/milk2meat/commit/5f3ea448830d8af09316a3a5af7a0da9a257ccea))
+* **deps:** update dependency pymdown-extensions to v10.15 ([#80](https://github.com/engineervix/milk2meat/issues/80)) ([46eb85f](https://github.com/engineervix/milk2meat/commit/46eb85f9c65f396c527499409bdf1961c334f88c))
+* **deps:** update dependency pytest-cov to v6.1.1 ([#51](https://github.com/engineervix/milk2meat/issues/51)) ([11b0a42](https://github.com/engineervix/milk2meat/commit/11b0a423dd725b2ec337708eebf29893e45ba49f))
+* **deps:** update dependency pytest-django to v4.11.1 ([#52](https://github.com/engineervix/milk2meat/issues/52)) ([d110a72](https://github.com/engineervix/milk2meat/commit/d110a72f0afcc91fb6bb36d67f428eb99dc6ce0f))
+* **deps:** update dependency ruff to v0.11.4 ([#47](https://github.com/engineervix/milk2meat/issues/47)) ([3ce0e4a](https://github.com/engineervix/milk2meat/commit/3ce0e4aba96019ad426d1e4a9d4c49f231ace630))
+* **deps:** update dependency ruff to v0.11.5 ([#58](https://github.com/engineervix/milk2meat/issues/58)) ([e2e6300](https://github.com/engineervix/milk2meat/commit/e2e630095527b93662ef055b62a22aa76e48b7d0))
+* **deps:** update dependency ruff to v0.11.6 ([#66](https://github.com/engineervix/milk2meat/issues/66)) ([06afe03](https://github.com/engineervix/milk2meat/commit/06afe037b8d8ea5632cc737bbe5d9164f35ab8e4))
+* **deps:** update dependency ruff to v0.11.7 ([#70](https://github.com/engineervix/milk2meat/issues/70)) ([767e2e8](https://github.com/engineervix/milk2meat/commit/767e2e8b0d3fd9724ebd025f4efb0772a60bb8d3))
+* **deps:** update dependency ruff to v0.11.8 ([#78](https://github.com/engineervix/milk2meat/issues/78)) ([17c6296](https://github.com/engineervix/milk2meat/commit/17c6296bef922c5eb16aba811074bab2761b1680))
+* **deps:** update dependency ruff to v0.11.9 ([#86](https://github.com/engineervix/milk2meat/issues/86)) ([911b622](https://github.com/engineervix/milk2meat/commit/911b622ee4ef15bc0b01ea33e922eac6a6e82cac))
+* **deps:** update dependency sentry-sdk to v2.24.0 ([#30](https://github.com/engineervix/milk2meat/issues/30)) ([5dec4e6](https://github.com/engineervix/milk2meat/commit/5dec4e60c781fda3173c4ee6c3a6404fc7a99186))
+* **deps:** update dependency sentry-sdk to v2.24.1 ([#34](https://github.com/engineervix/milk2meat/issues/34)) ([f732016](https://github.com/engineervix/milk2meat/commit/f732016fdcfcca63fb176572aab97c84cacd3b34))
+* **deps:** update dependency sentry-sdk to v2.25.1 ([#53](https://github.com/engineervix/milk2meat/issues/53)) ([1360841](https://github.com/engineervix/milk2meat/commit/136084183520c8ba6909bf54bfa61006c61f1e7f))
+* **deps:** update dependency sentry-sdk to v2.26.1 ([#68](https://github.com/engineervix/milk2meat/issues/68)) ([2f3fb07](https://github.com/engineervix/milk2meat/commit/2f3fb07892655a34e18202ae941ad71cecadd8a3))
+* **deps:** update dependency sentry-sdk to v2.27.0 ([c5e5cc3](https://github.com/engineervix/milk2meat/commit/c5e5cc3f27e32d9d03070af9502ea2fbbcae9104))
+* **deps:** update dependency sweetalert2 to v11.19.1 ([#69](https://github.com/engineervix/milk2meat/issues/69)) ([ef146d6](https://github.com/engineervix/milk2meat/commit/ef146d64ad400c32f655a005fd1fd8f805d8b89d))
+* **deps:** update dependency sweetalert2 to v11.21.0 ([#82](https://github.com/engineervix/milk2meat/issues/82)) ([8d122b3](https://github.com/engineervix/milk2meat/commit/8d122b3ab90c508719c770b7632c227773b274a1))
+* **deps:** update dependency webpack to v5.99.8 ([#90](https://github.com/engineervix/milk2meat/issues/90)) ([859f7e9](https://github.com/engineervix/milk2meat/commit/859f7e945e64715b434f1af997f9546f15b6663f))
+* **deps:** update node.js to v22.15.0 ([#75](https://github.com/engineervix/milk2meat/issues/75)) ([41be721](https://github.com/engineervix/milk2meat/commit/41be7211b8abe5066f7e59ab0a839926f1e62f5f))
+* **deps:** update postgres docker tag to v15.12 ([#13](https://github.com/engineervix/milk2meat/issues/13)) ([eb91d4c](https://github.com/engineervix/milk2meat/commit/eb91d4c4e6bb040098e2d9072baa0ad71956539b))
+* **deps:** update postgres docker tag to v15.13 ([#93](https://github.com/engineervix/milk2meat/issues/93)) ([4855db5](https://github.com/engineervix/milk2meat/commit/4855db5f84ff5c9b2c414f25640080c5fec66c60))
+* django.core.exceptions.ImproperlyConfigured: Set the DJANGO_SECRET_KEY environment variable ([7c842b3](https://github.com/engineervix/milk2meat/commit/7c842b35349062ac1ef9b44e0a3e57e9f91a9236))
+* docker compose prod setup ([049563a](https://github.com/engineervix/milk2meat/commit/049563a795b8d85f63f5274c13f2ea77c9beff68))
+* engine not recognized from url ([a002dc3](https://github.com/engineervix/milk2meat/commit/a002dc31fa52bb00446e454599fa05261b30eacb))
+* ensure env variables when collectstatic files ([2a71a96](https://github.com/engineervix/milk2meat/commit/2a71a96ec1956dfdc907a7036e8eb503c9a4f101))
+* optimize Docker setup for production ([1e3d287](https://github.com/engineervix/milk2meat/commit/1e3d287264c43f0456ea6a25449acd5dcb0a766d))
+* reorganise things in preparation for docker-compose production deployment ([7bd0c7f](https://github.com/engineervix/milk2meat/commit/7bd0c7f156be05c29c7873e1ea9a060d84e6cb90))
+
 ## [v2.0.0](https://github.com/engineervix/milk2meat/compare/v1.1.0...v2.0.0) (2025-03-23)
 
 
