@@ -928,13 +928,13 @@ Django = ">=4.1"
 
 [[package]]
 name = "django-upgrade"
-version = "1.24.0"
+version = "1.25.0"
 description = "Automatically upgrade your Django project code."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "django_upgrade-1.24.0-py3-none-any.whl", hash = "sha256:198572f31130cd80b4f30c568aa331351176cccf1455741e45ebca272812271d"},
-    {file = "django_upgrade-1.24.0.tar.gz", hash = "sha256:d761d517f87338291ac73890e15b09775532c5cea8cf794f56ad159da9d63d9b"},
+    {file = "django_upgrade-1.25.0-py3-none-any.whl", hash = "sha256:da369c52b9fec88a50b0ca493d163a2981b9c8c047e7ff29c4cf7083935586f4"},
+    {file = "django_upgrade-1.25.0.tar.gz", hash = "sha256:443fcb8e134e5d6455bdce1b41790f3fcf3a84481edd81862565566c17bf1c35"},
 ]
 
 [package.dependencies]
