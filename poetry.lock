@@ -1006,13 +1006,13 @@ tqdm = ">=4.62.2"
 
 [[package]]
 name = "dslr"
-version = "0.5.1"
+version = "0.6.0"
 description = "Take lightning fast snapshots of your local Postgres databases."
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "dslr-0.5.1-py3-none-any.whl", hash = "sha256:2faf55410d8299270bda3d79661b5653493255093223ea0a7d7e780767dfb9c4"},
-    {file = "dslr-0.5.1.tar.gz", hash = "sha256:5ca89aa7265d423eea86f1d2c647995836c22d72e0386a2d07c640103084d134"},
+    {file = "dslr-0.6.0-py3-none-any.whl", hash = "sha256:3accbc79f53c3bfd0a0792147fc907b28c88b3444c8617ca6fb33db98b7120c3"},
+    {file = "dslr-0.6.0.tar.gz", hash = "sha256:e8c8ce2f51f979761def676c71c442711e1dd7c5e8638f32d1118860ed6550ad"},
 ]
 
 [package.dependencies]
@@ -3083,4 +3083,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.13"
-content-hash = "841177dcec66ce9e3bf6404266e7f2ca4a2633c07bcb0e6ec64a5a864709b295"
+content-hash = "15c2f4421da9172825d1e692d8b989a891f6d80d0a4ad7d5123ea9bca0fc734d"
