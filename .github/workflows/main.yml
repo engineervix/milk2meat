@@ -22,7 +22,7 @@ jobs:
   # Because of this the network configuration changes from host based network to a container network.
   ruff:
     runs-on: ubuntu-24.04
-    container: python:3.13-slim-bookworm
+    container: python:3.14-slim-bookworm
 
     steps:
       - name: Checkout Code Repository
@@ -37,7 +37,7 @@ jobs:
 
   black:
     runs-on: ubuntu-24.04
-    container: python:3.13-slim-bookworm
+    container: python:3.14-slim-bookworm
 
     steps:
       - name: Checkout Code Repository
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: "pip" # caching pip dependencies
 
       - name: Install dependencies
@@ -172,7 +172,7 @@ jobs:
     needs: [ruff, black, stylelint, eslint, prettier, djlint]
 
     container:
-      image: python:3.13-slim-bookworm
+      image: python:3.14-slim-bookworm
 
     services:
       postgres:
@@ -259,7 +259,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: "poetry"
           cache-dependency-path: "poetry.lock"
 
