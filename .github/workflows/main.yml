@@ -37,18 +37,20 @@ jobs:
           cache-dependency-path: "poetry.lock"
 
       - name: Install dependencies
-        run: |
-          poetry config virtualenvs.create false
-          poetry install --only dev --no-root
+        # Removed the virtualenvs.create false line so Poetry manages the env normally
+        run: poetry install --only dev --no-root
 
       - name: ruff
-        run: ruff check . --output-format=github
+        # Added poetry run
+        run: poetry run ruff check . --output-format=github
 
       - name: black
-        run: black . --check
+        # Added poetry run
+        run: poetry run black . --check
 
       - name: djlint
-        run: find milk2meat/ -name '*.html' -o -name '*.mjml' | xargs djlint --check
+        # Added poetry run after xargs
+        run: find milk2meat/ -name '*.html' -o -name '*.mjml' | xargs poetry run djlint --check
 
   javascript_linters:
     name: JavaScript Linting
