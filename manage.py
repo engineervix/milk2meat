@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+
 import os
 import sys
 
 
 def main():
     """Run administrative tasks."""
-    if os.getenv("WEB_CONCURRENCY"):  # Feel free to change this condition
+    # Feel free to change this condition
+    if os.getenv("WEB_CONCURRENCY"):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "milk2meat.settings.production")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "milk2meat.settings.dev")
