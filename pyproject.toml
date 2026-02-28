@@ -149,7 +149,7 @@ skip_covered = true
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "milk2meat.settings.test"
-addopts = "--ds=milk2meat.settings.test -s -vv --cov-config=pyproject.toml --cov --cov-report json --cov-report term-missing:skip-covered"
+addopts = "--ds=milk2meat.settings.test --numprocesses=auto -s -vv --cov-config=pyproject.toml --cov --cov-report json --cov-report term-missing:skip-covered"
 env_override_existing_values = 1
 log_cli = 1
 python_files = ["test_*.py", "*_tests.py"]
