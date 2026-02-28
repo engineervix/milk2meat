@@ -18,62 +18,40 @@ on:
       - "v*"
 
 jobs:
-  # Runs the ruff & black linting steps inside the specified containers rather than on the VM host.
-  # Because of this the network configuration changes from host based network to a container network.
-  ruff:
-    runs-on: ubuntu-24.04
-    container: python:3.13-slim-bookworm
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - name: Install Dependencies
-        run: |
-          pip install ruff
-      - name: ruff
-        run: |
-          ruff check . --output-format=github
-
-  black:
-    runs-on: ubuntu-24.04
-    container: python:3.13-slim-bookworm
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - name: Install Dependencies
-        run: |
-          pip install black
-      - name: black
-        run: |
-          black . --check
-
-  # Runs the frontend linting steps on the VM
-  djlint:
+  python_linters:
+    name: Python Linting
     runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry==$POETRY_VERSION
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: "pip" # caching pip dependencies
+          cache: "poetry"
+          cache-dependency-path: "poetry.lock"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install djlint
+          poetry config virtualenvs.create false
+          poetry install --only dev --no-root
+
+      - name: ruff
+        run: ruff check . --output-format=github
+
+      - name: black
+        run: black . --check
 
       - name: djlint
-        run: |
-          find milk2meat/ -name '*.html' -o -name '*.mjml' | xargs djlint --check
+        run: find milk2meat/ -name '*.html' -o -name '*.mjml' | xargs djlint --check
 
-  stylelint:
+  javascript_linters:
+    name: JavaScript Linting
     runs-on: ubuntu-24.04
 
     steps:
@@ -86,56 +64,20 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
-        run: |
-          npm ci
+        run: npm ci
 
       - name: Stylelint
-        run: |
-          npm run lint:style
-
-  eslint:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: |
-          npm ci
+        run: npm run lint:style
 
       - name: ESLint
-        run: |
-          npm run lint:js
-
-  prettier:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: |
-          npm ci
+        run: npm run lint:js
 
       - name: Prettier
-        run: |
-          npm run lint:format
+        run: npm run lint:format
 
   javascript_tests:
     runs-on: ubuntu-24.04
-    needs: [ruff, black, stylelint, eslint, prettier, djlint]
+    needs: [python_linters, javascript_linters]
     outputs:
       coverage: ${{ steps.extract_coverage.outputs.coverage }}
     steps:
@@ -166,13 +108,9 @@ jobs:
           name: js-covdata
           path: coverage/
 
-  # Runs the python test suite inside a specified container rather than on the VM host.
   python_tests:
     runs-on: ubuntu-24.04
-    needs: [ruff, black, stylelint, eslint, prettier, djlint]
-
-    container:
-      image: python:3.13-slim-bookworm
+    needs: [python_linters, javascript_linters]
 
     services:
       postgres:
@@ -181,63 +119,71 @@ jobs:
           POSTGRES_USER: test_postgres_user
           POSTGRES_PASSWORD: custom_pass
           POSTGRES_DB: test_postgres_db
+        ports:
+          - 5432:5432 # Expose the port to the VM
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
-      # postgres://user:password@host:port/database
-      DATABASE_URL: "postgres://test_postgres_user:custom_pass@postgres/test_postgres_db"
+      # Use localhost since we are running natively on the VM now
+      DATABASE_URL: "postgres://test_postgres_user:custom_pass@localhost:5432/test_postgres_db"
       DJANGO_SECRET_KEY: "secret"
       DEBUG: False
       ALLOWED_HOSTS: ""
       ADMIN_URL: "fooadmin/"
       TURNSTILE_SITE_KEY: "fake-key"
       TURNSTILE_SECRET_KEY: "fake-key"
+      TZ: Africa/Lusaka
 
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        shell: bash
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt-get install -y libmagic1 libpq-dev
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Build frontend assets
         run: |
-          apt update -y && apt upgrade -y
-          export DEBIAN_FRONTEND=noninteractive
-          ln -fs /usr/share/zoneinfo/Africa/Lusaka /etc/localtime
-          dpkg-reconfigure --frontend noninteractive tzdata
-          apt install -y build-essential curl git gnupg libmagic1 libpq-dev
-          python -m venv ~/venv
-          source ~/venv/bin/activate
-          export LC_ALL=C.UTF-8
-          export LANG=C.UTF-8
-          pip install --no-cache-dir --upgrade pip setuptools wheel
-          python -m pip install --no-cache-dir poetry==$POETRY_VERSION
-          poetry config virtualenvs.create false
-          poetry install --with dev,test,docs --no-interaction
-          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-          apt-get install -y nodejs
-          npm ci --cache .npm --prefer-offline
+          npm ci
           npm run build:prod
-          python manage.py collectstatic --noinput --clear
+
+      - name: Install poetry
+        run: pipx install poetry==$POETRY_VERSION
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "poetry"
+          cache-dependency-path: "poetry.lock"
+
+      - name: Install Python Dependencies
+        run: poetry install --with dev,test,docs --no-interaction
 
       - name: Test with pytest
-        shell: bash
         run: |
-          # Note that you have to activate the virtualenv in every step
-          # because GitHub actions doesn't preserve the environment
-          source ~/venv/bin/activate
+          # Use poetry run to execute commands within the automatically managed virtualenv
 
           # Run system checks
-          python manage.py check
+          poetry run python manage.py check
 
           # Check for missing migrations
-          python manage.py makemigrations --check --noinput
+          poetry run python manage.py makemigrations --check --noinput
 
           # Create cache table.
-          python manage.py createcachetable
+          poetry run python manage.py createcachetable
+
+          # Collect static files
+          poetry run python manage.py collectstatic --noinput --clear
 
           # Run backend tests
-          pytest
+          poetry run pytest
 
       - name: "Upload coverage data"
         uses: actions/upload-artifact@v4
@@ -253,15 +199,10 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: pipx install poetry==$POETRY_VERSION
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: "poetry"
-          cache-dependency-path: "poetry.lock"
 
       - name: "Download coverage data"
         uses: actions/download-artifact@v4
@@ -311,41 +252,56 @@ jobs:
           valColorRange: ${{ env.js_total }}
           namedLogo: jest
 
-  # Runs the next steps on the VM
-  # Creates a GitHub Release when the lint & python_tests jobs succeeds, and only on pushes to tags.
   release:
-    needs: [ruff, black, stylelint, eslint, prettier, djlint, python_tests]
+    needs:
+      [
+        python_linters,
+        javascript_linters,
+        python_tests,
+        javascript_tests,
+        coverage,
+      ]
 
     permissions:
       contents: write
 
-    if: needs.python_tests.result == 'success' && startsWith( github.ref, 'refs/tags/v' )
+    if: needs.python_tests.result == 'success' && needs.javascript_tests.result == 'success' && startsWith( github.ref, 'refs/tags/v' )
 
     runs-on: ubuntu-24.04
 
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install invoke colorama tomli
+
       - name: Get the version
         id: get_version
         run: |
           echo "${{ github.ref }}"
           echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+
       - name: Generate Release Title
         id: get_release_title
         shell: bash
         run: |
           export TODAY="($(TZ=Africa/Lusaka date --iso))"
           echo "RELEASE_NAME=$VERSION $TODAY" >> $GITHUB_ENV
+
       - name: Extract Release Notes
-        # This creates a file LATEST_RELEASE_NOTES.md in the parent directory (../)
         shell: bash
         run: |
           invoke get-release-notes
+
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
         with:
