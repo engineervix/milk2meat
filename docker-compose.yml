@@ -103,7 +103,7 @@ services:
       retries: 3
 
   redis:
-    image: redis:7.2
+    image: redis:7.4
     container_name: milk2meat-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD}
