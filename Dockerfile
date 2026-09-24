@@ -26,7 +26,7 @@ RUN npm run build:prod
 # use python:3.13-slim-bookworm as the base image for production
 #################################################################################
 
-FROM python:3.13-slim-bookworm AS production
+FROM python:3.14-slim-bookworm AS production
 
 # Add user that will be used in the container
 RUN groupadd --system django && \
